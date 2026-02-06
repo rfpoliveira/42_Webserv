@@ -12,3 +12,6 @@ https://datatracker.ietf.org/doc/html/rfc9112
 https://github.com/1337fury/42Webserv
 
 https://beej.us/guide/bgnet/html/#client-server-background
+
+
+https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/
