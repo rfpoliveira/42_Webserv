@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:53:23 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/10 11:40:23 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/11 11:44:44 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ Config::Config(std::string config_file)
     std::ifstream file(config_file);
     number_servers = 0;
 
+    //TODO CHECK NUMBER OF BRACKETS
     while(std::getline(file, line))
     {
         if (line == "server {")
@@ -28,6 +29,7 @@ Config::Config(std::string config_file)
             this->servers.push_back(Server(this->number_servers, config_file));
         }
     }
+    file.close();
 };
 
 Config::Config(const Config &other)

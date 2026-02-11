@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:49:16 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/10 10:49:31 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/11 12:58:37 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,21 @@
 
 class Location
 {
-    private:
+    public:
         std::string path;
         std::string root;
         bool GET;
         bool POST;
         bool DELETE;
         bool autoindex;
+        std::string index;
         std::string redirection;
         std::string upload_path;
 
-    public:
+        int check_line_location(std::string line);
+
         Location();
+        Location(std::string location_str);
         Location(const Location &other);
         Location &operator=(const Location &other); 
         ~Location();

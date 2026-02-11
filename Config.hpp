@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:48:19 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/10 10:52:36 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/11 12:58:29 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,10 @@
 
 class Config
 {
-    private:
+    public:
         int number_servers;
         std::vector<Server> servers;
     
-    public:
         Config();
         Config(std::string config_file);
         Config(const Config &other);
