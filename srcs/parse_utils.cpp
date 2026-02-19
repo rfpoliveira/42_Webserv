@@ -6,12 +6,36 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:50:27 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/11 12:53:37 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/19 12:58:25 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../incs/main.hpp"
 
+void ignore_comments(std::string& line)
+{
+    std::string::iterator it_first;
+    std::string::iterator it_last;
+
+    while (42)
+    {
+        for(it_first = line.begin(); it_first != line.end(); it_first++)
+        {
+            if(*it_first == '#')
+                break ;
+        }
+        if (it_first == line.end())
+            return ;
+        for(it_last = it_first; it_last != line.end(); it_last++)
+        {
+            if (*it_last == '\n')
+                break ;
+        }
+        if (it_last == line.end())
+            it_last--;
+        line.erase(it_first, it_last);
+    }
+}
 
 //takes out tabs, spaces and the end of line delimiter from the lines
 
@@ -25,6 +49,8 @@ void clean_strings(std::vector<std::string>& buff)
         while ((*it_vec).length() == 0)
         {
             buff.erase(it_vec);
+            if (buff.empty())
+                return ; //TODO BUG
             it_vec = buff.begin();
         }
         for(it_str = (*it_vec).begin(); it_str != (*it_vec).end(); it_str++)
@@ -32,6 +58,12 @@ void clean_strings(std::vector<std::string>& buff)
             if(*it_str == '\v' || *it_str == '\t' || *it_str == ';' || *it_str == '\n' || *it_str == ' ' || \
             *it_str == '{' || *it_str == '}')
             {
+                if ((*it_vec).length() == 1)
+                {
+                    buff.erase(it_vec);
+                    it_vec = buff.begin();
+                    break ;
+                }
                 (*it_vec).erase(it_str);
                 it_str = (*it_vec).begin();
             }
@@ -50,11 +82,17 @@ std::vector<std::string> ft_split(std::string s, char delimiter)
 
     while ((next = s.find(delimiter, last)) != std::string::npos) 
     {   
-        buff.push_back(s.substr(last, next-last));   
+        buff.push_back(s.substr(last, next-last));
         last = next + 1; 
     } 
     buff.push_back(s.substr(last));
     clean_strings(buff);
+
+    std::cout << "printing splitted: \n";
+    std::vector<std::string>::iterator it;
+    for(it = buff.begin(); it != buff.end(); it++)
+        std::cout << *it << "\n";
+
     return (buff);
 }
 
@@ -77,7 +115,10 @@ unsigned long get_body_size(std::string s)
 void add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens)
 {
     //TODO IF INFORMATION IS MISSING
-    error_pages.insert(tokens.at(1), tokens.at(2));
+
+    int error_code = atoi(tokens.at(1).c_str());
+    std::string path = tokens.at(2);
+    error_pages[error_code] = path;
 }
 
 int valid_file_check(std::string config_file)

@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:38:45 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/11 12:43:24 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/19 12:45:44 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,3 +30,8 @@ unsigned long get_body_size(std::string s);
 void add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens);
 int valid_file_check(std::string config_file);
 int brackets_count(std::string config_file);
+void ignore_comments(std::string& line);
+
+//debug
+void debug_vector_print(std::vector<std::string> buff);
+void debug(int value);

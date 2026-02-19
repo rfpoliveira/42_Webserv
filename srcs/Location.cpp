@@ -6,28 +6,31 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 11:45:01 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/11 13:11:57 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/19 12:25:40 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Location.hpp"
+#include "../incs/Location.hpp"
 
 Location::Location()
 {
-    path = nullptr;
-    root = nullptr;
+    path = "";
+    root = "";
     GET = false;
     POST = false;
     DELETE = false;
     autoindex = false;
-    redirection = nullptr;
-    upload_path = nullptr;
-    index = nullptr;
+    redirection = "";
+    upload_path = "";
+    index = "";
 };
 
 int Location::check_line_location(std::string line)
 {
+    ignore_comments(line);
+    
     std::vector<std::string> tokens = ft_split(line, ' ');
+
     int i = 0;
     int size = tokens.size();
     if (size < 2)
@@ -82,15 +85,15 @@ int Location::check_line_location(std::string line)
 };
 Location::Location(std::string location_str)
 {
-    path = nullptr;
-    root = nullptr;
+    path = "";
+    root = "";
     GET = false;
     POST = false;
     DELETE = false;
     autoindex = false;
-    redirection = nullptr;
-    upload_path = nullptr;
-    index = nullptr;
+    redirection = "";
+    upload_path = "";
+    index = "";
 
     std::istringstream iss(location_str);
     std::string line;
@@ -103,14 +106,15 @@ Location::Location(std::string location_str)
     }
 };
 
-Location::Location(const Location &other)
+/* Location::Location(const Location &other)
 {
     //TODO
+    other = nullptr;
 };
 
 Location& Location::operator=(const Location &other)
 {
     //TODO
-};
+}; */
  
 Location::~Location(){};

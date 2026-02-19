@@ -6,12 +6,12 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 12:29:02 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/11 13:10:21 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/19 12:18:16 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
-#include "Config.hpp"
+#include "../incs/Config.hpp"
+#include "../incs/main.hpp"
 
 void print_confis(Config& configs)
 {
@@ -33,6 +33,7 @@ void print_confis(Config& configs)
             std::cout << "error page: " << (*it_map).first << ", " << (*it_map).second << "\n";
         for(it_loc = (*it_vec).Locations.begin(); it_loc != (*it_vec).Locations.end(); it_loc++)
         {
+            std::cout << "location: \n";
             std::cout << "path: " << (*it_loc).path << ": \n";
             std::cout << "root: " << (*it_loc).root << ": \n";
             std::cout << "GET?: " << (*it_loc).GET << ": \n";
@@ -56,7 +57,11 @@ int main(int argc, char **argv)
     }
     parse_config_file(argv[1]);
 
+    std::cout << "parsed the config file!\n";
+
     Config configs(argv[1]);
+
+    std::cout << "config class built!\n";
 
     print_confis(configs);
 }

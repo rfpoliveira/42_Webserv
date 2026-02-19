@@ -1,29 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   debug.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 10:48:19 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/11 12:58:29 by rpedrosa         ###   ########.fr       */
+/*   Created: 2026/02/19 12:44:34 by rpedrosa          #+#    #+#             */
+/*   Updated: 2026/02/19 12:46:13 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "../incs/main.hpp"
 
-#include <main.hpp>
-#include <Server.hpp>
-
-class Config
+void debug_vector_print(std::vector<std::string> buff)
 {
-    public:
-        int number_servers;
-        std::vector<Server> servers;
-    
-        Config();
-        Config(std::string config_file);
-        Config(const Config &other);
-        Config &operator=(const Config &other); 
-        ~Config();
-};
+    std::vector<std::string>::iterator it;
+    for(it = buff.begin(); it != buff.end(); it++)
+        std::cout << *it << "\n";
+}
+
+void debug(int value)
+{
+    std::cout << "debug " << value << "\n";
+}

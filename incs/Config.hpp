@@ -1,23 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config_parser.cpp                                  :+:      :+:    :+:   */
+/*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 10:35:19 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/11 12:44:56 by rpedrosa         ###   ########.fr       */
+/*   Created: 2026/02/10 10:48:19 by rpedrosa          #+#    #+#             */
+/*   Updated: 2026/02/19 10:58:45 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../main.hpp"
+#pragma once
 
-int parse_config_file(std::string config_file)
+#include "main.hpp"
+#include "Server.hpp"
+
+class Config
 {
-    if (valid_file_check(config_file) < 0)
-        return (-1);
-    if (brackets_count(config_file) < 0)
-        return(-2);
+    public:
+        int number_servers;
+        std::vector<Server> servers;
+    
+        Config();
+        Config(std::string config_file);
+        Config(const Config &other);
+        Config &operator=(const Config &other); 
+        ~Config();
 };
-
-

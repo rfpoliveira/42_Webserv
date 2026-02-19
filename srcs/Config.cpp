@@ -6,11 +6,12 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:53:23 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/11 11:44:44 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/02/19 12:05:41 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Config.hpp>
+#include "../incs/Config.hpp"
+#include "../incs/Server.hpp"
 
 Config::Config(): number_servers(0) {};
 
@@ -20,7 +21,8 @@ Config::Config(std::string config_file)
     std::ifstream file(config_file);
     number_servers = 0;
 
-    //TODO CHECK NUMBER OF BRACKETS
+    std::cout << "trying to read the file, to build config\n";
+
     while(std::getline(file, line))
     {
         if (line == "server {")
@@ -36,14 +38,16 @@ Config::Config(const Config &other)
 {
     std::vector<Server>::iterator it;
 
-    for(it = other.servers.begin(); it != other.servers.end(); it++)
+    for((std::vector<Server>::const_iterator)it = other.servers.begin(); it != other.servers.end(); it++)
         this->servers.push_back(Server(*it));
 };
 
 Config& Config::operator=(const Config &other)
 {
     Config copy(other);
-    return(copy);
+
+    Config & ret = copy;
+    return(ret);
 }; 
 
 Config::~Config(){};
