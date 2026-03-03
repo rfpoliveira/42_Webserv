@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:50:27 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/19 12:58:25 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/03 12:11:03 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ void clean_strings(std::vector<std::string>& buff)
     {
         while ((*it_vec).length() == 0)
         {
+            if (buff.size() == 1)
+                return ;
             buff.erase(it_vec);
-            if (buff.empty())
-                return ; //TODO BUG
             it_vec = buff.begin();
         }
         for(it_str = (*it_vec).begin(); it_str != (*it_vec).end(); it_str++)
@@ -92,7 +92,7 @@ std::vector<std::string> ft_split(std::string s, char delimiter)
     std::vector<std::string>::iterator it;
     for(it = buff.begin(); it != buff.end(); it++)
         std::cout << *it << "\n";
-
+    std::cout << "stop splitted \n";
     return (buff);
 }
 

@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 12:29:02 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/19 12:18:16 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/03 11:59:26 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void print_confis(Config& configs)
             std::cout << "redirection: " << (*it_loc).redirection<< ": \n";
             std::cout << "upload_path: " << (*it_loc).upload_path << ": \n";
         }
+            i++;
     }
 }
 

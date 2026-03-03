@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:26:09 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/19 12:20:23 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/03 12:18:17 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ int Server::check_line_server(std::string line)
 
     std::vector<std::string> tokens = ft_split(line, ' ');
 
+    if(tokens.at(0) == "server")
+        return (2);
+    
     if(tokens.at(0) == "listen")
         port = atoi(tokens.at(1).c_str());
     else if (tokens.at(0) == "server_name")
@@ -66,16 +69,19 @@ Server::Server(int server_pos, std::string config_file)
             break;
         line.clear();
     }
+
+    int ret = 0;
+
     while(std::getline(file, line, ';'))
     {
-        std::cout << "line found in server: " << line << " <eol>\n"; 
-        //TODO: IFGORE COMMENTS
-        if(check_line_server(line))
+        ret = check_line_server(line);
+        if (ret == 1)
         {
             std::getline(file, location_string, '}');
-            std::cout << "raw location\n" << line + location_string << "\n";
             Locations.push_back(Location(line + location_string));
         }
+        else if (ret == 2)
+            break ;
         line.clear();
     }
 
