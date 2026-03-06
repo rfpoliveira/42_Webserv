@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:49:16 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/19 11:06:53 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/06 11:05:29 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,16 @@ class Location
 
         Location();
         Location(std::string location_str);
-/*         Location(const Location &other);
-        Location &operator=(const Location &other);  */
+        Location(const Location &other);
+        Location &operator=(const Location &other);
         ~Location();
+
+	class LocationErrorExeption: public std::exception
+	{
+		public:
+			virtual const char *what() const throw()
+			{
+				return ("Error: Config file error at Location context");
+			}
+	};
 };

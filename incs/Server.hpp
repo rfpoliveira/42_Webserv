@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:49:43 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/02/19 11:24:53 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/06 11:05:33 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,16 @@ class Server
  
         Server();
         Server(int server_pos, std::string config_file);
-/*         Server(const Server &other);
-        Server &operator=(const Server &other);  */
+        Server(const Server &other);
+        Server &operator=(const Server &other);
         ~Server();
+
+	class ServerErrorExeption: public std::exception
+	{
+		public:
+			virtual const char *what() const throw()
+			{
+				return ("Error: Config file error at Server context");
+			}
+	};
 };

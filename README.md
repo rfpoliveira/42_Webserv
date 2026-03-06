@@ -15,3 +15,5 @@ https://beej.us/guide/bgnet/html/#client-server-background
 
 
 https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/
+
+https://www.digitalocean.com/community/tutorials/understanding-the-nginx-configuration-file-structure-and-configuration-contexts

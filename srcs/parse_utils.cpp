@@ -6,11 +6,13 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:50:27 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/03 12:11:03 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/06 11:23:05 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../incs/main.hpp"
+
+//takes the commented line of the config file out of the line  of the config file (#)
 
 void ignore_comments(std::string& line)
 {
@@ -48,9 +50,9 @@ void clean_strings(std::vector<std::string>& buff)
     {
         while ((*it_vec).length() == 0)
         {
-            if (buff.size() == 1)
-                return ;
             buff.erase(it_vec);
+            if (buff.size() == 0)
+                return ;
             it_vec = buff.begin();
         }
         for(it_str = (*it_vec).begin(); it_str != (*it_vec).end(); it_str++)
@@ -88,11 +90,11 @@ std::vector<std::string> ft_split(std::string s, char delimiter)
     buff.push_back(s.substr(last));
     clean_strings(buff);
 
-    std::cout << "printing splitted: \n";
+/*     std::cout << "printing splitted: \n";
     std::vector<std::string>::iterator it;
     for(it = buff.begin(); it != buff.end(); it++)
         std::cout << *it << "\n";
-    std::cout << "stop splitted \n";
+    std::cout << "stop splitted \n"; */
     return (buff);
 }
 
@@ -101,31 +103,34 @@ unsigned long get_body_size(std::string s)
 {
     long long numb = 0;
 
-    //TODO: ERROR IF THE NUMBER IS NOT WELL FORMATED
-
-    if(s.back() == 'm' || s.back() == 'M')
+    if(s[s.size() - 1] == 'm' || s[s.size() - 1] == 'M')
         numb = atoi(s.c_str()) * 1000000;
-    else if(s.back() == 'k' || s.back() == 'K')
+    else if(s[s.size() - 1] == 'k' || s[s.size() - 1] == 'K')
         numb = atoi(s.c_str()) * 1000;
     else
         numb = atoi(s.c_str());
     return (numb);
 }
 
-void add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens)
-{
-    //TODO IF INFORMATION IS MISSING
+//separates the information about the error pages, puts them in a map, the key is the code corresponding to the path
 
+int add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens)
+{
+    if (tokens.size() < 3)
+        return (1);
     int error_code = atoi(tokens.at(1).c_str());
     std::string path = tokens.at(2);
     error_pages[error_code] = path;
+    return (0);
 }
+
+//checks if the file exists and if it can be openned
 
 int valid_file_check(std::string config_file)
 {
     std::fstream file;
 
-    file.open(config_file);
+    file.open(config_file.c_str());
     if(!file.is_open())
     {
         std::cout << "Error opening file\n";
@@ -134,24 +139,27 @@ int valid_file_check(std::string config_file)
     file.close();
     return (0);
 }
+
+// counts and brackets in all the file, checks if its all well formatted
+
 int brackets_count(std::string config_file)
 {
     std::string line;
-    std::ifstream file(config_file);
+    std::ifstream file(config_file.c_str());
     int count = 0;
 
     while(getline(file, line))
     {
         if (line.find('}', 0) != std::string::npos)
             count--;
-        if (count < 0)
+        if (count < 0 || count > 2)
             break ;
         if(line.find('{', 0) != std::string::npos)
             count++;
     }
     if (count != 0)
     {
-        std::cout << "Error: Config file format invalid: invalid number of brackets\n";
+        std::cout << "Error: Config file format invalid: brackets\n";
         return (-1);
     }
     return (0);

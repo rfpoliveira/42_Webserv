@@ -18,7 +18,7 @@ SRCS_PATH = ./srcs
 CXX = c++
 
 RM = rm -rf
-CXXFLAGS = -Wall -Werror -Wextra -g
+CXXFLAGS = -Wall -Werror -Wextra -g -std=c++98
 SILENT_MAKE = make -s extra
 
 #==============================================================================#

@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 11:45:01 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/03 11:47:43 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/06 11:23:33 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ Location::Location()
     index = "";
 };
 
+//check for a keyword and stores the information associated in the right place in the class
+
 int Location::check_line_location(std::string line)
 {
     ignore_comments(line);
@@ -33,24 +35,20 @@ int Location::check_line_location(std::string line)
     int i = 0;
 
     int size = tokens.size();
+
+    if (size == 0)
+        return (0);
     if (size < 2)
-        return (1); //TODO ERROR
+        return (0);
 
     if(tokens.at(i) == "location")
-    {
         path = tokens.at(i + 1);
-        if (size < 4)
-            return (1); //TODO ERROR
-    }
     else if(tokens.at(i) == "root")
         root = tokens.at(i + 1);
     else if(tokens.at(i) == "allow_methods")
     {
         while(size > 0)
         {
-            std::cout << "i: " << i << "\n";
-            std::cout << "size: " << size << "\n";
-
             if (tokens.at(i) == "GET")
                 GET = true;
             if (tokens.at(i) == "POST")
@@ -70,18 +68,16 @@ int Location::check_line_location(std::string line)
         else if (tokens.at(i + 1) == "on")
             autoindex = true;
         else
-            //TODO ERROR
-            return (1);
+            return (3);
     }
     else if (tokens.at(i) == "return")
     {
         if (tokens.size() < 3)
-            return (1); //TODO ERROR
+            return (4);
         redirection = tokens.at(i + 2);
     }
     else if (tokens.at(i) == "upload_pass")
         upload_path = tokens.at(i + 1);
-    //TODO: ERROR IF NO KEYWORD IS NOT FOUND
     return (0);
 };
 Location::Location(std::string location_str)
@@ -96,26 +92,42 @@ Location::Location(std::string location_str)
     upload_path = "";
     index = "";
 
+    //TODO: check for defaults
+
     std::istringstream iss(location_str);
     std::string line;
+    int error = 0;
 
     while(getline(iss, line))
     {
-/*         std::cout << "line in the location: " << line << "\n";
- */        check_line_location(line);
-        //ERROR CHECKING
+        error = check_line_location(line);
+        if (error != 0)
+        {
+            std::cout << "Error: " << error << "\n";
+            throw (LocationErrorExeption());
+        }
     }
 };
 
-/* Location::Location(const Location &other)
+Location::Location(const Location &other)
 {
-    //TODO
-    other = nullptr;
+    this->path = other.path;
+    this->root = other.root;
+    this->GET = other.GET;
+    this->POST = other.POST;
+    this->DELETE = other.DELETE;
+    this->autoindex = other.autoindex;
+    this->index = other.index;
+    this->redirection = other.redirection;
+    this->upload_path = other.upload_path;
 };
 
 Location& Location::operator=(const Location &other)
 {
-    //TODO
-}; */
+    Location copy(other);
+
+    Location & ret = copy;
+    return(ret);
+};
  
 Location::~Location(){};

@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:26:09 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/03 12:18:17 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/06 11:04:59 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,13 @@
 
 Server::Server()
 {
-    host = nullptr;
-    port = -1;
-    server_name = nullptr;
-    max_body_size = -1;
+    host = "127.0.0.1";
+    port = 80;
+    server_name = "server1.com";
+    max_body_size = 1000000;
 };
+
+//check for a keyword and stores the information associated in the right place in the class
 
 int Server::check_line_server(std::string line)
 {
@@ -38,31 +40,32 @@ int Server::check_line_server(std::string line)
     else if(tokens.at(0) == "client_max_body_size")
         max_body_size = get_body_size(tokens.at(1));
     else if (tokens.at(0) == "error_page")
-        add_error_page(error_pages, tokens);
+    {
+        if (add_error_page(error_pages, tokens) != 0)
+            throw (ServerErrorExeption());
+    }
     else if (tokens.at(0) == "location")
         return (1);
-    //TODO: ERROR IF NO KEYWORD IS NOT FOUND
     return (0);
 };
 
+//searches for the right server information for each one in the config file
+//goes line by line checking for the keyword
+//if a location is found, calls its construtor and saves it in the Locations vector
 
 Server::Server(int server_pos, std::string config_file)
 {
-    std::cout << "starting server construction\n";
-    host = "";
-    port = -1;
-    server_name = "";
-    max_body_size = -1;
+    host = "127.0.0.1";
+    port = 80;
+    server_name = "server1.com";
+    max_body_size = 1000000;
     
     std::string line;
     std::string location_string;
-    std::ifstream file(config_file);
-
-    std::cout << "file opened in server contrctuion\n";
+    std::ifstream file(config_file.c_str());
 
     while(std::getline(file, line))
     {
-        std::cout << "getting to the position of the " << server_pos << " server\n";
         if (line == "server {")
             server_pos--;
         if (server_pos == 0)
@@ -88,14 +91,22 @@ Server::Server(int server_pos, std::string config_file)
     file.close();
 };
 
-/* Server::Server(const Server &other)
+Server::Server(const Server &other)
 {
-    //TODO
+    this->host = other.host;
+    this->port = other.port;
+    this->server_name = other.server_name;
+    this->max_body_size = other.max_body_size;
+    this->error_pages = other.error_pages;
+    this->Locations = other.Locations;
 };
 
 Server& Server::operator=(const Server &other)
 {
-    //TODO
-}; */
+    Server copy(other);
+
+    Server & ret = copy;
+    return(ret);
+};
  
 Server::~Server(){};
