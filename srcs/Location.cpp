@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 11:45:01 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/06 11:23:33 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/24 12:09:04 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ int Location::check_line_location(std::string line)
     ignore_comments(line);
 
     std::vector<std::string> tokens = ft_split(line, ' ');
+    clean_strings(tokens);
     int i = 0;
 
     int size = tokens.size();
@@ -43,7 +44,7 @@ int Location::check_line_location(std::string line)
 
     if(tokens.at(i) == "location")
         path = tokens.at(i + 1);
-    else if(tokens.at(i) == "root")
+    else if(tokens.at(i) == "root") //TODO: CHECK FOR MULTIPLE ROOT PATHS
         root = tokens.at(i + 1);
     else if(tokens.at(i) == "allow_methods")
     {
@@ -55,6 +56,8 @@ int Location::check_line_location(std::string line)
                 POST = true;
             if (tokens.at(i) == "DELETE")
                 DELETE = true;
+            if (tokens.at(i) != "GET" && tokens.at(i) != "POST" && tokens.at(i) != "DELETE") //TODO:: CHECK
+                return (5);
             i++;
             size--;
         }
@@ -78,6 +81,8 @@ int Location::check_line_location(std::string line)
     }
     else if (tokens.at(i) == "upload_pass")
         upload_path = tokens.at(i + 1);
+    else
+        return (6);
     return (0);
 };
 Location::Location(std::string location_str)

@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:50:27 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/06 11:23:05 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/24 11:34:09 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void clean_strings(std::vector<std::string>& buff)
 }
 
 
-//splits the line into strings using a custom delimiter(usually ' ')
+//splits the line into strings using a custom delimiter(usually ' ' and clean the line of unwated chars(clean strings))
 
 std::vector<std::string> ft_split(std::string s, char delimiter)
 {
@@ -88,7 +88,6 @@ std::vector<std::string> ft_split(std::string s, char delimiter)
         last = next + 1; 
     } 
     buff.push_back(s.substr(last));
-    clean_strings(buff);
 
 /*     std::cout << "printing splitted: \n";
     std::vector<std::string>::iterator it;

@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 12:29:02 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/06 11:25:14 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/24 12:11:27 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,12 @@ int main(int argc, char **argv)
         return (-2);
 
     Config configs(argv[1]);
+
+    int error = parse_config_info(configs);
+    if (error != 0)
+        return (error);
     
+    //TODO: PRINT ERROR FUNCTION
+
     print_confis(configs);
 }

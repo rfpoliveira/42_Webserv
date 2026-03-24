@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:26:09 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/06 11:04:59 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/03/24 12:09:39 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ int Server::check_line_server(std::string line)
     ignore_comments(line);
 
     std::vector<std::string> tokens = ft_split(line, ' ');
+    clean_strings(tokens);
 
     if(tokens.at(0) == "server")
         return (2);
@@ -46,6 +47,8 @@ int Server::check_line_server(std::string line)
     }
     else if (tokens.at(0) == "location")
         return (1);
+    else
+        return (2);
     return (0);
 };
 
