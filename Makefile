@@ -2,7 +2,8 @@
 #                                 Files and Paths                              #
 #==============================================================================#
 
-SRCS = $(addprefix $(SRCS_PATH)/, config_parser.cpp Config.cpp Location.cpp main.cpp parse_utils.cpp Server.cpp debug.cpp)
+SRCS = $(addprefix $(SRCS_PATH)/, config_parser.cpp Config.cpp Location.cpp main.cpp parse_utils.cpp Server.cpp debug.cpp \
+parse_config_info.cpp)
 
 OBJS = $(addprefix $(BUILD_PATH)/, $(notdir $(SRCS:.cpp=.o)))
 
