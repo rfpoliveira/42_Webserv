@@ -1,29 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   CgiHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 10:48:19 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/15 11:09:53 by rpedrosa         ###   ########.fr       */
+/*   Created: 2026/06/15 11:52:48 by rpedrosa          #+#    #+#             */
+/*   Updated: 2026/06/15 12:00:17 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "main.hpp"
-#include "Server.hpp"
+#include "Request.hpp"
 
-class Config
+class CgiHandler
 {
+    private:
+        int pipeIn[2];
+        int pipeOut[2];
+        pid_t pid;
+        std::string script_path;
+
     public:
-        int number_servers;
-        std::vector<Server> servers;
-    
-        Config();
-        Config(std::string config_file);
-        Config(const Config &other);
-        Config &operator=(const Config &other); 
-        ~Config();
+        CgiHandler(const std::string script_path);
+        ~CgiHandler();
+
+        bool execute(Request request);
+
+        int getReadFd() const;
+        int getWriteFd() const;
+        pid_t getPid() const;
 };

@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 12:29:02 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/24 12:11:27 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/15 11:28:39 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,5 +67,15 @@ int main(int argc, char **argv)
     
     //TODO: PRINT ERROR FUNCTION
 
-    print_confis(configs);
+    //print_confis(configs);
+
+    //SOCKETS
+    //CHAMAR REQUEST PARSER
+
+    //handle_request
+    
+
+    //RESPONSE BUILDER
+
+    //CLIENT MACHINE
 }

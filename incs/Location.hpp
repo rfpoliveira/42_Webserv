@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:49:16 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/05/14 11:43:14 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/15 11:09:58 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 class Location
 {
-    private:
+    public:
         std::string path;
         std::string root;
         bool GET;
@@ -29,7 +29,6 @@ class Location
 
         int check_line_location(std::string line);
 
-    public:
         Location();
         Location(std::string location_str);
         Location(const Location &other);

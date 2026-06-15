@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:49:43 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/05/14 11:43:40 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/15 11:10:20 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 class Server
 {
-    private:
+    public:
         std::string host;
         int port;
         std::string server_name;
@@ -27,7 +27,6 @@ class Server
 
         int check_line_server(std::string line);
 
-    public:
         Server();
         Server(int server_pos, std::string config_file);
         Server(const Server &other);

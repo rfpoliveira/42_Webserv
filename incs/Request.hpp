@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 11:09:34 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/05/14 11:46:00 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/15 11:10:15 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 class Request
 {
-    private:
+    public:
         std::string request_method; //get, post or delete
         std::string query_string;
         std::string content_length;
@@ -25,7 +25,6 @@ class Request
         std::string html_version;
         std::string body;
 
-    public:
         Request();
         Request(std::string Request_line);
         Request(const Request &other);
