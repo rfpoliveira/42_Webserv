@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 11:45:01 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/24 12:09:04 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:48:49 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ int Location::check_line_location(std::string line)
         return (6);
     return (0);
 };
-Location::Location(std::string location_str)
+Location::Location(std::string location_str, unsigned long max_body_size)
 {
     path = "";
     root = "";
@@ -96,6 +96,7 @@ Location::Location(std::string location_str)
     redirection = "";
     upload_path = "";
     index = "";
+    this->max_body_size = max_body_size;
 
     //TODO: check for defaults
 
@@ -125,6 +126,7 @@ Location::Location(const Location &other)
     this->index = other.index;
     this->redirection = other.redirection;
     this->upload_path = other.upload_path;
+    this->max_body_size = other.max_body_size;
 };
 
 Location& Location::operator=(const Location &other)
@@ -134,5 +136,19 @@ Location& Location::operator=(const Location &other)
     Location & ret = copy;
     return(ret);
 };
+
+bool Location::isMethodallowed(std::string method)
+{
+    if (method == "GET")
+        return(this->GET);
+    else if(method == "DELETE")
+        return(this->DELETE);
+    else if(method == "POST")
+        return(this->POST);
+    else
+        //TODO ERROR
+    
+}
+
  
 Location::~Location(){};

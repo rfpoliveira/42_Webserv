@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/15 11:30:33 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/15 12:00:29 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:49:13 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 #include "../incs/ResponseBuilder.hpp"
 #include "../incs/CgiHandler.hpp"
 
-std::string request_hanlder(Request request, Client client) //TODO
+std::string request_hanlder(Request request, Client client, Config config) //TODO
 {
     Location location = config.getLocation(client.getPort, request.resource_path); //TODO
 
     if(!location.isMethodallowed(request.request_method)) //TODO
         return(/*some error*/);
     
-    if(request.content_length > location.get_body_size()) //TODO
+    if(request.content_length > location.max_body_size) //TODO
         return(/*some error*/);
     
     if(request.resource_path.find(".py") != std::string::npos)

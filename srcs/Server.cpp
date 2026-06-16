@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:26:09 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/24 12:09:39 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:47:06 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ Server::Server(int server_pos, std::string config_file)
         if (ret == 1)
         {
             std::getline(file, location_string, '}');
-            Locations.push_back(Location(line + location_string));
+            Locations.push_back(Location(line + location_string, this->max_body_size));
         }
         else if (ret == 2)
             break ;

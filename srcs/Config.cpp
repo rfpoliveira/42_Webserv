@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:53:23 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/06 11:01:21 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:45:42 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,27 @@ Config& Config::operator=(const Config &other)
 
     Config & ret = copy;
     return(ret);
-}; 
+};
+
+Location Config::getLocation(int port, std::string path)
+{
+    std::vector<Server>::iterator it;
+    std::vector<Location>::iterator it2;
+
+    for(it = this->servers.begin(); it != this->servers.end(); it++)
+    {
+        if ((*it).port == port)
+        {
+            for (it2 = (*it).Locations.begin(); it2 != (*it).Locations.end(); it2++)
+            {
+                if ((*it2).path == path)
+                    return((*it2));
+            }
+        }
+    }
+    
+    //TODO ERROR NO WRONG INFO
+};
+
 
 Config::~Config(){};

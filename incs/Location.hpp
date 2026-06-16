@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:49:16 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/15 11:09:58 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:47:43 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,13 @@ class Location
         std::string index;
         std::string redirection;
         std::string upload_path;
+        unsigned long max_body_size;
 
         int check_line_location(std::string line);
+        bool isMethodallowed(std::string method);
 
         Location();
-        Location(std::string location_str);
+        Location(std::string location_str, unsigned long max_body_size);
         Location(const Location &other);
         Location &operator=(const Location &other);
         ~Location();

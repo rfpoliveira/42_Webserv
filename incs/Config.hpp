@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:48:19 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/15 11:09:53 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:43:05 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ class Config
         int number_servers;
         std::vector<Server> servers;
     
+        Location getLocation(int port, std::string path);
+        
         Config();
         Config(std::string config_file);
         Config(const Config &other);

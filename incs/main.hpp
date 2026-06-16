@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:38:45 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/24 12:13:24 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/16 17:20:55 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 #include <fstream>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "Config.hpp"
 
