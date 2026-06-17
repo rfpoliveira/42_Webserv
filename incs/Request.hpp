@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 11:09:34 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/15 11:10:15 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/17 16:38:08 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,16 @@ class Request
     public:
         std::string request_method; //get, post or delete
         std::string query_string;
-        std::string content_length;
-        std::string content_type;
         std::string resource_path;
         std::string html_version;
         std::string body;
+
+        std::map<std::string, std::string> headers;
+        std::string getHeader(std::string key);
+
+        bool is_complete;
+
+        void parse_headers(std::string data);
 
         Request();
         Request(std::string Request_line);

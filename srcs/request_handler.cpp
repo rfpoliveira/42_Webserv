@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/15 11:30:33 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/16 16:49:13 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/17 16:43:45 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,22 @@
 #include "../incs/ResponseBuilder.hpp"
 #include "../incs/CgiHandler.hpp"
 
-std::string request_hanlder(Request request, Client client, Config config) //TODO
+std::string request_hanlder(Client client, Config config) //TODO
 {
-    Location location = config.getLocation(client.getPort, request.resource_path); //TODO
+    Location location = config.getLocation(client.getPort, client.request.resource_path); //TODO
 
-    if(!location.isMethodallowed(request.request_method)) //TODO
+    if(!location.isMethodallowed(client.request.request_method)) //TODO
         return(/*some error*/);
     
-    if(request.content_length > location.max_body_size) //TODO
+    if(client.request.getHeader("Content-Length") > location.max_body_size) //TODO
         return(/*some error*/);
     
-    if(request.resource_path.find(".py") != std::string::npos)
+    if(client.request.resource_path.find(".py") != std::string::npos)
     {
-        CgiHandler CGI_handler(request.resource_path);
-        CGI_handler.execute(request);  //TODO
+        CgiHandler CGI_handler(client.request.resource_path);
+        CGI_handler.execute(client.request);  //TODO
     }
     else
-        ResponseBuilder::build_static_file(location.root + request.resource_path);
+        ResponseBuilder::build_static_file(location.root + client.request.resource_path);
     
 }

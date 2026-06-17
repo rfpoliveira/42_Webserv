@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/15 11:54:26 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/16 17:22:49 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/17 16:35:08 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,40 @@ CgiHandler::CgiHandler(std::string script_path)
     
 }
 
+void    CgiHandler::setup_env(Request request)
+{
+    envMap["REQUEST_METHOD"] = request.request_method;
+    envMap["SCRIPT_NAME"] = request.resource_path;
+    envMap["PATH_TRANSLATED"] = request.resource_path;
+    envMap["QUERY_STRING"] = request.query_string;
+    envMap["CONTENT_LENGTH"] = intToString(request.body.size());
+    envMap["CONTENT_TYPE"] = request.getHeader("Content-Type");
+    envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
+    envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
+    envMap["SERVER_SOFTWARE"] = "Webserv42/1.0";
+    envMap["HTTP_COOKIE"] = request.getHeader("Cookie");
+}
+
+char**  CgiHandler::convert_env_to_cstyle()
+{
+    char** envp = new char*[envMap.size() + 1];
+
+    size_t i = 0;
+    std::map<std::string, std::string>::iterator it;
+
+    for (it = envMap.begin(); it != envMap.end(); it++)
+    {
+        std::string envLine = it->first + "=" + it->second;
+        envp[i] = new char[envLine.size() + 1];
+        std::strcpy(envp[i], envLine.c_str());
+        i++;
+    }
+    
+    envp[i] = NULL;
+    
+    return(envp);
+}
+
 bool CgiHandler::execute(Request request)
 {
     this->setup_env(request); //TODO
@@ -48,7 +82,7 @@ bool CgiHandler::execute(Request request)
     pid = fork();
     if(pid < 0)
     {
-        //ERRO LIBERTAR MEMORIA DO ENVP TODO
+        freeEnvp(envp);        
         return (false);
     }
     
@@ -77,7 +111,7 @@ bool CgiHandler::execute(Request request)
 
     //parent process
     
-    //LIBERTAR MEMORIA DO ENVP TODO
+    freeEnvp(envp);        
     close(pipeIn[0]);
     pipeIn[0] = -1;
     close(pipeOut[1]);

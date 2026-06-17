@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:50:27 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/03/24 11:34:09 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/17 16:41:56 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void clean_strings(std::vector<std::string>& buff)
         for(it_str = (*it_vec).begin(); it_str != (*it_vec).end(); it_str++)
         {
             if(*it_str == '\v' || *it_str == '\t' || *it_str == ';' || *it_str == '\n' || *it_str == ' ' || \
-            *it_str == '{' || *it_str == '}')
+            *it_str == '{' || *it_str == '}' || *it_str == '\r')
             {
                 if ((*it_vec).length() == 1)
                 {

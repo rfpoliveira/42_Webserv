@@ -6,7 +6,7 @@
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 10:38:45 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/16 17:20:55 by rpedrosa         ###   ########.fr       */
+/*   Updated: 2026/06/17 15:46:38 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstring>
 
 #include "Config.hpp"
 
@@ -38,6 +39,8 @@ int valid_file_check(std::string config_file);
 int brackets_count(std::string config_file);
 void ignore_comments(std::string& line);
 int parse_config_info(Config& configs);
+std::string intToString(int value);
+void freeEnvp(char** envp);
 
 //debug
 void debug_vector_print(std::vector<std::string> buff);
