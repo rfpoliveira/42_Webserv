@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by rpedrosa and palexand.*
+*This project has been created as part of the 42 curriculum by rpedrosa and mreinald.*
 
 ## Description
 [cite_start]Webserv is a custom HTTP/1.1 server written in C++ 98. The primary goal of this project is to understand the inner workings of the Hypertext Transfer Protocol (HTTP) by implementing a non-blocking server capable of handling multiple client connections simultaneously. [cite: 4, 91]
