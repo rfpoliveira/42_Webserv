@@ -1,8 +1,1 @@
-# I want to ignore the github fold
-
-.github
-
-.github/**
-
-
-
+.github/
