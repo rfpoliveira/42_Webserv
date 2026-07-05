@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/main.hpp"
+#include "../../includes/core/main.hpp"
 
 //takes the commented line of the config file out of the line  of the config file (#)
 

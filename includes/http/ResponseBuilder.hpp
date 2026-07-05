@@ -1,31 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   ResponseBuilder.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 10:48:19 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/16 16:43:05 by rpedrosa         ###   ########.fr       */
+/*   Created: 2026/06/15 11:46:35 by rpedrosa          #+#    #+#             */
+/*   Updated: 2026/06/15 11:52:04 by rpedrosa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../core/main.hpp"
+#include "Request.hpp"
+
 #pragma once
 
-#include "main.hpp"
-#include "Server.hpp"
-
-class Config
+class ResponseBuilder
 {
     public:
-        int number_servers;
-        std::vector<Server> servers;
-    
-        Location getLocation(int port, std::string path);
+        static std::string build_static_file(const std::string& file_path);
         
-        Config();
-        Config(std::string config_file);
-        Config(const Config &other);
-        Config &operator=(const Config &other); 
-        ~Config();
+        //TODO ERROS?
+
 };

@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/Config.hpp"
-#include "../incs/Server.hpp"
+#include "../../includes/config/Config.hpp"
+#include "../../includes/config/Server.hpp"
 
 Config::Config(): number_servers(0) {};
 

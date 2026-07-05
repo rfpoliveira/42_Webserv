@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/Location.hpp"
+#include "../../includes/config/Location.hpp"
 
 Location::Location()
 {

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/main.hpp"
+#include "../../includes/core/main.hpp"
 
 int host_parse(std::string& host)
 {

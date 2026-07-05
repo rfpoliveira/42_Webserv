@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/Config.hpp"
-#include "../incs/main.hpp"
+#include "../../includes/config/Config.hpp"
+#include "../../includes/core/main.hpp"
 
 void print_confis(Config& configs)
 {

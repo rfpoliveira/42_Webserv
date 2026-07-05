@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/main.hpp"
-#include "../incs/Request.hpp"
-#include "../incs/ResponseBuilder.hpp"
-#include "../incs/CgiHandler.hpp"
+#include "../../includes/core/main.hpp"
+#include "../../includes/http/Request.hpp"
+#include "../../includes/http/ResponseBuilder.hpp"
+#include "../../includes/cgi/CgiHandler.hpp"
 
 std::string request_hanlder(Client client, Config config) //TODO
 {

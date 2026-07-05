@@ -2,10 +2,11 @@
 #                                 Files and Paths                              #
 #==============================================================================#
 
-SRCS = $(addprefix $(SRCS_PATH)/, config_parser.cpp Config.cpp Location.cpp main.cpp parse_utils.cpp Server.cpp debug.cpp \
-parse_config_info.cpp)
+SRCS = $(addprefix $(SRCS_PATH)/, config/config_parser.cpp config/Config.cpp config/Location.cpp config/Server.cpp \
+config/parse_utils.cpp config/parse_config_info.cpp core/main.cpp core/debug.cpp \
+http/Request.cpp http/ResponseBuilder.cpp cgi/CgiHandler.cpp cgi/cgi_utils.cpp server/request_handler.cpp)
 
-OBJS = $(addprefix $(BUILD_PATH)/, $(notdir $(SRCS:.cpp=.o)))
+OBJS = $(patsubst $(SRCS_PATH)/%.cpp, $(BUILD_PATH)/%.o, $(SRCS))
 
 NAME = webserv
 
@@ -26,16 +27,14 @@ SILENT_MAKE = make -s extra
 #                                    Rules                                     #
 #==============================================================================#
 
-all: $(BUILD_PATH) $(NAME)
-
-$(BUILD_PATH):
-	@mkdir $(BUILD_PATH)
+all: $(NAME)
 
 $(NAME): $(OBJS)
 	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 	@echo "$(GRN)[ webserv successfully compiled]$(D)"
-	
+
 $(BUILD_PATH)/%.o: $(SRCS_PATH)/%.cpp
+	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 clean: 

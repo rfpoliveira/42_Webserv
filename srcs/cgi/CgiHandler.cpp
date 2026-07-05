@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   CgiHandler.cpp                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/15 11:54:26 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/17 16:35:08 by rpedrosa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../incs/CgiHandler.hpp"
+#include "../../includes/cgi/CgiHandler.hpp"
 
 CgiHandler::CgiHandler(std::string script_path)
 {

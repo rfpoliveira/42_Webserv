@@ -12,8 +12,8 @@
 
 #pragma once
 
-#include "main.hpp"
-#include "Request.hpp"
+#include "../core/main.hpp"
+#include "../http/Request.hpp"
 
 class CgiHandler
 {

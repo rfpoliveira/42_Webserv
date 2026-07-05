@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "main.hpp"
+#include "../core/main.hpp"
 
 class Request
 {

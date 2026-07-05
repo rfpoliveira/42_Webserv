@@ -25,12 +25,12 @@
 #include <fcntl.h>
 #include <cstring>
 
-#include "Config.hpp"
+#include "../config/Config.hpp"
 
-//main parse
+// main parse
 int parse_config_file(std::string config_file);
 
-//utils
+// utils
 std::vector<std::string> ft_split (std::string s, char delimiter);
 void clean_strings(std::vector<std::string>& buff);
 unsigned long get_body_size(std::string s);
@@ -42,6 +42,6 @@ int parse_config_info(Config& configs);
 std::string intToString(int value);
 void freeEnvp(char** envp);
 
-//debug
+// debug
 void debug_vector_print(std::vector<std::string> buff);
 void debug(int value);

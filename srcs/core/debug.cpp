@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/main.hpp"
+#include "../../includes/core/main.hpp"
 
 void debug_vector_print(std::vector<std::string> buff)
 {
