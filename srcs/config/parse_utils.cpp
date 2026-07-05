@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parse_utils.cpp                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/11 09:50:27 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/17 16:41:56 by rpedrosa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../includes/core/main.hpp"
 
 //takes the commented line of the config file out of the line  of the config file (#)

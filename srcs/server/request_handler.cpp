@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   request_handler.cpp                                :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/15 11:30:33 by rpedrosa          #+#    #+#             */
-/*   Updated: 2026/06/17 16:43:45 by rpedrosa         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../includes/core/main.hpp"
 #include "../../includes/http/Request.hpp"
 #include "../../includes/http/ResponseBuilder.hpp"
