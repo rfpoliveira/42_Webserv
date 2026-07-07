@@ -1,0 +1,1470 @@
+===== ./config/test.py =====
+
+#!/usr/bin/python3
+import os
+import sys
+
+
+print("<html>")
+print("<head><title>CGI Python Test</title></head>")
+print("<body>")
+print("<h1>Hello World from Python CGI!</h1>")
+
+print("<h2>Environment Variables:</h2>")
+print("<ul>")
+
+for key, value in os.environ.items():
+    print(f"<li><b>{key}</b>: {value}</li>")
+
+print("</ul>")
+
+if "CONTENT_LENGTH" in os.environ:
+    try:
+        length = int(os.environ["CONTENT_LENGTH"])
+        body = sys.stdin.read(length)
+        print("<h2>Post Body:</h2>")
+        print(f"<p>{body}</p>")
+    except Exception as e:
+        print(f"<p>Error reading body: {e}</p>")
+
+print("</body>")
+print("</html>")
+
+
+===== ./config/webserv.conf =====
+
+server {
+    listen 8080;
+    # listen at port 8080
+    host 127.0.0.1;
+    # interface specifing
+    server_name hello.com;
+
+    client_max_body_size 10M;
+
+    error_page 404 /error/404.html;
+    error_page 500 /error/500.html;
+
+    # home page
+    location / {
+        root /var/www/html;
+        allow_methods GET;
+        # only allow get
+        index index.html;
+        # default file if it is a directory request
+        autoindex off;
+        # dont list files if index not found
+    }
+
+    # diretiory for static images
+    location /images {
+        root /var/www/data;
+        allow_methods GET;
+        autoindex on;
+        # turn on directory listing
+    }
+
+    # redirection exemple old page to images
+    location /old-page {
+        return 301 /images;
+    }
+
+    # file upload
+    location /upload {
+        allow_methods POST;
+        upload_pass /tmp/upload;
+        # where to upload the files
+    
+    }
+    location /delete {
+        root /tmp/upload
+        allow_methods DELETE;
+    }   
+}
+
+server {
+    listen 8081;
+    # listen at port 8080
+    host 127.0.1.1;
+    # interface specifing
+    server_name hello2.com;
+
+    client_max_body_size 10M;
+
+    error_page 404 /error/404.html;
+    error_page 500 /error/500.html;
+
+    # home page
+    location / {;
+        root /var/www/html;
+        allow_methods GET;
+        # only allow get
+        index index.html;
+        # default file if it is a directory request
+        autoindex off;
+        # dont list files if index not found
+    }
+}
+
+
+===== ./.gitignore =====
+
+.github/
+
+.claude/
+
+
+
+===== ./includes/cgi/CgiHandler.hpp =====
+
+#pragma once
+
+#include "../core/main.hpp"
+#include "../http/Request.hpp"
+
+class CgiHandler
+{
+    private:
+        int pipeIn[2];
+        int pipeOut[2];
+        pid_t pid;
+        std::string script_path;
+        std::map<std::string, std::string> envMap;
+
+        void    setup_env(Request request);
+        char** convert_env_to_cstyle();
+
+    public:
+        CgiHandler(const std::string script_path);
+        ~CgiHandler();
+
+        bool execute(Request request);
+
+        int getReadFd() const;
+        int getWriteFd() const;
+        pid_t getPid() const;
+};
+
+
+
+===== ./includes/config/Config.hpp =====
+
+#pragma once
+
+#include "../core/main.hpp"
+#include "Server.hpp"
+
+class Config
+{
+    public:
+        int number_servers;
+        std::vector<Server> servers;
+    
+        Location getLocation(int port, std::string path);
+        
+        Config();
+        Config(std::string config_file);
+        Config(const Config &other);
+        Config &operator=(const Config &other); 
+        ~Config();
+};
+
+
+===== ./includes/config/Location.hpp =====
+
+#pragma once
+
+#include "../core/main.hpp"
+
+class Location
+{
+    public:
+        std::string path;
+        std::string root;
+        bool GET;
+        bool POST;
+        bool DELETE;
+        bool autoindex;
+        std::string index;
+        std::string redirection;
+        std::string upload_path;
+        unsigned long max_body_size;
+
+        int check_line_location(std::string line);
+        bool isMethodallowed(std::string method);
+
+        Location();
+        Location(std::string location_str, unsigned long max_body_size);
+        Location(const Location &other);
+        Location &operator=(const Location &other);
+        ~Location();
+
+	class LocationErrorExeption: public std::exception
+	{
+		public:
+			virtual const char *what() const throw()
+			{
+				return ("Error: Config file error at Location context");
+			}
+	};
+};
+
+
+===== ./includes/config/Server.hpp =====
+
+#pragma once
+
+#include "../core/main.hpp"
+#include "Location.hpp"
+
+class Server
+{
+    public:
+        std::string host;
+        int port;
+        std::string server_name;
+        unsigned long max_body_size;
+        std::map<int, std::string> error_pages;
+        std::vector<Location> Locations;
+
+        int check_line_server(std::string line);
+
+        Server();
+        Server(int server_pos, std::string config_file);
+        Server(const Server &other);
+        Server &operator=(const Server &other);
+        ~Server();
+
+	class ServerErrorExeption: public std::exception
+	{
+		public:
+			virtual const char *what() const throw()
+			{
+				return ("Error: Config file error at Server context");
+			}
+	};
+};
+
+
+===== ./includes/core/main.hpp =====
+
+#pragma once
+
+#include <iostream>
+#include <map>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <fstream>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstring>
+
+#include "../config/Config.hpp"
+
+// main parse
+int parse_config_file(std::string config_file);
+
+// utils
+std::vector<std::string> ft_split (std::string s, char delimiter);
+void clean_strings(std::vector<std::string>& buff);
+unsigned long get_body_size(std::string s);
+int add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens);
+int valid_file_check(std::string config_file);
+int brackets_count(std::string config_file);
+void ignore_comments(std::string& line);
+int parse_config_info(Config& configs);
+std::string intToString(int value);
+void freeEnvp(char** envp);
+
+// debug
+void debug_vector_print(std::vector<std::string> buff);
+void debug(int value);
+
+
+
+===== ./includes/http/Request.hpp =====
+
+#pragma once
+
+#include "../core/main.hpp"
+
+class Request
+{
+    public:
+        std::string request_method; //get, post or delete
+        std::string query_string;
+        std::string resource_path;
+        std::string html_version;
+        std::string body;
+
+        std::map<std::string, std::string> headers;
+        std::string getHeader(std::string key);
+
+        bool is_complete;
+
+        void parse_headers(std::string data);
+
+        Request();
+        Request(std::string Request_line);
+        Request(const Request &other);
+        Request &operator=(const Request &other); 
+        ~Request();
+};
+
+
+===== ./includes/http/ResponseBuilder.hpp =====
+
+#include "../core/main.hpp"
+#include "Request.hpp"
+
+#pragma once
+
+class ResponseBuilder
+{
+    public:
+        static std::string build_static_file(const std::string& file_path);
+        
+        //TODO ERROS?
+
+};
+
+
+===== ./Makefile =====
+
+#==============================================================================#
+#                                 Files and Paths                              #
+#==============================================================================#
+
+SRCS = $(addprefix $(SRCS_PATH)/, config/config_parser.cpp config/Config.cpp config/Location.cpp config/Server.cpp \
+config/parse_utils.cpp config/parse_config_info.cpp core/main.cpp core/debug.cpp \
+http/Request.cpp http/ResponseBuilder.cpp cgi/CgiHandler.cpp cgi/cgi_utils.cpp server/request_handler.cpp)
+
+OBJS = $(patsubst $(SRCS_PATH)/%.cpp, $(BUILD_PATH)/%.o, $(SRCS))
+
+NAME = webserv
+
+BUILD_PATH = .build
+SRCS_PATH = ./srcs
+
+#==============================================================================#
+#                                   Alias                                      #
+#==============================================================================#
+
+CXX = c++
+
+RM = rm -rf
+CXXFLAGS = -Wall -Werror -Wextra -g -std=c++98
+SILENT_MAKE = make -s extra
+
+#==============================================================================#
+#                                    Rules                                     #
+#==============================================================================#
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	@echo "$(GRN)[ webserv successfully compiled]$(D)"
+
+$(BUILD_PATH)/%.o: $(SRCS_PATH)/%.cpp
+	@mkdir -p $(dir $@)
+	@$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+clean: 
+	@$(RM) $(BUILD_PATH)
+	@echo "$(BCYA)[clean] Objects removed$(D)"
+
+fclean: clean
+	@$(RM) $(NAME)
+	@echo "$(BCYA)[fclean] Archive removed$(D)"
+
+re: fclean all
+
+again: clean all
+
+.PHONY: all clean fclean re again
+
+#==============================================================================#
+#                                  UTILS                                       #
+#==============================================================================#
+
+# Colors
+#
+# Run the following command to get list of available colors
+# bash -c 'for c in {0..255}; do tput setaf $c; tput setaf $c | cat -v; echo =$c; done'
+#
+B  		= $(shell tput bold)
+BLA		= $(shell tput setaf 0)
+RED		= $(shell tput setaf 1)
+GRN		= $(shell tput setaf 2)
+YEL		= $(shell tput setaf 3)
+BLU		= $(shell tput setaf 4)
+MAG		= $(shell tput setaf 5)
+CYA		= $(shell tput setaf 6)
+WHI		= $(shell tput setaf 7)
+GRE		= $(shell tput setaf 8)
+BRED 	= $(shell tput setaf 9)
+BGRN	= $(shell tput setaf 10)
+BYEL	= $(shell tput setaf 11)
+BBLU	= $(shell tput setaf 12)
+BMAG	= $(shell tput setaf 13)
+BCYA	= $(shell tput setaf 14)
+BWHI	= $(shell tput setaf 15)
+D 		= $(shell tput sgr0)
+BEL 	= $(shell tput bel)
+CLR 	= $(shell tput el 1)
+
+
+===== ./README.md =====
+
+*This project has been created as part of the 42 curriculum by rpedrosa and mreinald.*
+
+## Description
+[cite_start]Webserv is a custom HTTP/1.1 server written in C++ 98. The primary goal of this project is to understand the inner workings of the Hypertext Transfer Protocol (HTTP) by implementing a non-blocking server capable of handling multiple client connections simultaneously. [cite: 4, 91]
+
+The server is designed to:
+* [cite_start]Process and deliver static web pages (HTML, CSS, JS, etc.)[cite: 127].
+* [cite_start]Handle file uploads from clients[cite: 128].
+* [cite_start]Support GET, POST, and DELETE methods[cite: 129].
+* [cite_start]Execute CGI scripts (e.g., Python, PHP) to handle dynamic content[cite: 150, 158].
+* [cite_start]Manage multiple ports and configurations via a dedicated configuration file[cite: 134, 144].
+
+## Features
+* [cite_start]**Non-blocking I/O:** The server uses a single `poll()` (or equivalent like `select`, `kqueue`, or `epoll`) to manage all I/O operations, ensuring it never hangs[cite: 110, 111, 113].
+* [cite_start]**Resilience:** Designed to remain operational even under stress or memory pressure[cite: 28, 133].
+* [cite_start]**Configuration:** Flexible setup inspired by NGINX, allowing users to define error pages, client body limits, and route-specific rules[cite: 143, 145, 146].
+* [cite_start]**CGI Support:** Full communication between the server and scripts using environment variables and pipes[cite: 152, 153].
+
+## Instructions
+
+### Compilation
+[cite_start]The project includes a Makefile with the mandatory rules: `all`, `clean`, `fclean`, and `re`[cite: 32]. To compile the server, run:
+
+```bash
+make
+```
+### Execution
+Once compiled, run the executable with a configuration file as an argument:  
+
+```bash
+./webserv [path_to_configuration_file]
+```
+
+## Resources
+
+### Documentation & References
+
+RFC 2616 (HTTP/1.1): Used to understand protocol specifications and header structures.  
+Beej's Guide to Network Programming: A primary resource for socket programming in C++.
+NGINX Documentation: Used as a reference point for configuration file logic and header behavior.  
+
+## AI Usage 
+Disclosure in accordance with the project rules, AI tools (such as ChatGPT/Copilot) were utilized for the following tasks:
+
+Debugging: Explaining complex error messages related to socket multiplexing (poll()).
+Technical Explanations: Clarifying the specific behavior of CGI environment variables.
+
+Refinement: All AI-generated logic was manually reviewed, tested with peers, and modified to ensure compliance with the C++98 standard. 
+
+useful links: 
+https://m4nnb3ll.medium.com/webserv-building-a-non-blocking-web-server-in-c-98-a-42-project-04c7365e4ec7
+
+
+https://datatracker.ietf.org/doc/html/rfc9110
+
+
+https://datatracker.ietf.org/doc/html/rfc9112
+
+https://github.com/1337fury/42Webserv
+
+https://beej.us/guide/bgnet/html/#client-server-background
+
+
+https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/
+
+https://www.digitalocean.com/community/tutorials/understanding-the-nginx-configuration-file-structure-and-configuration-contexts
+
+https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+
+
+
+===== ./srcs/cgi/CgiHandler.cpp =====
+
+#include "../../includes/cgi/CgiHandler.hpp"
+
+CgiHandler::CgiHandler(std::string script_path)
+{
+    pid = -1;
+    this->script_path = script_path;
+    pipeIn[0] = -1;
+    pipeIn[1] = -1;
+    pipeOut[0] = -1;
+    pipeOut[1] = -1;
+
+    if(pipe(pipeIn) < 0)
+    {
+        //TODO ERROR NAO CONSEGUIR ABRIR PIPE
+    }
+
+    if(pipe(pipeOut) < 0)
+    {
+        close(pipeIn[0]);
+        close(pipeIn[1]);
+        //TODO ERROR NAO CONSEGUIR ABRIR PIPE
+    }
+    
+}
+
+void    CgiHandler::setup_env(Request request)
+{
+    envMap["REQUEST_METHOD"] = request.request_method;
+    envMap["SCRIPT_NAME"] = request.resource_path;
+    envMap["PATH_TRANSLATED"] = request.resource_path;
+    envMap["QUERY_STRING"] = request.query_string;
+    envMap["CONTENT_LENGTH"] = intToString(request.body.size());
+    envMap["CONTENT_TYPE"] = request.getHeader("Content-Type");
+    envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
+    envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
+    envMap["SERVER_SOFTWARE"] = "Webserv42/1.0";
+    envMap["HTTP_COOKIE"] = request.getHeader("Cookie");
+}
+
+char**  CgiHandler::convert_env_to_cstyle()
+{
+    char** envp = new char*[envMap.size() + 1];
+
+    size_t i = 0;
+    std::map<std::string, std::string>::iterator it;
+
+    for (it = envMap.begin(); it != envMap.end(); it++)
+    {
+        std::string envLine = it->first + "=" + it->second;
+        envp[i] = new char[envLine.size() + 1];
+        std::strcpy(envp[i], envLine.c_str());
+        i++;
+    }
+    
+    envp[i] = NULL;
+    
+    return(envp);
+}
+
+bool CgiHandler::execute(Request request)
+{
+    this->setup_env(request); //TODO
+    char **envp = this->convert_env_to_cstyle(); //TODO
+
+    char *args[3];
+    args[0] = const_cast<char*>("/usr/bin/python3");
+    args[1] = const_cast<char*>(script_path.c_str());
+    args[2] = NULL;
+
+    pid = fork();
+    if(pid < 0)
+    {
+        freeEnvp(envp);        
+        return (false);
+    }
+    
+    //child process
+    if(pid == 0)
+    {
+        if(dup2(pipeIn[0], STDIN_FILENO) < 0)
+        {
+            std::exit(1);
+        }
+
+        if(dup2(pipeOut[1], STDOUT_FILENO) < 0)
+        {
+            std::exit(1);
+        }
+
+        close(pipeIn[0]);
+        close(pipeIn[1]);
+        close(pipeOut[1]);
+        close(pipeOut[1]);//CHECK THIS
+
+        execve(args[0], args, envp);
+        
+        std::exit(1);
+    }
+
+    //parent process
+    
+    freeEnvp(envp);        
+    close(pipeIn[0]);
+    pipeIn[0] = -1;
+    close(pipeOut[1]);
+    pipeOut[1] = -1;
+
+    //transforming the pipe in nonblock so select/poll can write a couple bytes at a time
+    if (fcntl(pipeOut[0], F_SETFL, O_NONBLOCK) < 0) 
+    {
+        return false;
+    }
+    
+    if (fcntl(pipeIn[1], F_SETFL, O_NONBLOCK) < 0) 
+    {
+        return false;
+    }
+
+    return true;
+}
+
+
+int CgiHandler::getReadFd() const
+{
+    return(pipeOut[0]);
+}
+int CgiHandler::getWriteFd() const
+{
+    return(pipeIn[1]);
+}
+
+pid_t CgiHandler::getPid() const
+{
+    return(pid);
+}
+
+CgiHandler::~CgiHandler()
+{
+    if(pipeIn[0] != -1)
+        close(pipeIn[0]);
+    if(pipeIn[1] != -1)
+        close(pipeIn[1]);
+    if(pipeOut[0] != -1)
+        close(pipeOut[0]);
+    if(pipeOut[1] != -1)
+        close(pipeOut[1]);
+}
+
+
+
+===== ./srcs/cgi/cgi_utils.cpp =====
+
+#include "../../includes/core/main.hpp"
+
+std::string intToString(int value) 
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+void freeEnvp(char** envp) 
+{
+    if (!envp)
+        return;
+    for (size_t i = 0; envp[i] != NULL; i++)
+        delete[] envp[i];
+    delete[] envp;
+}
+
+
+
+===== ./srcs/config/Config.cpp =====
+
+#include "../../includes/config/Config.hpp"
+#include "../../includes/config/Server.hpp"
+
+Config::Config(): number_servers(0) {};
+
+//counts the number of servers and as it finds 1
+//calls the constructor of the Server class as it hads it to the Servers vector in this calss
+
+Config::Config(std::string config_file)
+{
+    std::string line;
+    std::ifstream file(config_file.c_str());
+    number_servers = 0;
+
+    while(std::getline(file, line))
+    {
+        if (line == "server {")
+        {
+            this->number_servers++;
+            this->servers.push_back(Server(this->number_servers, config_file));
+        }
+    }
+    file.close();
+};
+
+Config::Config(const Config &other)
+{
+    this->number_servers = other.number_servers;
+    this->servers = other.servers;
+};
+
+Config& Config::operator=(const Config &other)
+{
+    Config copy(other);
+
+    Config & ret = copy;
+    return(ret);
+};
+
+Location Config::getLocation(int port, std::string path)
+{
+    std::vector<Server>::iterator it;
+    std::vector<Location>::iterator it2;
+
+    for(it = this->servers.begin(); it != this->servers.end(); it++)
+    {
+        if ((*it).port == port)
+        {
+            for (it2 = (*it).Locations.begin(); it2 != (*it).Locations.end(); it2++)
+            {
+                if ((*it2).path == path)
+                    return((*it2));
+            }
+        }
+    }
+    
+    //TODO ERROR NO WRONG INFO
+};
+
+
+Config::~Config(){};
+
+
+===== ./srcs/config/config_parser.cpp =====
+
+#include "../../includes/core/main.hpp"
+
+//check if the file exist of can be opened (valid_file_check)
+//checks if the brackets are okay
+
+int parse_config_file(std::string config_file)
+{
+    if (valid_file_check(config_file) < 0)
+        return (-1);
+    if (brackets_count(config_file) < 0)
+        return(-2);
+    return (0);
+}
+
+
+
+
+
+===== ./srcs/config/Location.cpp =====
+
+#include "../../includes/config/Location.hpp"
+
+Location::Location()
+{
+    path = "";
+    root = "";
+    GET = false;
+    POST = false;
+    DELETE = false;
+    autoindex = false;
+    redirection = "";
+    upload_path = "";
+    index = "";
+};
+
+//check for a keyword and stores the information associated in the right place in the class
+
+int Location::check_line_location(std::string line)
+{
+    ignore_comments(line);
+
+    std::vector<std::string> tokens = ft_split(line, ' ');
+    clean_strings(tokens);
+    int i = 0;
+
+    int size = tokens.size();
+
+    if (size == 0)
+        return (0);
+    if (size < 2)
+        return (0);
+
+    if(tokens.at(i) == "location")
+        path = tokens.at(i + 1);
+    else if(tokens.at(i) == "root") //TODO: CHECK FOR MULTIPLE ROOT PATHS
+        root = tokens.at(i + 1);
+    else if(tokens.at(i) == "allow_methods")
+    {
+        while(size > 0)
+        {
+            if (tokens.at(i) == "GET")
+                GET = true;
+            if (tokens.at(i) == "POST")
+                POST = true;
+            if (tokens.at(i) == "DELETE")
+                DELETE = true;
+            if (tokens.at(i) != "GET" && tokens.at(i) != "POST" && tokens.at(i) != "DELETE") //TODO:: CHECK
+                return (5);
+            i++;
+            size--;
+        }
+    }
+    else if(tokens.at(i) == "index")
+        index = tokens.at(i + 1);
+    else if(tokens.at(i) == "autoindex")
+    {
+        if (tokens.at(i + 1) == "off")
+            autoindex = false;
+        else if (tokens.at(i + 1) == "on")
+            autoindex = true;
+        else
+            return (3);
+    }
+    else if (tokens.at(i) == "return")
+    {
+        if (tokens.size() < 3)
+            return (4);
+        redirection = tokens.at(i + 2);
+    }
+    else if (tokens.at(i) == "upload_pass")
+        upload_path = tokens.at(i + 1);
+    else
+        return (6);
+    return (0);
+};
+Location::Location(std::string location_str, unsigned long max_body_size)
+{
+    path = "";
+    root = "";
+    GET = false;
+    POST = false;
+    DELETE = false;
+    autoindex = false;
+    redirection = "";
+    upload_path = "";
+    index = "";
+    this->max_body_size = max_body_size;
+
+    //TODO: check for defaults
+
+    std::istringstream iss(location_str);
+    std::string line;
+    int error = 0;
+
+    while(getline(iss, line))
+    {
+        error = check_line_location(line);
+        if (error != 0)
+        {
+            std::cout << "Error: " << error << "\n";
+            throw (LocationErrorExeption());
+        }
+    }
+};
+
+Location::Location(const Location &other)
+{
+    this->path = other.path;
+    this->root = other.root;
+    this->GET = other.GET;
+    this->POST = other.POST;
+    this->DELETE = other.DELETE;
+    this->autoindex = other.autoindex;
+    this->index = other.index;
+    this->redirection = other.redirection;
+    this->upload_path = other.upload_path;
+    this->max_body_size = other.max_body_size;
+};
+
+Location& Location::operator=(const Location &other)
+{
+    Location copy(other);
+
+    Location & ret = copy;
+    return(ret);
+};
+
+bool Location::isMethodallowed(std::string method)
+{
+    if (method == "GET")
+        return(this->GET);
+    else if(method == "DELETE")
+        return(this->DELETE);
+    else if(method == "POST")
+        return(this->POST);
+    else
+        //TODO ERROR
+    
+}
+
+ 
+Location::~Location(){};
+
+
+===== ./srcs/config/parse_config_info.cpp =====
+
+#include "../../includes/core/main.hpp"
+
+int host_parse(std::string& host)
+{
+    if (host == "localhost")
+    {
+        host = "127.0.0.1";
+        return (0);
+    }
+    
+    std::vector<std::string> tokens = ft_split(host, '.');
+    if (tokens.size() != 4)
+        return (1);
+    
+    std::vector<std::string>::iterator it;
+    std::string::iterator str_it;
+    int tmp = 0;
+    
+    for(it = tokens.begin(); it != tokens.end(); it++)
+    {
+        for(str_it = (*it).begin(); str_it != (*it).end(); str_it++)
+        {
+            if (!std::isdigit((*str_it)))
+                return (1);
+        }
+        tmp = std::atoi((*it).c_str());
+        if (tmp < 0 || tmp > 255)
+            return (1);
+    }
+    return (0);
+}
+
+int error_page_parse(int code, std::string path)
+{
+    if (code < 300 || code > 599 || path[0] != '/')
+        return (1);
+    return (0);
+}
+
+int valid_path_check(std::string path)
+{
+    struct stat sb;
+    
+    if (stat(path.c_str(), &sb))
+        return (1);
+    return (0);
+}
+
+int parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
+{
+    std::vector<Server>::iterator it_vec;
+    std::vector<Location>::iterator it_loc;
+    std::map<int, std::string>::iterator it_map;
+    int i = 0;
+
+
+    for(it_vec = configs.servers.begin(); it_vec != configs.servers.end(); it_vec++)
+    {
+        if ((*it_vec).port <= 0)
+            return (-3);
+        if (host_parse((*it_vec).host))
+            return (-4);
+        if ((*it_vec).max_body_size <= 0)
+            return (-5);
+        for (it_map = (*it_vec).error_pages.begin(); it_map != (*it_vec).error_pages.end();it_map++)
+        {
+            if (error_page_parse((*it_map).first, (*it_map).second))
+                return (-6);
+        }
+        for(it_loc = (*it_vec).Locations.begin(); it_loc != (*it_vec).Locations.end(); it_loc++)
+        {
+            if (valid_path_check((*it_loc).path) || valid_path_check((*it_loc).root))
+                return (-7);
+        }
+            i++;
+    }
+
+    //TODO:FUNCTION THAT CHECK IF THERE ARE 2 SERVERS WITH THE SAME PORT
+
+    return (0);
+
+}
+
+
+===== ./srcs/config/parse_utils.cpp =====
+
+#include "../../includes/core/main.hpp"
+
+//takes the commented line of the config file out of the line  of the config file (#)
+
+void ignore_comments(std::string& line)
+{
+    std::string::iterator it_first;
+    std::string::iterator it_last;
+
+    while (42)
+    {
+        for(it_first = line.begin(); it_first != line.end(); it_first++)
+        {
+            if(*it_first == '#')
+                break ;
+        }
+        if (it_first == line.end())
+            return ;
+        for(it_last = it_first; it_last != line.end(); it_last++)
+        {
+            if (*it_last == '\n')
+                break ;
+        }
+        if (it_last == line.end())
+            it_last--;
+        line.erase(it_first, it_last);
+    }
+}
+
+//takes out tabs, spaces and the end of line delimiter from the lines
+
+void clean_strings(std::vector<std::string>& buff)
+{
+    std::vector<std::string>::iterator it_vec;
+    std::string::iterator it_str;
+
+    for(it_vec = buff.begin(); it_vec != buff.end(); it_vec++)
+    {
+        while ((*it_vec).length() == 0)
+        {
+            buff.erase(it_vec);
+            if (buff.size() == 0)
+                return ;
+            it_vec = buff.begin();
+        }
+        for(it_str = (*it_vec).begin(); it_str != (*it_vec).end(); it_str++)
+        {
+            if(*it_str == '\v' || *it_str == '\t' || *it_str == ';' || *it_str == '\n' || *it_str == ' ' || \
+            *it_str == '{' || *it_str == '}' || *it_str == '\r')
+            {
+                if ((*it_vec).length() == 1)
+                {
+                    buff.erase(it_vec);
+                    it_vec = buff.begin();
+                    break ;
+                }
+                (*it_vec).erase(it_str);
+                it_str = (*it_vec).begin();
+            }
+        }
+    }
+}
+
+
+//splits the line into strings using a custom delimiter(usually ' ' and clean the line of unwated chars(clean strings))
+
+std::vector<std::string> ft_split(std::string s, char delimiter)
+{
+    size_t last = 0;
+    size_t next = 0;
+    std::vector<std::string> buff;
+
+    while ((next = s.find(delimiter, last)) != std::string::npos) 
+    {   
+        buff.push_back(s.substr(last, next-last));
+        last = next + 1; 
+    } 
+    buff.push_back(s.substr(last));
+
+/*     std::cout << "printing splitted: \n";
+    std::vector<std::string>::iterator it;
+    for(it = buff.begin(); it != buff.end(); it++)
+        std::cout << *it << "\n";
+    std::cout << "stop splitted \n"; */
+    return (buff);
+}
+
+//takes the max_body_size syntax and puts in in decimal (k or K for kb, m or M for mb and nothing for bytes)
+unsigned long get_body_size(std::string s)
+{
+    long long numb = 0;
+
+    if(s[s.size() - 1] == 'm' || s[s.size() - 1] == 'M')
+        numb = atoi(s.c_str()) * 1000000;
+    else if(s[s.size() - 1] == 'k' || s[s.size() - 1] == 'K')
+        numb = atoi(s.c_str()) * 1000;
+    else
+        numb = atoi(s.c_str());
+    return (numb);
+}
+
+//separates the information about the error pages, puts them in a map, the key is the code corresponding to the path
+
+int add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens)
+{
+    if (tokens.size() < 3)
+        return (1);
+    int error_code = atoi(tokens.at(1).c_str());
+    std::string path = tokens.at(2);
+    error_pages[error_code] = path;
+    return (0);
+}
+
+//checks if the file exists and if it can be openned
+
+int valid_file_check(std::string config_file)
+{
+    std::fstream file;
+
+    file.open(config_file.c_str());
+    if(!file.is_open())
+    {
+        std::cout << "Error opening file\n";
+        return (-1);
+    }
+    file.close();
+    return (0);
+}
+
+// counts and brackets in all the file, checks if its all well formatted
+
+int brackets_count(std::string config_file)
+{
+    std::string line;
+    std::ifstream file(config_file.c_str());
+    int count = 0;
+
+    while(getline(file, line))
+    {
+        if (line.find('}', 0) != std::string::npos)
+            count--;
+        if (count < 0 || count > 2)
+            break ;
+        if(line.find('{', 0) != std::string::npos)
+            count++;
+    }
+    if (count != 0)
+    {
+        std::cout << "Error: Config file format invalid: brackets\n";
+        return (-1);
+    }
+    return (0);
+}
+
+
+===== ./srcs/config/Server.cpp =====
+
+#include "../../includes/config/Server.hpp"
+
+Server::Server()
+{
+    host = "127.0.0.1";
+    port = 80;
+    server_name = "server1.com";
+    max_body_size = 1000000;
+};
+
+//check for a keyword and stores the information associated in the right place in the class
+
+int Server::check_line_server(std::string line)
+{
+    ignore_comments(line);
+
+    std::vector<std::string> tokens = ft_split(line, ' ');
+    clean_strings(tokens);
+
+    if(tokens.at(0) == "server")
+        return (2);
+    
+    if(tokens.at(0) == "listen")
+        port = atoi(tokens.at(1).c_str());
+    else if (tokens.at(0) == "server_name")
+        server_name = tokens.at(1);
+    else if(tokens.at(0) == "host")
+        host = tokens.at(1);
+    else if(tokens.at(0) == "client_max_body_size")
+        max_body_size = get_body_size(tokens.at(1));
+    else if (tokens.at(0) == "error_page")
+    {
+        if (add_error_page(error_pages, tokens) != 0)
+            throw (ServerErrorExeption());
+    }
+    else if (tokens.at(0) == "location")
+        return (1);
+    else
+        return (2);
+    return (0);
+};
+
+//searches for the right server information for each one in the config file
+//goes line by line checking for the keyword
+//if a location is found, calls its construtor and saves it in the Locations vector
+
+Server::Server(int server_pos, std::string config_file)
+{
+    host = "127.0.0.1";
+    port = 80;
+    server_name = "server1.com";
+    max_body_size = 1000000;
+    
+    std::string line;
+    std::string location_string;
+    std::ifstream file(config_file.c_str());
+
+    while(std::getline(file, line))
+    {
+        if (line == "server {")
+            server_pos--;
+        if (server_pos == 0)
+            break;
+        line.clear();
+    }
+
+    int ret = 0;
+
+    while(std::getline(file, line, ';'))
+    {
+        ret = check_line_server(line);
+        if (ret == 1)
+        {
+            std::getline(file, location_string, '}');
+            Locations.push_back(Location(line + location_string, this->max_body_size));
+        }
+        else if (ret == 2)
+            break ;
+        line.clear();
+    }
+
+    file.close();
+};
+
+Server::Server(const Server &other)
+{
+    this->host = other.host;
+    this->port = other.port;
+    this->server_name = other.server_name;
+    this->max_body_size = other.max_body_size;
+    this->error_pages = other.error_pages;
+    this->Locations = other.Locations;
+};
+
+Server& Server::operator=(const Server &other)
+{
+    Server copy(other);
+
+    Server & ret = copy;
+    return(ret);
+};
+ 
+Server::~Server(){};
+
+
+===== ./srcs/core/debug.cpp =====
+
+#include "../../includes/core/main.hpp"
+
+void debug_vector_print(std::vector<std::string> buff)
+{
+    std::vector<std::string>::iterator it;
+    for(it = buff.begin(); it != buff.end(); it++)
+        std::cout << *it << "\n";
+}
+
+void debug(int value)
+{
+    std::cout << "debug " << value << "\n";
+}
+
+
+===== ./srcs/core/main.cpp =====
+
+#include "../../includes/config/Config.hpp"
+#include "../../includes/core/main.hpp"
+
+void print_confis(Config& configs)
+{
+    std::vector<Server>::iterator it_vec;
+    std::vector<Location>::iterator it_loc;
+    std::map<int, std::string>::iterator it_map;
+
+    int i = 0;
+
+    std::cout << "Number of Servers: " << configs.number_servers << "\n";
+    for(it_vec = configs.servers.begin(); it_vec != configs.servers.end(); it_vec++)
+    {
+        std::cout << "server " << i << ": \n";
+        std::cout << "host: " << (*it_vec).host << "\n";
+        std::cout << "port: " << (*it_vec).port << "\n";
+        std::cout << "server_name: " << (*it_vec).server_name << "\n";
+        std::cout << "max_body_size: " << (*it_vec).max_body_size << "\n";
+        for (it_map = (*it_vec).error_pages.begin(); it_map != (*it_vec).error_pages.end();it_map++)
+            std::cout << "error page: " << (*it_map).first << ", " << (*it_map).second << "\n";
+        for(it_loc = (*it_vec).Locations.begin(); it_loc != (*it_vec).Locations.end(); it_loc++)
+        {
+            std::cout << "location: \n";
+            std::cout << "path: " << (*it_loc).path << "\n";
+            std::cout << "root: " << (*it_loc).root << "\n";
+            std::cout << "GET? " << (*it_loc).GET << "\n";
+            std::cout << "POST? " << (*it_loc).POST << "\n";
+            std::cout << "DELETE? " << (*it_loc).DELETE << "\n";
+            std::cout << "autofixer: " << (*it_loc).autoindex << "\n";
+            std::cout << "index: " << (*it_loc).index << "\n";
+            std::cout << "redirection: " << (*it_loc).redirection<< "\n";
+            std::cout << "upload_path: " << (*it_loc).upload_path << "\n";
+        }
+            i++;
+    }
+}
+
+
+int main(int argc, char **argv)
+{
+    if (argc != 2)
+    {
+        std::cout << "Please enter valid arguments:\n./webserv <config_file>\n";
+        return (-1);
+    }
+    if (parse_config_file(argv[1]) != 0)
+        return (-2);
+
+    Config configs(argv[1]);
+
+    int error = parse_config_info(configs);
+    if (error != 0)
+        return (error);
+    
+    //TODO: PRINT ERROR FUNCTION
+
+    //print_confis(configs);
+
+    //SOCKETS
+    //CHAMAR REQUEST PARSER
+
+    //handle_request
+    
+
+    //RESPONSE BUILDER
+
+    //CLIENT MACHINE
+}
+
+
+===== ./srcs/http/Request.cpp =====
+
+#include "../../includes/http/Request.hpp"
+
+Request::Request(){};
+
+/* requestline ex: GET /test.py?user=nuno HTTP/1.1 */
+
+Request::Request(std::string Request_line)
+{
+    is_complete = false;
+    std::vector<std::string> buffer1 = ft_split(Request_line, ' ');
+    request_method = buffer1[0];
+    if(buffer1[2].find('?') != buffer1[1].npos)
+    {
+        std::vector<std::string>buffer2 = ft_split(buffer1[1], '?');
+        resource_path = buffer2[0];
+        query_string = buffer2[1];
+    }
+    else
+        resource_path = buffer1[1];
+    html_version = buffer1[2];
+};
+
+
+//puts in the headers and body, to be called inside the event loop
+void Request::parse_headers(std::string data)
+{
+    size_t separator = data.find("\r\n\r\n");
+    if (separator == std::string::npos)
+        return ;
+    
+    std::string headers_part = data.substr(0, separator);
+    std::string body_part = data.substr(separator + 4);
+
+    std::stringstream ss(headers_part);
+    std::string line;
+    
+    while (std::getline(ss, line))
+    {
+        if(!line.empty() && line[line.size() - 1] == '\r')
+            line.erase(line.size() - 1);
+
+        if(line.empty())
+            continue ;
+        std::vector<std::string> buff = ft_split(line, ':');
+        clean_strings(buff);
+        if (buff.size() > 1)
+            headers[buff[0]] = buff[1];
+    }
+    
+    if (headers.find("Content-Length") != headers.end())
+    {
+        int len = std::atoi(headers["Content-Length"].c_str());
+        if (body_part.size() >= static_cast<size_t>(len))
+        {
+            body = body_part.substr(0, len);
+            is_complete = true;
+        }
+        else
+            is_complete = false;
+    }
+    else
+        is_complete = true;
+} 
+
+
+Request::Request(const Request &other)
+{
+        this->is_complete = other.is_complete;
+        this->request_method = other.request_method;
+        this->query_string = other.query_string;
+        this->headers = other.headers;
+        this->resource_path = other.resource_path;
+        this->html_version = other.html_version;
+        this->body = other.body;
+        
+};
+
+std::string Request::getHeader(std::string key)
+{
+    std::map<std::string, std::string>::const_iterator it = headers.find(key);
+    if (it != headers.end()) 
+        return it->second;
+    return (""); 
+}
+
+Request& Request::operator=(const Request &other)
+{
+    Request copy(other);
+
+    Request & ret = copy;
+    return(ret);
+}; 
+
+Request::~Request(){};
+
+
+===== ./srcs/http/ResponseBuilder.cpp =====
+
+
+
+
+===== ./srcs/server/request_handler.cpp =====
+
+#include "../../includes/core/main.hpp"
+#include "../../includes/http/Request.hpp"
+#include "../../includes/http/ResponseBuilder.hpp"
+#include "../../includes/cgi/CgiHandler.hpp"
+
+std::string request_hanlder(Client client, Config config) //TODO
+{
+    Location location = config.getLocation(client.getPort, client.request.resource_path); //TODO
+
+    if(!location.isMethodallowed(client.request.request_method)) //TODO
+        return(/*some error*/);
+    
+    if(client.request.getHeader("Content-Length") > location.max_body_size) //TODO
+        return(/*some error*/);
+    
+    if(client.request.resource_path.find(".py") != std::string::npos)
+    {
+        CgiHandler CGI_handler(client.request.resource_path);
+        CGI_handler.execute(client.request);  //TODO
+    }
+    else
+        ResponseBuilder::build_static_file(location.root + client.request.resource_path);
+    
+}
+
+
