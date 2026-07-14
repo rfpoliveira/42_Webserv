@@ -39,19 +39,19 @@ void print_confis(Config& configs)
 
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    try 
     {
-        std::cout << "Please enter valid arguments:\n./webserv <config_file>\n";
-        return (-1);
+        if (argc != 2)
+            throw ConfigException("Please enter valid arguments:\n./webserv <config_file>")
+        parse_config_file(argv[1])
+        Config configs(argv[1]);
+        parse_config_info(configs);
     }
-    if (parse_config_file(argv[1]) != 0)
-        return (-2);
-
-    Config configs(argv[1]);
-
-    int error = parse_config_info(configs);
-    if (error != 0)
-        return (error);
+    catch (ConfigException& e)
+    {
+        std::cout << e.what() << "\n";
+        return (-3);
+    }
     
     //TODO: PRINT ERROR FUNCTION
 

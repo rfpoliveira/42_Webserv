@@ -24,3 +24,5 @@ class Request
         Request &operator=(const Request &other); 
         ~Request();
 };
+
+std::string request_handler(Client client, Config config);

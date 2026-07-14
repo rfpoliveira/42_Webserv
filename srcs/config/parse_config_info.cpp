@@ -46,7 +46,7 @@ int valid_path_check(std::string path)
     return (0);
 }
 
-int parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
+void parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
 {
     std::vector<Server>::iterator it_vec;
     std::vector<Location>::iterator it_loc;
@@ -57,20 +57,20 @@ int parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WO
     for(it_vec = configs.servers.begin(); it_vec != configs.servers.end(); it_vec++)
     {
         if ((*it_vec).port <= 0)
-            return (-3);
+            throw ConfigException("Invalid port.");
         if (host_parse((*it_vec).host))
-            return (-4);
+            throw ConfigException("Invalid host.");
         if ((*it_vec).max_body_size <= 0)
-            return (-5);
+            throw ConfigException("Invalid max_body_size.");
         for (it_map = (*it_vec).error_pages.begin(); it_map != (*it_vec).error_pages.end();it_map++)
         {
             if (error_page_parse((*it_map).first, (*it_map).second))
-                return (-6);
+                throw ConfigException("Invalid error pages.");
         }
         for(it_loc = (*it_vec).Locations.begin(); it_loc != (*it_vec).Locations.end(); it_loc++)
         {
             if (valid_path_check((*it_loc).path) || valid_path_check((*it_loc).root))
-                return (-7);
+                throw ConfigException("Invalid paths.");
         }
             i++;
     }

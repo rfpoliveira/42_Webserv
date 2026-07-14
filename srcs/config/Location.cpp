@@ -134,7 +134,7 @@ bool Location::isMethodallowed(std::string method)
     else if(method == "POST")
         return(this->POST);
     else
-        //TODO ERROR
+        throw HttpExceptionException("Method not allowed");
     
 }
 

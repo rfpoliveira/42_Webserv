@@ -53,8 +53,9 @@ Location Config::getLocation(int port, std::string path)
             }
         }
     }
+
+    throw ConfigException("Invalid Location Settings");
     
-    //TODO ERROR NO WRONG INFO
 };
 
 
