@@ -2,141 +2,152 @@
 
 Location::Location()
 {
-    path = "";
-    root = "";
-    GET = false;
-    POST = false;
-    DELETE = false;
-    autoindex = false;
-    redirection = "";
-    upload_path = "";
-    index = "";
+	path = "";
+	root = "";
+	GET = false;
+	POST = false;
+	DELETE = false;
+	autoindex = false;
+	redirection = "";
+	upload_path = "";
+	index = "";
 };
 
 //check for a keyword and stores the information associated in the right place in the class
 
 int Location::check_line_location(std::string line)
 {
-    ignore_comments(line);
+	ignore_comments(line);
 
-    std::vector<std::string> tokens = ft_split(line, ' ');
-    clean_strings(tokens);
-    int i = 0;
+	std::vector<std::string> tokens = ft_split(line, ' ');
+	clean_strings(tokens);
+	int i = 0;
 
-    int size = tokens.size();
+	int size = tokens.size();
 
-    if (size == 0)
-        return (0);
-    if (size < 2)
-        return (0);
+	if (size == 0)
+		return (0);
+	if (size < 2)
+		return (0);
 
-    if(tokens.at(i) == "location")
-        path = tokens.at(i + 1);
-    else if(tokens.at(i) == "root") //TODO: CHECK FOR MULTIPLE ROOT PATHS
-        root = tokens.at(i + 1);
-    else if(tokens.at(i) == "allow_methods")
-    {
-        while(size > 0)
-        {
-            if (tokens.at(i) == "GET")
-                GET = true;
-            if (tokens.at(i) == "POST")
-                POST = true;
-            if (tokens.at(i) == "DELETE")
-                DELETE = true;
-            if (tokens.at(i) != "GET" && tokens.at(i) != "POST" && tokens.at(i) != "DELETE") //TODO:: CHECK
-                return (5);
-            i++;
-            size--;
-        }
-    }
-    else if(tokens.at(i) == "index")
-        index = tokens.at(i + 1);
-    else if(tokens.at(i) == "autoindex")
-    {
-        if (tokens.at(i + 1) == "off")
-            autoindex = false;
-        else if (tokens.at(i + 1) == "on")
-            autoindex = true;
-        else
-            return (3);
-    }
-    else if (tokens.at(i) == "return")
-    {
-        if (tokens.size() < 3)
-            return (4);
-        redirection = tokens.at(i + 2);
-    }
-    else if (tokens.at(i) == "upload_pass")
-        upload_path = tokens.at(i + 1);
-    else
-        return (6);
-    return (0);
+	if(tokens.at(i) == "location")
+		path = tokens.at(i + 1);
+	else if(tokens.at(i) == "root") //TODO: CHECK FOR MULTIPLE ROOT PATHS
+		root = tokens.at(i + 1);
+	else if(tokens.at(i) == "allow_methods")
+	{
+		while(size > 0)
+		{
+			if (tokens.at(i) == "GET")
+				GET = true;
+			if (tokens.at(i) == "POST")
+				POST = true;
+			if (tokens.at(i) == "DELETE")
+				DELETE = true;
+			if (tokens.at(i) != "GET" && tokens.at(i) != "POST" && tokens.at(i) != "DELETE") //TODO:: CHECK
+				return (5);
+			i++;
+			size--;
+		}
+	}
+	else if(tokens.at(i) == "index")
+		index = tokens.at(i + 1);
+	else if(tokens.at(i) == "autoindex")
+	{
+		if (tokens.at(i + 1) == "off")
+			autoindex = false;
+		else if (tokens.at(i + 1) == "on")
+			autoindex = true;
+		else
+			return (3);
+	}
+	else if (tokens.at(i) == "return")
+	{
+		if (tokens.size() < 3)
+			return (4);
+		redirection = tokens.at(i + 2);
+	}
+	else if (tokens.at(i) == "upload_pass")
+		upload_path = tokens.at(i + 1);
+	else
+		return (6);
+	return (0);
 };
+
 Location::Location(std::string location_str, unsigned long max_body_size)
 {
-    path = "";
-    root = "";
-    GET = false;
-    POST = false;
-    DELETE = false;
-    autoindex = false;
-    redirection = "";
-    upload_path = "";
-    index = "";
-    this->max_body_size = max_body_size;
+	path = "";
+	root = "";
+	GET = false;
+	POST = false;
+	DELETE = false;
+	autoindex = false;
+	redirection = "";
+	upload_path = "";
+	index = "";
+	this->max_body_size = max_body_size;
 
-    //TODO: check for defaults
+	//TODO: check for defaults
 
-    std::istringstream iss(location_str);
-    std::string line;
-    int error = 0;
+	std::istringstream iss(location_str);
+	std::string line;
+	int error = 0;
 
-    while(getline(iss, line))
-    {
-        error = check_line_location(line);
-        if (error != 0)
-        {
-            std::cout << "Error: " << error << "\n";
-            throw (LocationErrorExeption());
-        }
-    }
+	while(getline(iss, line))
+	{
+		error = check_line_location(line);
+		if (error != 0)
+		{
+			std::cout << "Error: " << error << "\n";
+			throw (LocationErrorExeption());
+		}
+	}
 };
 
 Location::Location(const Location &other)
 {
-    this->path = other.path;
-    this->root = other.root;
-    this->GET = other.GET;
-    this->POST = other.POST;
-    this->DELETE = other.DELETE;
-    this->autoindex = other.autoindex;
-    this->index = other.index;
-    this->redirection = other.redirection;
-    this->upload_path = other.upload_path;
-    this->max_body_size = other.max_body_size;
+	this->path = other.path;
+	this->root = other.root;
+	this->GET = other.GET;
+	this->POST = other.POST;
+	this->DELETE = other.DELETE;
+	this->autoindex = other.autoindex;
+	this->index = other.index;
+	this->redirection = other.redirection;
+	this->upload_path = other.upload_path;
+	this->max_body_size = other.max_body_size;
 };
 
 Location& Location::operator=(const Location &other)
 {
-    Location copy(other);
-
-    Location & ret = copy;
-    return(ret);
+	if (this != &other)
+	{
+		this->path = other.path;
+		this->root = other.root;
+		this->GET = other.GET;
+		this->POST = other.POST;
+		this->DELETE = other.DELETE;
+		this->autoindex = other.autoindex;
+		this->index = other.index;
+		this->redirection = other.redirection;
+		this->upload_path = other.upload_path;
+		this->max_body_size = other.max_body_size;
+	}
+	return (*this);
 };
 
 bool Location::isMethodallowed(std::string method)
 {
-    if (method == "GET")
-        return(this->GET);
-    else if(method == "DELETE")
-        return(this->DELETE);
-    else if(method == "POST")
-        return(this->POST);
-    else
-        //TODO ERROR
-    
+	if (method == "GET")
+		return(this->GET);
+	else if(method == "DELETE")
+		return(this->DELETE);
+	else if(method == "POST")
+		return(this->POST);
+	// Unknown method: never allowed here.
+	// Caller decides 405 (known method, not allowed on this route)
+	// vs 501 (method the server does not implement at all).
+	return (false);
 }
 
- 
 Location::~Location(){};
