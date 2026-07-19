@@ -8,54 +8,57 @@ Config::Config(): number_servers(0) {};
 
 Config::Config(std::string config_file)
 {
-    std::string line;
-    std::ifstream file(config_file.c_str());
-    number_servers = 0;
+	std::string line;
+	std::ifstream file(config_file.c_str());
+	number_servers = 0;
 
-    while(std::getline(file, line))
-    {
-        if (line == "server {")
-        {
-            this->number_servers++;
-            this->servers.push_back(Server(this->number_servers, config_file));
-        }
-    }
-    file.close();
+	while(std::getline(file, line))
+	{
+		if (line == "server {")
+		{
+			this->number_servers++;
+			this->servers.push_back(Server(this->number_servers, config_file));
+		}
+	}
+	file.close();
 };
 
 Config::Config(const Config &other)
 {
-    this->number_servers = other.number_servers;
-    this->servers = other.servers;
+	this->number_servers = other.number_servers;
+	this->servers = other.servers;
 };
 
 Config& Config::operator=(const Config &other)
 {
-    Config copy(other);
-
-    Config & ret = copy;
-    return(ret);
+	if (this != &other)
+	{
+		this->number_servers = other.number_servers;
+		this->servers = other.servers;
+	}
+	return (*this);
 };
 
-Location Config::getLocation(int port, std::string path)
+Location* Config::getLocation(int port, std::string& path)
 {
-    std::vector<Server>::iterator it;
-    std::vector<Location>::iterator it2;
+	Location*	best = NULL;
+	size_t		best_len = 0;
 
-    for(it = this->servers.begin(); it != this->servers.end(); it++)
-    {
-        if ((*it).port == port)
-        {
-            for (it2 = (*it).Locations.begin(); it2 != (*it).Locations.end(); it2++)
-            {
-                if ((*it2).path == path)
-                    return((*it2));
-            }
-        }
-    }
-    
-    //TODO ERROR NO WRONG INFO
-};
-
+	for (size_t i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].port != port)
+			continue;
+		for (size_t j = 0; j < servers[i].Locations.size(); j++)
+		{
+			const std::string& lp = servers[i].Locations[j].path;
+			if (path.compare(0, lp.size(), lp) == 0 && lp.size() >= best_len)
+			{
+				best = &servers[i].Locations[j];
+				best_len = lp.size();
+			}
+		}
+	}
+	return (best);
+}
 
 Config::~Config(){};
