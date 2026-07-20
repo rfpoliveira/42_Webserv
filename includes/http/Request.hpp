@@ -15,6 +15,7 @@ class Request
 		std::string getHeader(std::string key);
 
 		bool is_complete;
+		bool is_malformed;
 
 		void parse_headers(std::string data);
 
