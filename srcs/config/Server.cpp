@@ -2,42 +2,42 @@
 
 Server::Server()
 {
-    host = "127.0.0.1";
-    port = 80;
-    server_name = "server1.com";
-    max_body_size = 1000000;
+	host = "127.0.0.1";
+	port = 80;
+	server_name = "server1.com";
+	max_body_size = 1000000;
 };
 
 //check for a keyword and stores the information associated in the right place in the class
 
 int Server::check_line_server(std::string line)
 {
-    ignore_comments(line);
+	ignore_comments(line);
 
-    std::vector<std::string> tokens = ft_split(line, ' ');
-    clean_strings(tokens);
+	std::vector<std::string> tokens = ft_split(line, ' ');
+	clean_strings(tokens);
 
-    if(tokens.at(0) == "server")
-        return (2);
-    
-    if(tokens.at(0) == "listen")
-        port = atoi(tokens.at(1).c_str());
-    else if (tokens.at(0) == "server_name")
-        server_name = tokens.at(1);
-    else if(tokens.at(0) == "host")
-        host = tokens.at(1);
-    else if(tokens.at(0) == "client_max_body_size")
-        max_body_size = get_body_size(tokens.at(1));
-    else if (tokens.at(0) == "error_page")
-    {
-        if (add_error_page(error_pages, tokens) != 0)
-            throw (ServerErrorExeption());
-    }
-    else if (tokens.at(0) == "location")
-        return (1);
-    else
-        return (2);
-    return (0);
+	if(tokens.at(0) == "server")
+		return (2);
+
+	if(tokens.at(0) == "listen")
+		port = atoi(tokens.at(1).c_str());
+	else if (tokens.at(0) == "server_name")
+		server_name = tokens.at(1);
+	else if(tokens.at(0) == "host")
+		host = tokens.at(1);
+	else if(tokens.at(0) == "client_max_body_size")
+		max_body_size = get_body_size(tokens.at(1));
+	else if (tokens.at(0) == "error_page")
+	{
+		if (add_error_page(error_pages, tokens) != 0)
+			throw (ServerErrorExeption());
+	}
+	else if (tokens.at(0) == "location")
+		return (1);
+	else
+		return (2);
+	return (0);
 };
 
 //searches for the right server information for each one in the config file
@@ -46,58 +46,64 @@ int Server::check_line_server(std::string line)
 
 Server::Server(int server_pos, std::string config_file)
 {
-    host = "127.0.0.1";
-    port = 80;
-    server_name = "server1.com";
-    max_body_size = 1000000;
-    
-    std::string line;
-    std::string location_string;
-    std::ifstream file(config_file.c_str());
+	host = "127.0.0.1";
+	port = 80;
+	server_name = "server1.com";
+	max_body_size = 1000000;
 
-    while(std::getline(file, line))
-    {
-        if (line == "server {")
-            server_pos--;
-        if (server_pos == 0)
-            break;
-        line.clear();
-    }
+	std::string line;
+	std::string location_string;
+	std::ifstream file(config_file.c_str());
 
-    int ret = 0;
+	while(std::getline(file, line))
+	{
+		if (line == "server {")
+			server_pos--;
+		if (server_pos == 0)
+			break;
+		line.clear();
+	}
 
-    while(std::getline(file, line, ';'))
-    {
-        ret = check_line_server(line);
-        if (ret == 1)
-        {
-            std::getline(file, location_string, '}');
-            Locations.push_back(Location(line + location_string, this->max_body_size));
-        }
-        else if (ret == 2)
-            break ;
-        line.clear();
-    }
+	int ret = 0;
 
-    file.close();
+	while(std::getline(file, line, ';'))
+	{
+		ret = check_line_server(line);
+		if (ret == 1)
+		{
+			std::getline(file, location_string, '}');
+			Locations.push_back(Location(line + location_string, this->max_body_size));
+		}
+		else if (ret == 2)
+			break ;
+		line.clear();
+	}
+
+	file.close();
 };
 
 Server::Server(const Server &other)
 {
-    this->host = other.host;
-    this->port = other.port;
-    this->server_name = other.server_name;
-    this->max_body_size = other.max_body_size;
-    this->error_pages = other.error_pages;
-    this->Locations = other.Locations;
+	this->host = other.host;
+	this->port = other.port;
+	this->server_name = other.server_name;
+	this->max_body_size = other.max_body_size;
+	this->error_pages = other.error_pages;
+	this->Locations = other.Locations;
 };
 
 Server& Server::operator=(const Server &other)
 {
-    Server copy(other);
-
-    Server & ret = copy;
-    return(ret);
+	if (this != &other)
+	{
+		this->host = other.host;
+		this->port = other.port;
+		this->server_name = other.server_name;
+		this->max_body_size = other.max_body_size;
+		this->error_pages = other.error_pages;
+		this->Locations = other.Locations;
+	}
+	return (*this);
 };
- 
+
 Server::~Server(){};

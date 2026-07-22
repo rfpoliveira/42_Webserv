@@ -1,5 +1,6 @@
 #include "../../includes/config/Config.hpp"
 #include "../../includes/config/Server.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
 
 Config::Config(): number_servers(0) {};
 
@@ -8,39 +9,43 @@ Config::Config(): number_servers(0) {};
 
 Config::Config(std::string config_file)
 {
-    std::string line;
-    std::ifstream file(config_file.c_str());
-    number_servers = 0;
+	std::string line;
+	std::ifstream file(config_file.c_str());
+	number_servers = 0;
 
-    while(std::getline(file, line))
-    {
-        if (line == "server {")
-        {
-            this->number_servers++;
-            this->servers.push_back(Server(this->number_servers, config_file));
-        }
-    }
-    file.close();
+	while(std::getline(file, line))
+	{
+		if (line == "server {")
+		{
+			this->number_servers++;
+			this->servers.push_back(Server(this->number_servers, config_file));
+		}
+	}
+	file.close();
 };
 
 Config::Config(const Config &other)
 {
-    this->number_servers = other.number_servers;
-    this->servers = other.servers;
+	this->number_servers = other.number_servers;
+	this->servers = other.servers;
 };
 
 Config& Config::operator=(const Config &other)
 {
-    Config copy(other);
-
-    Config & ret = copy;
-    return(ret);
+	if (this != &other)
+	{
+		this->number_servers = other.number_servers;
+		this->servers = other.servers;
+	}
+	return (*this);
 };
 
-Location Config::getLocation(int port, std::string path)
+Location& Config::getLocation(int port, std::string& path)
 {
-    std::vector<Server>::iterator it;
-    std::vector<Location>::iterator it2;
+	//Location*	best = NULL;
+	//size_t		best_len = 0;
+	std::vector<Server>::iterator it;
+	std::vector<Location>::iterator it2;
 
     for(it = this->servers.begin(); it != this->servers.end(); it++)
     {
@@ -57,6 +62,5 @@ Location Config::getLocation(int port, std::string path)
     throw ConfigException("Invalid Location Settings");
     
 };
-
 
 Config::~Config(){};

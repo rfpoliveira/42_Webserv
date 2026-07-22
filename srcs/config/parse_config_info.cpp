@@ -1,57 +1,58 @@
 #include "../../includes/core/main.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
 
 int host_parse(std::string& host)
 {
-    if (host == "localhost")
-    {
-        host = "127.0.0.1";
-        return (0);
-    }
-    
-    std::vector<std::string> tokens = ft_split(host, '.');
-    if (tokens.size() != 4)
-        return (1);
-    
-    std::vector<std::string>::iterator it;
-    std::string::iterator str_it;
-    int tmp = 0;
-    
-    for(it = tokens.begin(); it != tokens.end(); it++)
-    {
-        for(str_it = (*it).begin(); str_it != (*it).end(); str_it++)
-        {
-            if (!std::isdigit((*str_it)))
-                return (1);
-        }
-        tmp = std::atoi((*it).c_str());
-        if (tmp < 0 || tmp > 255)
-            return (1);
-    }
-    return (0);
+	if (host == "localhost")
+	{
+		host = "127.0.0.1";
+		return (0);
+	}
+
+	std::vector<std::string> tokens = ft_split(host, '.');
+	if (tokens.size() != 4)
+		return (1);
+
+	std::vector<std::string>::iterator it;
+	std::string::iterator str_it;
+	int tmp = 0;
+
+	for(it = tokens.begin(); it != tokens.end(); it++)
+	{
+		for(str_it = (*it).begin(); str_it != (*it).end(); str_it++)
+		{
+			if (!std::isdigit((*str_it)))
+				return (1);
+		}
+		tmp = std::atoi((*it).c_str());
+		if (tmp < 0 || tmp > 255)
+			return (1);
+	}
+	return (0);
 }
 
 int error_page_parse(int code, std::string path)
 {
-    if (code < 300 || code > 599 || path[0] != '/')
-        return (1);
-    return (0);
+	if (code < 300 || code > 599 || path[0] != '/')
+		return (1);
+	return (0);
 }
 
 int valid_path_check(std::string path)
 {
-    struct stat sb;
-    
-    if (stat(path.c_str(), &sb))
-        return (1);
-    return (0);
+	struct stat sb;
+
+	if (stat(path.c_str(), &sb))
+		return (1);
+	return (0);
 }
 
 void parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
 {
-    std::vector<Server>::iterator it_vec;
-    std::vector<Location>::iterator it_loc;
-    std::map<int, std::string>::iterator it_map;
-    int i = 0;
+	std::vector<Server>::iterator it_vec;
+	std::vector<Location>::iterator it_loc;
+	std::map<int, std::string>::iterator it_map;
+	int i = 0;
 
 
     for(it_vec = configs.servers.begin(); it_vec != configs.servers.end(); it_vec++)
@@ -74,9 +75,4 @@ void parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (W
         }
             i++;
     }
-
-    //TODO:FUNCTION THAT CHECK IF THERE ARE 2 SERVERS WITH THE SAME PORT
-
-    return (0);
-
 }
