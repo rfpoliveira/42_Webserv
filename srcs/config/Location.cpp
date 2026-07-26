@@ -9,18 +9,18 @@ Location::Location()
 	DELETE = false;
 	autoindex = false;
 	redirection = "";
-	upload_path = "";
+	uploadPath = "";
 	index = "";
 };
 
 //check for a keyword and stores the information associated in the right place in the class
 
-int Location::check_line_location(std::string line)
+int Location::checkLineLocation(std::string line)
 {
-	ignore_comments(line);
+	ignoreComments(line);
 
-	std::vector<std::string> tokens = ft_split(line, ' ');
-	clean_strings(tokens);
+	std::vector<std::string> tokens = ftSplit(line, ' ');
+	cleanStrings(tokens);
 	int i = 0;
 
 	int size = tokens.size();
@@ -68,13 +68,13 @@ int Location::check_line_location(std::string line)
 		redirection = tokens.at(i + 2);
 	}
 	else if (tokens.at(i) == "upload_pass")
-		upload_path = tokens.at(i + 1);
+		uploadPath = tokens.at(i + 1);
 	else
 		return (6);
 	return (0);
 };
 
-Location::Location(std::string location_str, unsigned long max_body_size)
+Location::Location(std::string locationStr, unsigned long maxBodySize)
 {
 	path = "";
 	root = "";
@@ -83,19 +83,19 @@ Location::Location(std::string location_str, unsigned long max_body_size)
 	DELETE = false;
 	autoindex = false;
 	redirection = "";
-	upload_path = "";
+	uploadPath = "";
 	index = "";
-	this->max_body_size = max_body_size;
+	this->maxBodySize = maxBodySize;
 
 	//TODO: check for defaults
 
-	std::istringstream iss(location_str);
+	std::istringstream iss(locationStr);
 	std::string line;
 	int error = 0;
 
 	while(getline(iss, line))
 	{
-		error = check_line_location(line);
+		error = checkLineLocation(line);
 		if (error != 0)
 		{
 			std::cout << "Error: " << error << "\n";
@@ -104,7 +104,7 @@ Location::Location(std::string location_str, unsigned long max_body_size)
 	}
 };
 
-Location::Location(const Location &other)
+Location::Location(const Location& other)
 {
 	this->path = other.path;
 	this->root = other.root;
@@ -114,11 +114,11 @@ Location::Location(const Location &other)
 	this->autoindex = other.autoindex;
 	this->index = other.index;
 	this->redirection = other.redirection;
-	this->upload_path = other.upload_path;
-	this->max_body_size = other.max_body_size;
+	this->uploadPath = other.uploadPath;
+	this->maxBodySize = other.maxBodySize;
 };
 
-Location& Location::operator=(const Location &other)
+Location& Location::operator=(const Location& other)
 {
 	if (this != &other)
 	{
@@ -130,8 +130,8 @@ Location& Location::operator=(const Location &other)
 		this->autoindex = other.autoindex;
 		this->index = other.index;
 		this->redirection = other.redirection;
-		this->upload_path = other.upload_path;
-		this->max_body_size = other.max_body_size;
+		this->uploadPath = other.uploadPath;
+		this->maxBodySize = other.maxBodySize;
 	}
 	return (*this);
 };

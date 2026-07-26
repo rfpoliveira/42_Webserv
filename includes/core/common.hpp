@@ -18,19 +18,19 @@
 // (Anything needing Config lives in main.hpp instead.)
 
 // main parse
-int parse_config_file(std::string config_file);
+int parseConfigFile(std::string configFile);
 
 // utils
-std::vector<std::string> ft_split (std::string s, char delimiter);
-void clean_strings(std::vector<std::string>& buff);
-unsigned long get_body_size(std::string s);
-int add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens);
-int valid_file_check(std::string config_file);
-int brackets_count(std::string config_file);
-void ignore_comments(std::string& line);
+std::vector<std::string> ftSplit (std::string s, char delimiter);
+void cleanStrings(std::vector<std::string>& buff);
+unsigned long getBodySize(std::string s);
+int addErrorPage(std::map<int, std::string>& errorPages, std::vector<std::string> tokens);
+int validFileCheck(std::string configFile);
+int bracketsCount(std::string configFile);
+void ignoreComments(std::string& line);
 std::string intToString(int value);
 void freeEnvp(char** envp);
 
 // debug
-void debug_vector_print(std::vector<std::string> buff);
+void debugVectorPrint(std::vector<std::string> buff);
 void debug(int value);

@@ -13,7 +13,7 @@ static void trim(std::string& s)
 	s = s.substr(start, end - start + 1);
 }
 
-static void to_lower(std::string& s)
+static void toLower(std::string& s)
 {
 	for (size_t i = 0; i < s.size(); i++)
 		s[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(s[i])));
@@ -25,38 +25,38 @@ Request::Request(){};
 
 Request::Request(std::string Request_line)
 {
-	is_complete = false;
-	is_malformed = false;
-	std::vector<std::string> buffer1 = ft_split(Request_line, ' ');
+	isComplete = false;
+	isMalformed = false;
+	std::vector<std::string> buffer1 = ftSplit(Request_line, ' ');
 	if (buffer1.size() != 3)
 	{
-		is_malformed = true;
+		isMalformed = true;
 		return ;
 	}
-	request_method = buffer1[0];
+	requestMethod = buffer1[0];
 	if (buffer1[1].find('?') != std::string::npos)
 	{
-		std::vector<std::string> buffer2 = ft_split(buffer1[1], '?');
-		resource_path = buffer2[0];
+		std::vector<std::string> buffer2 = ftSplit(buffer1[1], '?');
+		resourcePath = buffer2[0];
 		if (buffer2.size() > 1)
-			query_string = buffer2[1];
+			queryString = buffer2[1];
 	}
 	else
-		resource_path = buffer1[1];
-	html_version = buffer1[2];
+		resourcePath = buffer1[1];
+	htmlVersion = buffer1[2];
 };
 
 
 //puts in the headers and body, to be called inside the event loop
-void Request::parse_headers(std::string data)
+void Request::parseHeaders(std::string data)
 {
 	size_t separator = data.find("\r\n\r\n");
 	if (separator == std::string::npos)
 		return ;
-	std::string headers_part = data.substr(0, separator);
-	std::string body_part = data.substr(separator + 4);
+	std::string headersPart = data.substr(0, separator);
+	std::string bodyPart = data.substr(separator + 4);
 
-	std::stringstream ss(headers_part);
+	std::stringstream ss(headersPart);
 	std::string line;
 	while (std::getline(ss, line))
 	{
@@ -72,58 +72,58 @@ void Request::parse_headers(std::string data)
 		std::string value = line.substr(colon + 1);
 		trim(key);
 		trim(value);
-		to_lower(key);
+		toLower(key);
 		if (!key.empty())
 			headers[key] = value;
 	}
 	if (headers.find("content-length") != headers.end())
 	{
 		int len = std::atoi(headers["content-length"].c_str());
-		if (body_part.size() >= static_cast<size_t>(len))
+		if (bodyPart.size() >= static_cast<size_t>(len))
 		{
-			body = body_part.substr(0, len);
-			is_complete = true;
+			body = bodyPart.substr(0, len);
+			isComplete = true;
 		}
 		else
-			is_complete = false;
+			isComplete = false;
 	}
 	else
-		is_complete = true;
+		isComplete = true;
 }
 
 
-Request::Request(const Request &other)
+Request::Request(const Request& other)
 {
-		this->is_complete = other.is_complete;
-		this->is_malformed = other.is_malformed;
-		this->request_method = other.request_method;
-		this->query_string = other.query_string;
+		this->isComplete = other.isComplete;
+		this->isMalformed = other.isMalformed;
+		this->requestMethod = other.requestMethod;
+		this->queryString = other.queryString;
 		this->headers = other.headers;
-		this->resource_path = other.resource_path;
-		this->html_version = other.html_version;
+		this->resourcePath = other.resourcePath;
+		this->htmlVersion = other.htmlVersion;
 		this->body = other.body;
 };
 
-std::string Request::getHeader(std::string key)
+std::string Request::getHeader(std::string key) const
 {
-	to_lower(key);
+	toLower(key);
 	std::map<std::string, std::string>::const_iterator it = headers.find(key);
 	if (it != headers.end())
 		return it->second;
 	return ("");
 }
 
-Request& Request::operator=(const Request &other)
+Request& Request::operator=(const Request& other)
 {
 	if (this != &other)
 	{
-		this->is_complete = other.is_complete;
-		this->is_malformed = other.is_malformed;
-		this->request_method = other.request_method;
-		this->query_string = other.query_string;
+		this->isComplete = other.isComplete;
+		this->isMalformed = other.isMalformed;
+		this->requestMethod = other.requestMethod;
+		this->queryString = other.queryString;
 		this->headers = other.headers;
-		this->resource_path = other.resource_path;
-		this->html_version = other.html_version;
+		this->resourcePath = other.resourcePath;
+		this->htmlVersion = other.htmlVersion;
 		this->body = other.body;
 	}
 	return (*this);

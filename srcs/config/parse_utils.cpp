@@ -2,60 +2,60 @@
 
 //takes the commented line of the config file out of the line  of the config file (#)
 
-void ignore_comments(std::string& line)
+void ignoreComments(std::string& line)
 {
-	std::string::iterator it_first;
-	std::string::iterator it_last;
+	std::string::iterator itFirst;
+	std::string::iterator itLast;
 
 	while (42)
 	{
-		for(it_first = line.begin(); it_first != line.end(); it_first++)
+		for(itFirst = line.begin(); itFirst != line.end(); itFirst++)
 		{
-			if(*it_first == '#')
+			if(*itFirst == '#')
 				break ;
 		}
-		if (it_first == line.end())
+		if (itFirst == line.end())
 			return ;
-		for(it_last = it_first; it_last != line.end(); it_last++)
+		for(itLast = itFirst; itLast != line.end(); itLast++)
 		{
-			if (*it_last == '\n')
+			if (*itLast == '\n')
 				break ;
 		}
-		if (it_last == line.end())
-			it_last--;
-		line.erase(it_first, it_last);
+		if (itLast == line.end())
+			itLast--;
+		line.erase(itFirst, itLast);
 	}
 }
 
 //takes out tabs, spaces and the end of line delimiter from the lines
 
-void clean_strings(std::vector<std::string>& buff)
+void cleanStrings(std::vector<std::string>& buff)
 {
-	std::vector<std::string>::iterator it_vec;
-	std::string::iterator it_str;
+	std::vector<std::string>::iterator itVec;
+	std::string::iterator itStr;
 
-	for(it_vec = buff.begin(); it_vec != buff.end(); it_vec++)
+	for(itVec = buff.begin(); itVec != buff.end(); itVec++)
 	{
-		while ((*it_vec).length() == 0)
+		while ((*itVec).length() == 0)
 		{
-			buff.erase(it_vec);
+			buff.erase(itVec);
 			if (buff.size() == 0)
 				return ;
-			it_vec = buff.begin();
+			itVec = buff.begin();
 		}
-		for(it_str = (*it_vec).begin(); it_str != (*it_vec).end(); it_str++)
+		for(itStr = (*itVec).begin(); itStr != (*itVec).end(); itStr++)
 		{
-			if(*it_str == '\v' || *it_str == '\t' || *it_str == ';' || *it_str == '\n' || *it_str == ' ' || \
-			*it_str == '{' || *it_str == '}' || *it_str == '\r')
+			if(*itStr == '\v' || *itStr == '\t' || *itStr == ';' || *itStr == '\n' || *itStr == ' ' || \
+			*itStr == '{' || *itStr == '}' || *itStr == '\r')
 			{
-				if ((*it_vec).length() == 1)
+				if ((*itVec).length() == 1)
 				{
-					buff.erase(it_vec);
-					it_vec = buff.begin();
+					buff.erase(itVec);
+					itVec = buff.begin();
 					break ;
 				}
-				(*it_vec).erase(it_str);
-				it_str = (*it_vec).begin();
+				(*itVec).erase(itStr);
+				itStr = (*itVec).begin();
 			}
 		}
 	}
@@ -64,7 +64,7 @@ void clean_strings(std::vector<std::string>& buff)
 
 //splits the line into strings using a custom delimiter(usually ' ' and clean the line of unwated chars(clean strings))
 
-std::vector<std::string> ft_split(std::string s, char delimiter)
+std::vector<std::string> ftSplit(std::string s, char delimiter)
 {
 	size_t last = 0;
 	size_t next = 0;
@@ -86,7 +86,7 @@ std::vector<std::string> ft_split(std::string s, char delimiter)
 }
 
 //takes the max_body_size syntax and puts in in decimal (k or K for kb, m or M for mb and nothing for bytes)
-unsigned long get_body_size(std::string s)
+unsigned long getBodySize(std::string s)
 {
 	long long numb = 0;
 
@@ -101,23 +101,23 @@ unsigned long get_body_size(std::string s)
 
 //separates the information about the error pages, puts them in a map, the key is the code corresponding to the path
 
-int add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens)
+int addErrorPage(std::map<int, std::string>& errorPages, std::vector<std::string> tokens)
 {
 	if (tokens.size() < 3)
 		return (1);
-	int error_code = atoi(tokens.at(1).c_str());
+	int errorCode = atoi(tokens.at(1).c_str());
 	std::string path = tokens.at(2);
-	error_pages[error_code] = path;
+	errorPages[errorCode] = path;
 	return (0);
 }
 
 //checks if the file exists and if it can be openned
 
-int valid_file_check(std::string config_file)
+int validFileCheck(std::string configFile)
 {
 	std::fstream file;
 
-	file.open(config_file.c_str());
+	file.open(configFile.c_str());
 	if(!file.is_open())
 	{
 		std::cout << "Error opening file\n";
@@ -129,10 +129,10 @@ int valid_file_check(std::string config_file)
 
 // counts and brackets in all the file, checks if its all well formatted
 
-int brackets_count(std::string config_file)
+int bracketsCount(std::string configFile)
 {
 	std::string line;
-	std::ifstream file(config_file.c_str());
+	std::ifstream file(configFile.c_str());
 	int count = 0;
 
 	while(getline(file, line))

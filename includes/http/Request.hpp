@@ -5,23 +5,23 @@
 class Request
 {
 	public:
-		std::string request_method; //get, post or delete
-		std::string query_string;
-		std::string resource_path;
-		std::string html_version;
+		std::string requestMethod; //get, post or delete
+		std::string queryString;
+		std::string resourcePath;
+		std::string htmlVersion;
 		std::string body;
 
 		std::map<std::string, std::string> headers;
-		std::string getHeader(std::string key);
+		std::string getHeader(std::string key) const;
 
-		bool is_complete;
-		bool is_malformed;
+		bool isComplete;
+		bool isMalformed;
 
-		void parse_headers(std::string data);
+		void parseHeaders(std::string data);
 
 		Request();
 		Request(std::string Request_line);
-		Request(const Request &other);
-		Request &operator=(const Request &other);
+		Request(const Request& other);
+		Request& operator=(const Request& other);
 		~Request();
 };

@@ -1,6 +1,6 @@
 #include "../../includes/core/main.hpp"
 
-int host_parse(std::string& host)
+int hostParse(std::string& host)
 {
 	if (host == "localhost")
 	{
@@ -8,19 +8,19 @@ int host_parse(std::string& host)
 		return (0);
 	}
 
-	std::vector<std::string> tokens = ft_split(host, '.');
+	std::vector<std::string> tokens = ftSplit(host, '.');
 	if (tokens.size() != 4)
 		return (1);
 
 	std::vector<std::string>::iterator it;
-	std::string::iterator str_it;
+	std::string::iterator strIt;
 	int tmp = 0;
 
 	for(it = tokens.begin(); it != tokens.end(); it++)
 	{
-		for(str_it = (*it).begin(); str_it != (*it).end(); str_it++)
+		for(strIt = (*it).begin(); strIt != (*it).end(); strIt++)
 		{
-			if (!std::isdigit((*str_it)))
+			if (!std::isdigit((*strIt)))
 				return (1);
 		}
 		tmp = std::atoi((*it).c_str());
@@ -30,14 +30,14 @@ int host_parse(std::string& host)
 	return (0);
 }
 
-int error_page_parse(int code, std::string path)
+int errorPageParse(int code, std::string path)
 {
 	if (code < 300 || code > 599 || path[0] != '/')
 		return (1);
 	return (0);
 }
 
-int valid_path_check(std::string path)
+int validPathCheck(std::string path)
 {
 	struct stat sb;
 
@@ -46,30 +46,30 @@ int valid_path_check(std::string path)
 	return (0);
 }
 
-int parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
+int parseConfigInfo(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
 {
-	std::vector<Server>::iterator it_vec;
-	std::vector<Location>::iterator it_loc;
-	std::map<int, std::string>::iterator it_map;
+	std::vector<Server>::iterator itVec;
+	std::vector<Location>::iterator itLoc;
+	std::map<int, std::string>::iterator itMap;
 	int i = 0;
 
 
-	for(it_vec = configs.servers.begin(); it_vec != configs.servers.end(); it_vec++)
+	for(itVec = configs.servers.begin(); itVec != configs.servers.end(); itVec++)
 	{
-		if ((*it_vec).port <= 0)
+		if ((*itVec).port <= 0)
 			return (-3);
-		if (host_parse((*it_vec).host))
+		if (hostParse((*itVec).host))
 			return (-4);
-		if ((*it_vec).max_body_size <= 0)
+		if ((*itVec).maxBodySize <= 0)
 			return (-5);
-		for (it_map = (*it_vec).error_pages.begin(); it_map != (*it_vec).error_pages.end();it_map++)
+		for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
 		{
-			if (error_page_parse((*it_map).first, (*it_map).second))
+			if (errorPageParse((*itMap).first, (*itMap).second))
 				return (-6);
 		}
-		for(it_loc = (*it_vec).Locations.begin(); it_loc != (*it_vec).Locations.end(); it_loc++)
+		for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
 		{
-			if (valid_path_check((*it_loc).path) || valid_path_check((*it_loc).root))
+			if (validPathCheck((*itLoc).path) || validPathCheck((*itLoc).root))
 				return (-7);
 		}
 			i++;

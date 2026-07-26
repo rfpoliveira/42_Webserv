@@ -59,6 +59,7 @@ SRCS		= $(addprefix $(SRC_DIR)/, \
 				core/main.cpp \
 				http/Request.cpp \
 				http/ResponseBuilder.cpp \
+				server/Client.cpp \
 				server/request_handler.cpp \
 				)
 OBJS		= $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SRCS:.cpp=.o))

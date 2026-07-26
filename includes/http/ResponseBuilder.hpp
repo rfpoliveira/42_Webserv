@@ -5,7 +5,7 @@
 class ResponseBuilder
 {
 	public:
-		static std::string build_static_file(const std::string& file_path);
+		static std::string buildStaticFile(const std::string& filePath);
 
 		//TODO ERROS?
 

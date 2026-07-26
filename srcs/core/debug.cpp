@@ -1,6 +1,6 @@
 #include "../../includes/core/main.hpp"
 
-void debug_vector_print(std::vector<std::string> buff)
+void debugVectorPrint(std::vector<std::string> buff)
 {
 	std::vector<std::string>::iterator it;
 	for(it = buff.begin(); it != buff.end(); it++)

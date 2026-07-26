@@ -5,14 +5,14 @@
 class Config
 {
 	public:
-		int number_servers;
+		int numberServers;
 		std::vector<Server> servers;
 
-		Location* getLocation(int port, std::string& path);
+		Location* getLocation(int port, const std::string& path) const;
 
 		Config();
-		Config(std::string config_file);
-		Config(const Config &other);
-		Config &operator=(const Config &other);
+		Config(std::string configFile);
+		Config(const Config& other);
+		Config& operator=(const Config& other);
 		~Config();
 };

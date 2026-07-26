@@ -4,18 +4,18 @@ Server::Server()
 {
 	host = "127.0.0.1";
 	port = 80;
-	server_name = "server1.com";
-	max_body_size = 1000000;
+	serverName = "server1.com";
+	maxBodySize = 1000000;
 };
 
 //check for a keyword and stores the information associated in the right place in the class
 
-int Server::check_line_server(std::string line)
+int Server::checkLineServer(std::string line)
 {
-	ignore_comments(line);
+	ignoreComments(line);
 
-	std::vector<std::string> tokens = ft_split(line, ' ');
-	clean_strings(tokens);
+	std::vector<std::string> tokens = ftSplit(line, ' ');
+	cleanStrings(tokens);
 
 	if(tokens.at(0) == "server")
 		return (2);
@@ -23,14 +23,14 @@ int Server::check_line_server(std::string line)
 	if(tokens.at(0) == "listen")
 		port = atoi(tokens.at(1).c_str());
 	else if (tokens.at(0) == "server_name")
-		server_name = tokens.at(1);
+		serverName = tokens.at(1);
 	else if(tokens.at(0) == "host")
 		host = tokens.at(1);
 	else if(tokens.at(0) == "client_max_body_size")
-		max_body_size = get_body_size(tokens.at(1));
+		maxBodySize = getBodySize(tokens.at(1));
 	else if (tokens.at(0) == "error_page")
 	{
-		if (add_error_page(error_pages, tokens) != 0)
+		if (addErrorPage(errorPages, tokens) != 0)
 			throw (ServerErrorExeption());
 	}
 	else if (tokens.at(0) == "location")
@@ -44,22 +44,22 @@ int Server::check_line_server(std::string line)
 //goes line by line checking for the keyword
 //if a location is found, calls its construtor and saves it in the Locations vector
 
-Server::Server(int server_pos, std::string config_file)
+Server::Server(int serverPos, std::string configFile)
 {
 	host = "127.0.0.1";
 	port = 80;
-	server_name = "server1.com";
-	max_body_size = 1000000;
+	serverName = "server1.com";
+	maxBodySize = 1000000;
 
 	std::string line;
-	std::string location_string;
-	std::ifstream file(config_file.c_str());
+	std::string locationString;
+	std::ifstream file(configFile.c_str());
 
 	while(std::getline(file, line))
 	{
 		if (line == "server {")
-			server_pos--;
-		if (server_pos == 0)
+			serverPos--;
+		if (serverPos == 0)
 			break;
 		line.clear();
 	}
@@ -68,11 +68,11 @@ Server::Server(int server_pos, std::string config_file)
 
 	while(std::getline(file, line, ';'))
 	{
-		ret = check_line_server(line);
+		ret = checkLineServer(line);
 		if (ret == 1)
 		{
-			std::getline(file, location_string, '}');
-			Locations.push_back(Location(line + location_string, this->max_body_size));
+			std::getline(file, locationString, '}');
+			Locations.push_back(Location(line + locationString, this->maxBodySize));
 		}
 		else if (ret == 2)
 			break ;
@@ -82,25 +82,25 @@ Server::Server(int server_pos, std::string config_file)
 	file.close();
 };
 
-Server::Server(const Server &other)
+Server::Server(const Server& other)
 {
 	this->host = other.host;
 	this->port = other.port;
-	this->server_name = other.server_name;
-	this->max_body_size = other.max_body_size;
-	this->error_pages = other.error_pages;
+	this->serverName = other.serverName;
+	this->maxBodySize = other.maxBodySize;
+	this->errorPages = other.errorPages;
 	this->Locations = other.Locations;
 };
 
-Server& Server::operator=(const Server &other)
+Server& Server::operator=(const Server& other)
 {
 	if (this != &other)
 	{
 		this->host = other.host;
 		this->port = other.port;
-		this->server_name = other.server_name;
-		this->max_body_size = other.max_body_size;
-		this->error_pages = other.error_pages;
+		this->serverName = other.serverName;
+		this->maxBodySize = other.maxBodySize;
+		this->errorPages = other.errorPages;
 		this->Locations = other.Locations;
 	}
 	return (*this);
