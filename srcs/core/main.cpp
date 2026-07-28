@@ -53,10 +53,6 @@ int main(int argc, char** argv)
         std::cout << e.what() << "\n";
         return (-3);
     }
-    
-    //TODO: PRINT ERROR FUNCTION
-
-	//TODO: PRINT ERROR FUNCTION
 
 	//print_confis(configs);
 

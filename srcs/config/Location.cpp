@@ -16,7 +16,7 @@ Location::Location()
 
 //check for a keyword and stores the information associated in the right place in the class
 
-int Location::checkLineLocation(std::string line)
+void Location::checkLineLocation(std::string line)
 {
 	ignoreComments(line);
 
@@ -27,14 +27,18 @@ int Location::checkLineLocation(std::string line)
 	int size = tokens.size();
 
 	if (size == 0)
-		return (0);
+		return ;
 	if (size < 2)
-		return (0);
+		return ;
 
 	if(tokens.at(i) == "location")
 		path = tokens.at(i + 1);
-	else if(tokens.at(i) == "root") //TODO: CHECK FOR MULTIPLE ROOT PATHS
+	else if(tokens.at(i) == "root")
+	{
+		if (!root.empty())
+			throw ConfigException("Multiple root declaration at a single Location");
 		root = tokens.at(i + 1);
+	}
 	else if(tokens.at(i) == "allow_methods")
 	{
 		while(size > 0)
@@ -45,8 +49,8 @@ int Location::checkLineLocation(std::string line)
 				POST = true;
 			if (tokens.at(i) == "DELETE")
 				DELETE = true;
-			if (tokens.at(i) != "GET" && tokens.at(i) != "POST" && tokens.at(i) != "DELETE") //TODO:: CHECK
-				return (5);
+			if (tokens.at(i) != "GET" && tokens.at(i) != "POST" && tokens.at(i) != "DELETE")
+				throw ConfigException("Invalid method found");
 			i++;
 			size--;
 		}
@@ -60,19 +64,19 @@ int Location::checkLineLocation(std::string line)
 		else if (tokens.at(i + 1) == "on")
 			autoindex = true;
 		else
-			return (3);
+			throw ConfigException("Invalid token after autoindex");
 	}
 	else if (tokens.at(i) == "return")
 	{
 		if (tokens.size() < 3)
-			return (4);
+			throw ConfigException("Invalid return in Location");
 		redirection = tokens.at(i + 2);
 	}
 	else if (tokens.at(i) == "upload_pass")
 		uploadPath = tokens.at(i + 1);
 	else
-		return (6);
-	return (0);
+		throw ConfigException("Invalid config Location");
+	return ;
 };
 
 Location::Location(std::string locationStr)
@@ -88,21 +92,11 @@ Location::Location(std::string locationStr)
 	index = "index.html";
 	maxBodySize = 0;
 
-	//TODO: check for defaults
-
 	std::istringstream iss(locationStr);
 	std::string line;
-	int error = 0;
 
 	while(getline(iss, line))
-	{
-		error = checkLineLocation(line);
-		if (error != 0)
-		{
-			std::cout << "Error: " << error << "\n";
-			throw (LocationErrorExeption());
-		}
-	}
+		checkLineLocation(line);
 };
 
 Location::Location(const Location& other)

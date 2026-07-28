@@ -29,7 +29,11 @@ int Server::checkLineServer(std::string line)
 	else if(tokens.at(0) == "host")
 		host = tokens.at(1);
 	else if(tokens.at(0) == "root")
+	{
+		if (!root.empty())
+			throw ConfigException("Multiple root declaration at a single Server");
 		root = tokens.at(1);
+	}
 	else if(tokens.at(0) == "client_maxBodySize")
 		maxBodySize = getBodySize(tokens.at(1));
 	else if (tokens.at(0) == "error_page")

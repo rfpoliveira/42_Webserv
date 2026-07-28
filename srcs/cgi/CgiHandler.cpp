@@ -58,8 +58,8 @@ char** CgiHandler::convertEnvToCstyle()
 
 bool CgiHandler::execute(Request request)
 {
-	this->setupEnv(request); //TODO
-	char** envp = this->convertEnvToCstyle(); //TODO
+	this->setupEnv(request);
+	char** envp = this->convertEnvToCstyle();
 
 	char* args[3];
 	args[0] = const_cast<char*>("/usr/bin/python3");
