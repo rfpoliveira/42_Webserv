@@ -9,18 +9,17 @@ CgiHandler::CgiHandler(std::string _scriptPath)
 	_pipeOut[0] = -1;
 	_pipeOut[1] = -1;
 
-	if(pipe(_pipeIn) < 0)
-	{
-		//TODO ERROR NAO CONSEGUIR ABRIR PIPE
-	}
+    if(pipe(pipeIn) < 0)
+    {
+        throw HttpException(1, "Error opening pipe");
+    }
 
-	if(pipe(_pipeOut) < 0)
-	{
-		close(_pipeIn[0]);
-		close(_pipeIn[1]);
-		//TODO ERROR NAO CONSEGUIR ABRIR PIPE
-	}
-
+    if(pipe(pipeOut) < 0)
+    {
+        close(pipeIn[0]);
+        close(pipeIn[1]);
+        throw HttpException(1, "Error opening pipe");
+    } 
 }
 
 void CgiHandler::setupEnv(Request request)

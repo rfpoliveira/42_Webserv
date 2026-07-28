@@ -1,4 +1,5 @@
 #include "../../includes/config/Location.hpp"
+#include "../../includes/exceptions/HttpException.hpp"
 
 Location::Location()
 {
@@ -138,16 +139,15 @@ Location& Location::operator=(const Location& other)
 
 bool Location::isMethodallowed(std::string method)
 {
-	if (method == "GET")
-		return(this->GET);
-	else if(method == "DELETE")
-		return(this->DELETE);
-	else if(method == "POST")
-		return(this->POST);
-	// Unknown method: never allowed here.
-	// Caller decides 405 (known method, not allowed on this route)
-	// vs 501 (method the server does not implement at all).
-	return (false);
+    if (method == "GET")
+        return(this->GET);
+    else if(method == "DELETE")
+        return(this->DELETE);
+    else if(method == "POST")
+        return(this->POST);
+    else
+        throw HttpException(2, "Method not allowed");
+    
 }
 
 Location::~Location(){};

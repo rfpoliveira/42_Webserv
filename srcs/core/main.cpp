@@ -1,5 +1,6 @@
 #include "../../includes/config/Config.hpp"
 #include "../../includes/core/main.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
 
 void printConfis(Config& configs)
 {
@@ -39,19 +40,21 @@ void printConfis(Config& configs)
 
 int main(int argc, char** argv)
 {
-	if (argc != 2)
-	{
-		std::cout << "Please enter valid arguments:\n./webserv <config_file>\n";
-		return (-1);
-	}
-	if (parseConfigFile(argv[1]) != 0)
-		return (-2);
-
-	Config configs(argv[1]);
-
-	int error = parseConfigInfo(configs);
-	if (error != 0)
-		return (error);
+    try 
+    {
+        if (argc != 2)
+            throw ConfigException("Please enter valid arguments:\n./webserv <config_file>");
+        parse_config_file(argv[1]);
+        Config configs(argv[1]);
+        parse_config_info(configs);
+    }
+    catch (ConfigException& e)
+    {
+        std::cout << e.what() << "\n";
+        return (-3);
+    }
+    
+    //TODO: PRINT ERROR FUNCTION
 
 	//TODO: PRINT ERROR FUNCTION
 

@@ -1,5 +1,6 @@
 #include "../../includes/config/Config.hpp"
 #include "../../includes/config/Server.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
 
 Config::Config(): numberServers(0) {};
 
@@ -39,26 +40,27 @@ Config& Config::operator=(const Config& other)
 	return (*this);
 };
 
-Location* Config::getLocation(int port, const std::string& path) const
+Location& Config::getLocation(int port, std::string& path)
 {
-	Location*	best = NULL;
-	size_t		bestLen = 0;
+	//Location*	best = NULL;
+	//size_t		best_len = 0;
+	std::vector<Server>::iterator it;
+	std::vector<Location>::iterator it2;
 
-	for (size_t i = 0; i < servers.size(); i++)
-	{
-		if (servers[i].port != port)
-			continue;
-		for (size_t j = 0; j < servers[i].Locations.size(); j++)
-		{
-			const std::string& lp = servers[i].Locations[j].path;
-			if (path.compare(0, lp.size(), lp) == 0 && lp.size() >= bestLen)
-			{
-				best = const_cast<Location*>(&servers[i].Locations[j]);
-				bestLen = lp.size();
-			}
-		}
-	}
-	return (best);
-}
+    for(it = this->servers.begin(); it != this->servers.end(); it++)
+    {
+        if ((*it).port == port)
+        {
+            for (it2 = (*it).Locations.begin(); it2 != (*it).Locations.end(); it2++)
+            {
+                if ((*it2).path == path)
+                    return((*it2));
+            }
+        }
+    }
+
+    throw ConfigException("Invalid Location Settings");
+    
+};
 
 Config::~Config(){};

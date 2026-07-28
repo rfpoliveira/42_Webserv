@@ -1,4 +1,5 @@
 #include "../../includes/core/main.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
 
 int hostParse(std::string& host)
 {
@@ -46,7 +47,7 @@ int validPathCheck(std::string path)
 	return (0);
 }
 
-int parseConfigInfo(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
+void parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
 {
 	std::vector<Server>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
@@ -54,29 +55,24 @@ int parseConfigInfo(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK
 	int i = 0;
 
 
-	for(itVec = configs.servers.begin(); itVec != configs.servers.end(); itVec++)
-	{
-		if ((*itVec).port <= 0)
-			return (-3);
-		if (hostParse((*itVec).host))
-			return (-4);
-		if ((*itVec).maxBodySize <= 0)
-			return (-5);
-		for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
-		{
-			if (errorPageParse((*itMap).first, (*itMap).second))
-				return (-6);
-		}
-		for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
-		{
-			if (validPathCheck((*itLoc).path) || validPathCheck((*itLoc).root))
-				return (-7);
-		}
-			i++;
-	}
-	(void)i;
-	//TODO:FUNCTION THAT CHECK IF THERE ARE 2 SERVERS WITH THE SAME PORT
-
-	return (0);
-
+    for(it_vec = configs.servers.begin(); it_vec != configs.servers.end(); it_vec++)
+    {
+        if ((*it_vec).port <= 0)
+            throw ConfigException("Invalid port.");
+        if (host_parse((*it_vec).host))
+            throw ConfigException("Invalid host.");
+        if ((*it_vec).max_body_size <= 0)
+            throw ConfigException("Invalid max_body_size.");
+        for (it_map = (*it_vec).error_pages.begin(); it_map != (*it_vec).error_pages.end();it_map++)
+        {
+            if (error_page_parse((*it_map).first, (*it_map).second))
+                throw ConfigException("Invalid error pages.");
+        }
+        for(it_loc = (*it_vec).Locations.begin(); it_loc != (*it_vec).Locations.end(); it_loc++)
+        {
+            if (valid_path_check((*it_loc).path) || valid_path_check((*it_loc).root))
+                throw ConfigException("Invalid paths.");
+        }
+            i++;
+    }
 }

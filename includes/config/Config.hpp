@@ -8,7 +8,7 @@ class Config
 		int numberServers;
 		std::vector<Server> servers;
 
-		Location* getLocation(int port, const std::string& path) const;
+		Location& getLocation(int port, std::string& path);
 
 		Config();
 		Config(std::string configFile);
