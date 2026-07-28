@@ -22,6 +22,20 @@ Config::Config(std::string configFile)
 		}
 	}
 	file.close();
+
+	std::vector<Server>::iterator it;	
+	std::vector<Server>::iterator it2;
+	int port_to_compare;
+
+	for(it = servers.begin(); it != servers.end(); it++)
+	{
+		port_to_compare = (it->port);
+		for(it2 = it + 1; it2 != servers.end(); it2++)
+		{
+			if (port_to_compare == (it2->port))
+				throw ConfigException("Multiple Servers on the same port");
+		}
+	}
 };
 
 Config::Config(const Config& other)

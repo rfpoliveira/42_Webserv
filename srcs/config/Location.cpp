@@ -41,6 +41,8 @@ void Location::checkLineLocation(std::string line)
 	}
 	else if(tokens.at(i) == "allow_methods")
 	{
+		i++;
+		size--;
 		while(size > 0)
 		{
 			if (tokens.at(i) == "GET")
@@ -72,7 +74,7 @@ void Location::checkLineLocation(std::string line)
 			throw ConfigException("Invalid return in Location");
 		redirection = tokens.at(i + 2);
 	}
-	else if (tokens.at(i) == "upload_pass")
+	else if (tokens.at(i) == "upload_path")
 		uploadPath = tokens.at(i + 1);
 	else
 		throw ConfigException("Invalid config Location");

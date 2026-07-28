@@ -47,7 +47,7 @@ int validPathCheck(std::string path)
 	return (0);
 }
 
-void parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
+void parse_config_info(Config& configs)
 {
 	std::vector<Server>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
@@ -70,7 +70,7 @@ void parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (W
         }
         for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
         {
-            if (validPathCheck((*itLoc).path) || validPathCheck((*itLoc).root))
+            if (validPathCheck((*itLoc).uploadPath) || validPathCheck((*itLoc).root))
                 throw ConfigException("Invalid paths.");
         }
             i++;
