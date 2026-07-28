@@ -40,10 +40,8 @@ Config& Config::operator=(const Config& other)
 	return (*this);
 };
 
-Location& Config::getLocation(int port, std::string& path)
+Location* Config::getLocation(int port, std::string& path)
 {
-	//Location*	best = NULL;
-	//size_t		best_len = 0;
 	std::vector<Server>::iterator it;
 	std::vector<Location>::iterator it2;
 
@@ -54,13 +52,12 @@ Location& Config::getLocation(int port, std::string& path)
             for (it2 = (*it).Locations.begin(); it2 != (*it).Locations.end(); it2++)
             {
                 if ((*it2).path == path)
-                    return((*it2));
+                    return(&(*it2));
             }
         }
     }
 
-    throw ConfigException("Invalid Location Settings");
-    
+    throw ConfigException("Invalid Location Settings"); 
 };
 
 Config::~Config(){};

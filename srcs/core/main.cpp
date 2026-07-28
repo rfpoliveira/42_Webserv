@@ -17,7 +17,7 @@ void printConfis(Config& configs)
 		std::cout << "host: " << (*itVec).host << "\n";
 		std::cout << "port: " << (*itVec).port << "\n";
 		std::cout << "server_name: " << (*itVec).serverName << "\n";
-		std::cout << "max_body_size: " << (*itVec).maxBodySize << "\n";
+		std::cout << "maxBodySize: " << (*itVec).maxBodySize << "\n";
 		for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
 			std::cout << "error page: " << (*itMap).first << ", " << (*itMap).second << "\n";
 		for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rpedrosa & mreinald                        +#+  +:+       +#+         #
+#    By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/19 00:00:00 by rpedrosa          #+#    #+#              #
-#    Updated: 2026/07/19 00:00:00 by rpedrosa         ###   ########.fr        #
+#    Updated: 2026/07/28 10:52:54 by rpedrosa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,6 +57,8 @@ SRCS		= $(addprefix $(SRC_DIR)/, \
 				config/Server.cpp \
 				core/debug.cpp \
 				core/main.cpp \
+				exceptions/ConfigException.cpp \
+				exceptions/HttpException.cpp \
 				http/Request.cpp \
 				http/ResponseBuilder.cpp \
 				server/Client.cpp \

@@ -1,11 +1,13 @@
 #include "../../includes/config/Server.hpp"
 
+
 Server::Server()
 {
-	host = "127.0.0.1";
-	port = 80;
-	serverName = "server1.com";
-	maxBodySize = 1000000;
+	root = "/var/www/html";
+	host = "0.0.0.0";
+	port = 8080;
+	serverName = "";
+	maxBodySize = 1048576;
 };
 
 //check for a keyword and stores the information associated in the right place in the class
@@ -26,7 +28,9 @@ int Server::checkLineServer(std::string line)
 		serverName = tokens.at(1);
 	else if(tokens.at(0) == "host")
 		host = tokens.at(1);
-	else if(tokens.at(0) == "client_max_body_size")
+	else if(tokens.at(0) == "root")
+		root = tokens.at(1);
+	else if(tokens.at(0) == "client_maxBodySize")
 		maxBodySize = getBodySize(tokens.at(1));
 	else if (tokens.at(0) == "error_page")
 	{
@@ -46,10 +50,11 @@ int Server::checkLineServer(std::string line)
 
 Server::Server(int serverPos, std::string configFile)
 {
-	host = "127.0.0.1";
-	port = 80;
-	serverName = "server1.com";
-	maxBodySize = 1000000;
+	root = "/var/www/html";
+	host = "0.0.0.0";
+	port = 8080;
+	serverName = "";
+	maxBodySize = 1048576;
 
 	std::string line;
 	std::string locationString;
@@ -72,7 +77,7 @@ Server::Server(int serverPos, std::string configFile)
 		if (ret == 1)
 		{
 			std::getline(file, locationString, '}');
-			Locations.push_back(Location(line + locationString, this->maxBodySize));
+			Locations.push_back(Location(line + locationString));
 		}
 		else if (ret == 2)
 			break ;
@@ -80,10 +85,15 @@ Server::Server(int serverPos, std::string configFile)
 	}
 
 	file.close();
+
+	std::vector<Location>::iterator it;
+	for (it = Locations.begin(); it!= Locations.end(); it++)
+		(*it).applyServerDefaults(*this);
 };
 
 Server::Server(const Server& other)
 {
+	this->root = other.root;
 	this->host = other.host;
 	this->port = other.port;
 	this->serverName = other.serverName;
@@ -96,6 +106,7 @@ Server& Server::operator=(const Server& other)
 {
 	if (this != &other)
 	{
+		this->root = other.root;
 		this->host = other.host;
 		this->port = other.port;
 		this->serverName = other.serverName;

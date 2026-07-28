@@ -1,6 +1,6 @@
 #include "../../includes/exceptions/ConfigException.hpp"
 
-explicit ConfigException::ConfigException(const std::string& msg)
+ConfigException::ConfigException(const std::string& msg)
 {
     _error_msg = "Config error: " + msg;
 }

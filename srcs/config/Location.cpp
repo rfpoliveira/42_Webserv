@@ -4,14 +4,14 @@
 Location::Location()
 {
 	path = "";
-	root = "";
-	GET = false;
+	GET = true;
 	POST = false;
 	DELETE = false;
 	autoindex = false;
 	redirection = "";
 	uploadPath = "";
-	index = "";
+	index = "index.html";
+	maxBodySize = 0;
 };
 
 //check for a keyword and stores the information associated in the right place in the class
@@ -75,18 +75,18 @@ int Location::checkLineLocation(std::string line)
 	return (0);
 };
 
-Location::Location(std::string locationStr, unsigned long maxBodySize)
+Location::Location(std::string locationStr)
 {
-	path = "";
 	root = "";
-	GET = false;
+	path = "";
+	GET = true;
 	POST = false;
 	DELETE = false;
 	autoindex = false;
 	redirection = "";
 	uploadPath = "";
-	index = "";
-	this->maxBodySize = maxBodySize;
+	index = "index.html";
+	maxBodySize = 0;
 
 	//TODO: check for defaults
 
@@ -148,6 +148,14 @@ bool Location::isMethodallowed(std::string method)
     else
         throw HttpException(2, "Method not allowed");
     
+}
+
+void Location::applyServerDefaults(const Server& server)
+{
+    if (root.empty())
+        root = server.root;
+    if (maxBodySize == 0)
+        maxBodySize = server.maxBodySize;
 }
 
 Location::~Location(){};

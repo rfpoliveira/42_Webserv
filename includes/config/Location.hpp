@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../core/common.hpp"
+#include "../../includes/config/Server.hpp"
+
+class Server;
 
 class Location
 {
@@ -18,9 +21,10 @@ class Location
 
 		int checkLineLocation(std::string line);
 		bool isMethodallowed(std::string method);
+		void applyServerDefaults(const Server& server);
 
 		Location();
-		Location(std::string locationStr, unsigned long maxBodySize);
+		Location(std::string locationStr);
 		Location(const Location& other);
 		Location& operator=(const Location& other);
 		~Location();

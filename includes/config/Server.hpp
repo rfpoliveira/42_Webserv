@@ -2,9 +2,12 @@
 
 #include "Location.hpp"
 
+class Location;
+
 class Server
 {
 	public:
+		std::string root;
 		std::string host;
 		int port;
 		std::string serverName;

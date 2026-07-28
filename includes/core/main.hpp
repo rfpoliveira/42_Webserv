@@ -10,7 +10,7 @@ void parse_config_file(std::string config_file);
 std::vector<std::string> ft_split (std::string s, char delimiter);
 void clean_strings(std::vector<std::string>& buff);
 unsigned long get_body_size(std::string s);
-int add_error_page(std::map<int, std::string>& error_pages, std::vector<std::string> tokens);
+int add_error_page(std::map<int, std::string>& errorPages, std::vector<std::string> tokens);
 int valid_file_check(std::string config_file);
 int brackets_count(std::string config_file);
 void ignore_comments(std::string& line);

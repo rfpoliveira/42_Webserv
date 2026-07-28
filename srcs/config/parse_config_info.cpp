@@ -55,22 +55,22 @@ void parse_config_info(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (W
 	int i = 0;
 
 
-    for(it_vec = configs.servers.begin(); it_vec != configs.servers.end(); it_vec++)
+    for(itVec = configs.servers.begin(); itVec != configs.servers.end(); itVec++)
     {
-        if ((*it_vec).port <= 0)
+        if ((*itVec).port <= 0)
             throw ConfigException("Invalid port.");
-        if (host_parse((*it_vec).host))
+        if (hostParse((*itVec).host))
             throw ConfigException("Invalid host.");
-        if ((*it_vec).max_body_size <= 0)
-            throw ConfigException("Invalid max_body_size.");
-        for (it_map = (*it_vec).error_pages.begin(); it_map != (*it_vec).error_pages.end();it_map++)
+        if ((*itVec).maxBodySize <= 0)
+            throw ConfigException("Invalid maxBodySize.");
+        for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
         {
-            if (error_page_parse((*it_map).first, (*it_map).second))
+            if (errorPageParse((*itMap).first, (*itMap).second))
                 throw ConfigException("Invalid error pages.");
         }
-        for(it_loc = (*it_vec).Locations.begin(); it_loc != (*it_vec).Locations.end(); it_loc++)
+        for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
         {
-            if (valid_path_check((*it_loc).path) || valid_path_check((*it_loc).root))
+            if (validPathCheck((*itLoc).path) || validPathCheck((*itLoc).root))
                 throw ConfigException("Invalid paths.");
         }
             i++;

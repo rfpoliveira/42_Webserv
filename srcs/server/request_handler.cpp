@@ -17,7 +17,7 @@ static std::string buildMinimalResponse(int code, const std::string& reason, con
 	return (oss.str());
 }
 
-std::string requestHandler(const Client& client, const Config& config)
+std::string requestHandler(const Client& client, Config& config)
 {
 	const Request& request = client.getRequest();
 	std::string path = request.resourcePath;
@@ -54,7 +54,7 @@ std::string requestHandler(const Client& client, const Config& config)
 //   - client.getPort  -> missing parentheses: client.getPort()
 //   - getLocation now returns Location* (NULL = no match) -> must null-check
 //   - getHeader("Content-Length") is a std::string; convert to a number before
-//     comparing against location.max_body_size
+//     comparing against location.maxBodySize
 //   - the empty `return(/*some error*/)` statements need real error responses
 //   - take (const Client&, const Config&) instead of copying both by value
 //   - no return on the final path; every branch must produce a std::string
@@ -67,7 +67,7 @@ std::string requestHandler(const Client& client, const Config& config)
 //         return (/* 404 */);
 //     if (!location->isMethodallowed(client.request.request_method))
 //         return (/* 405 */);
-//     if (body_size > location->max_body_size)
+//     if (body_size > location->maxBodySize)
 //         return (/* 413 */);
 //     if (client.request.resource_path.find(".py") != std::string::npos)
 //     {
