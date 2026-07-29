@@ -115,10 +115,8 @@ bool CgiHandler::execute(Request request)
 	{
 		return false;
 	}
-
 	return true;
 }
-
 
 int CgiHandler::getReadFd() const
 {

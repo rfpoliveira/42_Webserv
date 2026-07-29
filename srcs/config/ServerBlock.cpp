@@ -1,6 +1,6 @@
-#include "../../includes/config/Server.hpp"
+#include "../../includes/config/ServerBlock.hpp"
 
-Server::Server()
+ServerBlock::ServerBlock()
 {
 	host = "127.0.0.1";
 	port = 80;
@@ -10,16 +10,14 @@ Server::Server()
 
 //check for a keyword and stores the information associated in the right place in the class
 
-int Server::checkLineServer(std::string line)
+int ServerBlock::checkLineServer(std::string line)
 {
 	ignoreComments(line);
 
 	std::vector<std::string> tokens = ftSplit(line, ' ');
 	cleanStrings(tokens);
-
 	if(tokens.at(0) == "server")
 		return (2);
-
 	if(tokens.at(0) == "listen")
 		port = atoi(tokens.at(1).c_str());
 	else if (tokens.at(0) == "server_name")
@@ -31,7 +29,7 @@ int Server::checkLineServer(std::string line)
 	else if (tokens.at(0) == "error_page")
 	{
 		if (addErrorPage(errorPages, tokens) != 0)
-			throw (ServerErrorExeption());
+			throw (ServerBlockErrorExeption());
 	}
 	else if (tokens.at(0) == "location")
 		return (1);
@@ -44,7 +42,7 @@ int Server::checkLineServer(std::string line)
 //goes line by line checking for the keyword
 //if a location is found, calls its construtor and saves it in the Locations vector
 
-Server::Server(int serverPos, std::string configFile)
+ServerBlock::ServerBlock(int serverPos, std::string configFile)
 {
 	host = "127.0.0.1";
 	port = 80;
@@ -82,7 +80,7 @@ Server::Server(int serverPos, std::string configFile)
 	file.close();
 };
 
-Server::Server(const Server& other)
+ServerBlock::ServerBlock(const ServerBlock& other)
 {
 	this->host = other.host;
 	this->port = other.port;
@@ -92,7 +90,7 @@ Server::Server(const Server& other)
 	this->Locations = other.Locations;
 };
 
-Server& Server::operator=(const Server& other)
+ServerBlock& ServerBlock::operator=(const ServerBlock& other)
 {
 	if (this != &other)
 	{
@@ -106,4 +104,4 @@ Server& Server::operator=(const Server& other)
 	return (*this);
 };
 
-Server::~Server(){};
+ServerBlock::~ServerBlock(){};

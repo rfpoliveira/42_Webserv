@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Server.hpp"
+#include "ServerBlock.hpp"
 
 class Config
 {
 	public:
-		int numberServers;
-		std::vector<Server> servers;
+		int numberServerBlocks;
+		std::vector<ServerBlock> serverBlocks;
 
 		Location* getLocation(int port, const std::string& path) const;
 

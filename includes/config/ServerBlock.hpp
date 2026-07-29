@@ -2,7 +2,7 @@
 
 #include "Location.hpp"
 
-class Server
+class ServerBlock
 {
 	public:
 		std::string host;
@@ -14,13 +14,13 @@ class Server
 
 		int checkLineServer(std::string line);
 
-		Server();
-		Server(int serverPos, std::string configFile);
-		Server(const Server& other);
-		Server& operator=(const Server& other);
-		~Server();
+		ServerBlock();
+		ServerBlock(int serverPos, std::string configFile);
+		ServerBlock(const ServerBlock& other);
+		ServerBlock& operator=(const ServerBlock& other);
+		~ServerBlock();
 
-	class ServerErrorExeption: public std::exception
+	class ServerBlockErrorExeption: public std::exception
 	{
 		public:
 			virtual const char* what() const throw()

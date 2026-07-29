@@ -3,14 +3,14 @@
 
 void printConfis(Config& configs)
 {
-	std::vector<Server>::iterator itVec;
+	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
 	std::map<int, std::string>::iterator itMap;
 
 	int i = 0;
 
-	std::cout << "Number of Servers: " << configs.numberServers << "\n";
-	for(itVec = configs.servers.begin(); itVec != configs.servers.end(); itVec++)
+	std::cout << "Number of Servers: " << configs.numberServerBlocks << "\n";
+	for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
 	{
 		std::cout << "server " << i << ": \n";
 		std::cout << "host: " << (*itVec).host << "\n";

@@ -48,13 +48,13 @@ int validPathCheck(std::string path)
 
 int parseConfigInfo(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
 {
-	std::vector<Server>::iterator itVec;
+	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
 	std::map<int, std::string>::iterator itMap;
 	int i = 0;
 
 
-	for(itVec = configs.servers.begin(); itVec != configs.servers.end(); itVec++)
+	for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
 	{
 		if ((*itVec).port <= 0)
 			return (-3);
