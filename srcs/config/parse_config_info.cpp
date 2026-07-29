@@ -35,8 +35,11 @@ int validPathCheck(std::string path)
 {
 	struct stat sb;
 
-	if (stat(path.c_str(), &sb))
+	if (stat(path.c_str(), &sb) != 0) //does not exist
 		return (1);
+
+	if (S_ISREG(sb.st_mode)) //its a file
+		return (2);
 	return (0);
 }
 
@@ -74,7 +77,7 @@ void parse_config_info(Config& configs)
             if ((*itLoc).POST && validPathCheck((*itLoc).uploadPath))
                 throw ConfigException("Needs a valid uploadPath");
 			if (validPathCheck((*itLoc).root))
-				throw ConfigException("Needs a valid root");
+				throw ConfigException("Needs a valid root path");
         }
             i++;
     }
