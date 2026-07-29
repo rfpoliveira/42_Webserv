@@ -31,13 +31,6 @@ int hostParse(std::string& host)
 	return (0);
 }
 
-int errorPageParse(int code, std::string path)
-{
-	if (code < 300 || code > 599 || path[0] != '/')
-		return (1);
-	return (0);
-}
-
 int validPathCheck(std::string path)
 {
 	struct stat sb;
@@ -46,6 +39,14 @@ int validPathCheck(std::string path)
 		return (1);
 	return (0);
 }
+
+int errorPageParse(int code)
+{
+	if (code < 300 || code > 599)
+		return (1);
+	return (0);
+}
+
 
 void parse_config_info(Config& configs)
 {
@@ -65,13 +66,15 @@ void parse_config_info(Config& configs)
             throw ConfigException("Invalid maxBodySize.");
         for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
         {
-            if (errorPageParse((*itMap).first, (*itMap).second))
+            if (errorPageParse((*itMap).first))
                 throw ConfigException("Invalid error pages.");
         }
         for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
         {
-            if (validPathCheck((*itLoc).uploadPath) || validPathCheck((*itLoc).root))
-                throw ConfigException("Invalid paths.");
+            if ((*itLoc).POST && validPathCheck((*itLoc).uploadPath))
+                throw ConfigException("Needs a valid uploadPath");
+			if (validPathCheck((*itLoc).root))
+				throw ConfigException("Needs a valid root");
         }
             i++;
     }

@@ -2,7 +2,7 @@
 #include "../../includes/core/main.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 
-void printConfis(Config& configs)
+void printConfigs(Config& configs)
 {
 	std::vector<Server>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
@@ -47,6 +47,7 @@ int main(int argc, char** argv)
         parse_config_file(argv[1]);
         Config configs(argv[1]);
         parse_config_info(configs);
+		printConfigs(configs);
     }
     catch (ConfigException& e)
     {
@@ -54,7 +55,6 @@ int main(int argc, char** argv)
         return (-3);
     }
 
-	//print_confis(configs);
 
 	//SOCKETS
 	//CHAMAR REQUEST PARSER

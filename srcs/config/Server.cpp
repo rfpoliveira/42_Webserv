@@ -1,9 +1,8 @@
 #include "../../includes/config/Server.hpp"
 
-
 Server::Server()
 {
-	root = "/var/www/html";
+	root = "./test/var/www/html";
 	host = "0.0.0.0";
 	port = 8080;
 	serverName = "";
@@ -54,7 +53,7 @@ int Server::checkLineServer(std::string line)
 
 Server::Server(int serverPos, std::string configFile)
 {
-	root = "/var/www/html";
+	root = "./test/var/www/html";
 	host = "0.0.0.0";
 	port = 8080;
 	serverName = "";
