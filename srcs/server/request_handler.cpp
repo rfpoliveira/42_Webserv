@@ -34,48 +34,17 @@ std::string requestHandler(const Client& client, Config& config)
 	if (bodySize > location->maxBodySize)
 		return (buildMinimalResponse(413, "Payload Too Large", "413 Payload Too Large"));
 
-	if (path.find(".py") != std::string::npos)
+	if (path.find(".py") != std::string::npos) //TODO BETTER CGI CHECK
 	{
 		CgiHandler cgiHandler(path);
 		if (!cgiHandler.execute(request))
 			return (buildMinimalResponse(500, "Internal ServerBlock Error", "500 CGI failed to start"));
 		return (buildMinimalResponse(501, "Not Implemented", "501 CGI output streaming not wired to the event loop yet"));
 	}
+	
+	std::string fullPath = location->root + path;
 
-	return (ResponseBuilder::buildStaticFile(location->root + path));
+	if (fullPath[fullPath.lenght() - 1] == '/')
+		fullPath += location->index.empty() ? "index.html" : location->index;
+	return (ResponseBuilder::buildStaticFile(fullPath));
 }
-// ============================================================================
-// PARKED until the Client class exists (build step 1).
-//
-// The sketch below is kept verbatim as the design intent. It does not compile
-// yet because `Client` is not defined, and it has known defects to fix when
-// reviving it:
-//   - typo in the name: request_hanlder -> request_handler
-//   - client.getPort  -> missing parentheses: client.getPort()
-//   - getLocation now returns Location* (NULL = no match) -> must null-check
-//   - getHeader("Content-Length") is a std::string; convert to a number before
-//     comparing against location.maxBodySize
-//   - the empty `return(/*some error*/)` statements need real error responses
-//   - take (const Client&, const Config&) instead of copying both by value
-//   - no return on the final path; every branch must produce a std::string
-//
-// std::string request_handler(const Client& client, const Config& config)
-// {
-//     Location* location = config.getLocation(client.getPort(),
-//                                             client.request.resource_path);
-//     if (!location)
-//         return (/* 404 */);
-//     if (!location->isMethodallowed(client.request.request_method))
-//         return (/* 405 */);
-//     if (body_size > location->maxBodySize)
-//         return (/* 413 */);
-//     if (client.request.resource_path.find(".py") != std::string::npos)
-//     {
-//         CgiHandler CGI_handler(client.request.resource_path);
-//         CGI_handler.execute(client.request);
-//     }
-//     else
-//         return (ResponseBuilder::build_static_file(location->root +
-//                                                    client.request.resource_path));
-// }
-// ============================================================================
