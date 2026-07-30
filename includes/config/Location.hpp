@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../core/common.hpp"
-#include "../../includes/config/Server.hpp"
+#include "../../includes/config/ServerBlock.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 
-class Server;
+class ServerBlock;
 
 class Location
 {
@@ -22,7 +22,7 @@ class Location
 
 		void checkLineLocation(std::string line);
 		bool isMethodallowed(std::string method);
-		void applyServerDefaults(const Server& server);
+		void applyServerBlockDefaults(const ServerBlock& ServerBlock);
 
 		Location();
 		Location(std::string locationStr);

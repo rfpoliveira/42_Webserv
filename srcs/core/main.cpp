@@ -4,19 +4,19 @@
 
 void printConfigs(Config& configs)
 {
-	std::vector<Server>::iterator itVec;
+	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
 	std::map<int, std::string>::iterator itMap;
 
 	int i = 0;
 
-	std::cout << "Number of Servers: " << configs.numberServers << "\n";
-	for(itVec = configs.servers.begin(); itVec != configs.servers.end(); itVec++)
+	std::cout << "Number of ServerBlocks: " << configs.numberServerBlocks << "\n";
+	for(itVec = configs.ServerBlocks.begin(); itVec != configs.ServerBlocks.end(); itVec++)
 	{
-		std::cout << "server " << i << ": \n";
+		std::cout << "ServerBlock " << i << ": \n";
 		std::cout << "host: " << (*itVec).host << "\n";
 		std::cout << "port: " << (*itVec).port << "\n";
-		std::cout << "server_name: " << (*itVec).serverName << "\n";
+		std::cout << "ServerBlock_name: " << (*itVec).ServerBlockName << "\n";
 		std::cout << "maxBodySize: " << (*itVec).maxBodySize << "\n";
 		for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
 			std::cout << "error page: " << (*itMap).first << ", " << (*itMap).second << "\n";

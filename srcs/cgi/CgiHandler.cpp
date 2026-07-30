@@ -31,8 +31,8 @@ void CgiHandler::setupEnv(Request request)
 	_envMap["CONTENT_LENGTH"] = intToString(request.body.size());
 	_envMap["CONTENT_TYPE"] = request.getHeader("Content-Type");
 	_envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
-	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
-	_envMap["SERVER_SOFTWARE"] = "Webserv42/1.0";
+	_envMap["ServerBlock_PROTOCOL"] = "HTTP/1.1";
+	_envMap["ServerBlock_SOFTWARE"] = "Webserv42/1.0";
 	_envMap["HTTP_COOKIE"] = request.getHeader("Cookie");
 }
 

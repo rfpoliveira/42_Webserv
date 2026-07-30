@@ -38,7 +38,7 @@ std::string requestHandler(const Client& client, Config& config)
 	{
 		CgiHandler cgiHandler(path);
 		if (!cgiHandler.execute(request))
-			return (buildMinimalResponse(500, "Internal Server Error", "500 CGI failed to start"));
+			return (buildMinimalResponse(500, "Internal ServerBlock Error", "500 CGI failed to start"));
 		return (buildMinimalResponse(501, "Not Implemented", "501 CGI output streaming not wired to the event loop yet"));
 	}
 

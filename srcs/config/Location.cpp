@@ -146,12 +146,12 @@ bool Location::isMethodallowed(std::string method)
     
 }
 
-void Location::applyServerDefaults(const Server& server)
+void Location::applyServerBlockDefaults(const ServerBlock& ServerBlock)
 {
     if (root.empty())
-        root = server.root;
+        root = ServerBlock.root;
     if (maxBodySize == 0)
-        maxBodySize = server.maxBodySize;
+        maxBodySize = ServerBlock.maxBodySize;
 }
 
 Location::~Location(){};
