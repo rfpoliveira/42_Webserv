@@ -1,5 +1,6 @@
 #include "../../includes/config/Config.hpp"
 #include "../../includes/core/main.hpp"
+#include "../../includes/server/Server.hpp"
 
 void printConfis(Config& configs)
 {
@@ -57,13 +58,16 @@ int main(int argc, char** argv)
 
 	//print_confis(configs);
 
-	//SOCKETS
-	//CHAMAR REQUEST PARSER
-
-	//handle_request
-
-
-	//RESPONSE BUILDER
-
-	//CLIENT MACHINE
+	try
+	{
+		Server server(configs);
+		server.setup(); // #2 open listening sockets
+		server.run();   // #3 single poll() loop (echoes for now)
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << e.what() << "\n";
+		return (1);
+	}
+	return (0);
 }
