@@ -23,9 +23,9 @@ class Server {
 		Server(const Server& other);
 		Server& operator=(const Server& other);
 		~Server();
-		void setup(); // open one socket per unique host:port #2
-		void run(); // the single poll() loop #3
-		const std::map<int, int>& getListenFds() const; // the loop needs this to poll the listening sockets #3
+		void setup(); // open one socket per unique host:port
+		void run(); // the single poll() loop
+		const std::map<int, int>& getListenFds() const; // the loop needs this to poll the listening sockets
 		class ServerException : public std::exception
 		{
 			private:

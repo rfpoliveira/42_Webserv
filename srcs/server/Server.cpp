@@ -61,6 +61,43 @@ void Server::setup()
 		throw ServerException("No listening sockets configured");
 }
 
+void Server::run()
+{
+	std::signal(SIGPIPE, SIG_IGN); // writing to a dead client must not kill us
+
+	while (true)
+	{
+		buildPollFds();
+		int ready = poll(&_pollFds[0], _pollFds.size(), -1);
+		if (ready < 0)
+			continue;
+
+		for (size_t i = 0; i < _pollFds.size(); i ++)
+		{
+			short re = _pollFds[i].revents;
+			if (re == 0)
+				continue;
+			int fd = _pollFds[i].fd;
+
+			if (re & (POLLHUP | POLLERR | POLLNVAL))
+			{
+				if (!isListenFd(fd))
+					closeClient(fd);
+				continue;
+			}
+			if (re & POLLIN)
+			{
+				if (isListenFd(fd))
+					acceptNewClient(fd);
+				else
+					readFromClient(fd);
+			}
+			if ((re & POLLOUT) && _clients.count(fd))
+				writeToClient(fd);
+		}
+	}
+}
+
 int Server::createListenSocket(const std::string& host, int port)
 {
 	struct addrinfo hints;
@@ -179,44 +216,7 @@ void Server::closeClient(int fd)
 	_clients.erase(fd);
 }
 
-void Server::run()
-{
-	std::signal(SIGPIPE, SIG_IGN); // writing to a dead client must not kill us
-
-	while (true)
-	{
-		buildPollFds();
-		int ready = poll(&_pollFds[0], _pollFds.size(), -1);
-		if (ready < 0)
-			continue;
-
-		for (size_t i = 0; i < _pollFds.size(); i ++)
-		{
-			short re = _pollFds[i].revents;
-			if (re == 0)
-				continue;
-			int fd = _pollFds[i].fd;
-
-			if (re & (POLLHUP | POLLERR | POLLNVAL))
-			{
-				if (!isListenFd(fd))
-					closeClient(fd);
-				continue;
-			}
-			if (re & POLLIN)
-			{
-				if (isListenFd(fd))
-					acceptNewClient(fd);
-				else
-					readFromClient(fd);
-			}
-			if ((re & POLLOUT) && _clients.count(fd))
-				writeToClient(fd);
-		}
-	}
-}
-
 const std::map<int, int>& Server::getListenFds() const
 {
 	return (_listenFds);
-}e
+}
