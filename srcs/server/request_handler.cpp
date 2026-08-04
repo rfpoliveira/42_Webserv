@@ -17,7 +17,7 @@ static std::string buildMinimalResponse(int code, const std::string& reason, con
 	return (oss.str());
 }
 
-std::string requestHandler(const Client& client, const Config& config)
+std::string requestHandler(const Client& client, Config& config)
 {
 	const Request& request = client.getRequest();
 	std::string path = request.resourcePath;
@@ -34,13 +34,17 @@ std::string requestHandler(const Client& client, const Config& config)
 	if (bodySize > location->maxBodySize)
 		return (buildMinimalResponse(413, "Payload Too Large", "413 Payload Too Large"));
 
-	if (path.find(".py") != std::string::npos)
+	if (path.find(".py") != std::string::npos) //TODO BETTER CGI CHECK
 	{
 		CgiHandler cgiHandler(path);
 		if (!cgiHandler.execute(request))
-			return (buildMinimalResponse(500, "Internal Server Error", "500 CGI failed to start"));
+			return (buildMinimalResponse(500, "Internal ServerBlock Error", "500 CGI failed to start"));
 		return (buildMinimalResponse(501, "Not Implemented", "501 CGI output streaming not wired to the event loop yet"));
 	}
+	
+	std::string fullPath = location->root + path;
 
-	return (ResponseBuilder::buildStaticFile(location->root + path));
+	if (fullPath[fullPath.lenght() - 1] == '/')
+		fullPath += location->index.empty() ? "index.html" : location->index;
+	return (ResponseBuilder::buildStaticFile(fullPath));
 }

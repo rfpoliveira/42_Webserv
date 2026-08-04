@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../http/Request.hpp"
+#include "../exceptions/HttpException.hpp"
 
 class CgiHandler
 {

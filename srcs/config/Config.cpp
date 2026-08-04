@@ -1,10 +1,12 @@
 #include "../../includes/config/Config.hpp"
 #include "../../includes/config/ServerBlock.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
+#include <cstddef>
 
 Config::Config(): numberServerBlocks(0) {};
 
-//counts the number of servers and as it finds 1
-//calls the constructor of the Server class as it hads it to the Servers vector in this calss
+//counts the number of ServerBlocks and as it finds 1
+//calls the constructor of the ServerBlock class as it hads it to the ServerBlocks vector in this calss
 
 Config::Config(std::string configFile)
 {
@@ -14,13 +16,27 @@ Config::Config(std::string configFile)
 
 	while(std::getline(file, line))
 	{
-		if (line == "server {")
+		if (line == "ServerBlock {")
 		{
 			this->numberServerBlocks++;
 			this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
 		}
 	}
 	file.close();
+
+	std::vector<ServerBlock>::iterator it;	
+	std::vector<ServerBlock>::iterator it2;
+	int port_to_compare;
+
+	for(it = ServerBlocks.begin(); it != ServerBlocks.end(); it++)
+	{
+		port_to_compare = (it->port);
+		for(it2 = it + 1; it2 != ServerBlocks.end(); it2++)
+		{
+			if (port_to_compare == (it2->port))
+				throw ConfigException("Multiple ServerBlocks on the same port");
+		}
+	}
 };
 
 Config::Config(const Config& other)
@@ -39,26 +55,40 @@ Config& Config::operator=(const Config& other)
 	return (*this);
 };
 
-Location* Config::getLocation(int port, const std::string& path) const
+Location* Config::getLocation(int port, std::string& path)
 {
-	Location*	best = NULL;
-	size_t		bestLen = 0;
+	std::vector<ServerBlock>::iterator it;
+	std::vector<Location>::iterator it2;
 
-	for (size_t i = 0; i < serverBlocks.size(); i++)
-	{
-		if (serverBlocks[i].port != port)
-			continue;
-		for (size_t j = 0; j < serverBlocks[i].Locations.size(); j++)
+	ServerBlock* targetServerBlock = NULL;
+
+    for(it = this->ServerBlocks.begin(); it != this->ServerBlocks.end(); it++)
+    {
+        if ((*it).port == port)
 		{
-			const std::string& lp = serverBlocks[i].Locations[j].path;
-			if (path.compare(0, lp.size(), lp) == 0 && lp.size() >= bestLen)
+			targetServerBlock = &(*it);
+			break ; //found the correct ServerBlock
+		}
+    }
+	if (targetServerBlock == NULL) //DID NOT FOUND THE ServerBlock
+		return(NULL);
+	
+	Location *bestMatch = NULL;
+	size_t longestMatch = 0;
+
+	for (it2 = targetServerBlock->Locations.begin(); it2 != targetServerBlock->Locations.end(); it2++) //iterate the location of said server
+	{
+		std::string locationPath = it2->path;
+		if(path.find(locationPath) == 0) //if found the path in the location path
+		{
+			if (locationPath.length() > longestMatch)
 			{
-				best = const_cast<Location*>(&serverBlocks[i].Locations[j]);
-				bestLen = lp.size();
+				longestMatch = locationPath.length(); //how much of the path did it found
+				bestMatch = &(*it2); //currentyl the best match
 			}
 		}
 	}
-	return (best);
-}
+	return (bestMatch); //will return the best match of null if none is found
+};
 
 Config::~Config(){};

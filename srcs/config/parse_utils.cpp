@@ -85,7 +85,7 @@ std::vector<std::string> ftSplit(std::string s, char delimiter)
 	return (buff);
 }
 
-//takes the max_body_size syntax and puts in in decimal (k or K for kb, m or M for mb and nothing for bytes)
+//takes the maxBodySize syntax and puts in in decimal (k or K for kb, m or M for mb and nothing for bytes)
 unsigned long getBodySize(std::string s)
 {
 	long long numb = 0;

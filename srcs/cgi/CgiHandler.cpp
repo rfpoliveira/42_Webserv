@@ -9,18 +9,17 @@ CgiHandler::CgiHandler(std::string _scriptPath)
 	_pipeOut[0] = -1;
 	_pipeOut[1] = -1;
 
-	if(pipe(_pipeIn) < 0)
-	{
-		//TODO ERROR NAO CONSEGUIR ABRIR PIPE
-	}
+    if(pipe(_pipeIn) < 0)
+    {
+        throw HttpException(1, "Error opening pipe");
+    }
 
-	if(pipe(_pipeOut) < 0)
-	{
-		close(_pipeIn[0]);
-		close(_pipeIn[1]);
-		//TODO ERROR NAO CONSEGUIR ABRIR PIPE
-	}
-
+    if(pipe(_pipeOut) < 0)
+    {
+        close(_pipeIn[0]);
+        close(_pipeIn[1]);
+        throw HttpException(1, "Error opening pipe");
+    } 
 }
 
 void CgiHandler::setupEnv(Request request)
@@ -32,8 +31,8 @@ void CgiHandler::setupEnv(Request request)
 	_envMap["CONTENT_LENGTH"] = intToString(request.body.size());
 	_envMap["CONTENT_TYPE"] = request.getHeader("Content-Type");
 	_envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
-	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
-	_envMap["SERVER_SOFTWARE"] = "Webserv42/1.0";
+	_envMap["ServerBlock_PROTOCOL"] = "HTTP/1.1";
+	_envMap["ServerBlock_SOFTWARE"] = "Webserv42/1.0";
 	_envMap["HTTP_COOKIE"] = request.getHeader("Cookie");
 }
 
@@ -59,8 +58,8 @@ char** CgiHandler::convertEnvToCstyle()
 
 bool CgiHandler::execute(Request request)
 {
-	this->setupEnv(request); //TODO
-	char** envp = this->convertEnvToCstyle(); //TODO
+	this->setupEnv(request);
+	char** envp = this->convertEnvToCstyle();
 
 	char* args[3];
 	args[0] = const_cast<char*>("/usr/bin/python3");

@@ -1,6 +1,10 @@
 #pragma once
 
 #include "../core/common.hpp"
+#include "../../includes/config/ServerBlock.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
+
+class ServerBlock;
 
 class Location
 {
@@ -16,21 +20,13 @@ class Location
 		std::string uploadPath;
 		unsigned long maxBodySize;
 
-		int checkLineLocation(std::string line);
+		void checkLineLocation(std::string line);
 		bool isMethodallowed(std::string method);
+		void applyServerBlockDefaults(const ServerBlock& ServerBlock);
 
 		Location();
-		Location(std::string locationStr, unsigned long maxBodySize);
+		Location(std::string locationStr);
 		Location(const Location& other);
 		Location& operator=(const Location& other);
 		~Location();
-
-	class LocationErrorExeption: public std::exception
-	{
-		public:
-			virtual const char* what() const throw()
-			{
-				return ("Error: Config file error at Location context");
-			}
-	};
 };

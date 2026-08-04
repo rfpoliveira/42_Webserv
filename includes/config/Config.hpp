@@ -6,9 +6,9 @@ class Config
 {
 	public:
 		int numberServerBlocks;
-		std::vector<ServerBlock> serverBlocks;
-		
-		Location* getLocation(int port, const std::string& path) const;
+		std::vector<ServerBlock> ServerBlocks;
+
+		Location* getLocation(int port, std::string& path);
 
 		Config();
 		Config(std::string configFile);

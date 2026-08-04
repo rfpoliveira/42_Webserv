@@ -2,34 +2,43 @@
 
 ServerBlock::ServerBlock()
 {
-	host = "127.0.0.1";
-	port = 80;
-	serverName = "server1.com";
-	maxBodySize = 1000000;
+	root = "./test/var/www/html";
+	host = "0.0.0.0";
+	port = 8080;
+	ServerBlockName = "";
+	maxBodySize = 1048576;
 };
 
 //check for a keyword and stores the information associated in the right place in the class
 
-int ServerBlock::checkLineServer(std::string line)
+int ServerBlock::checkLineServerBlock(std::string line)
 {
 	ignoreComments(line);
 
 	std::vector<std::string> tokens = ftSplit(line, ' ');
 	cleanStrings(tokens);
-	if(tokens.at(0) == "server")
+
+	if(tokens.at(0) == "ServerBlock")
 		return (2);
+
 	if(tokens.at(0) == "listen")
 		port = atoi(tokens.at(1).c_str());
-	else if (tokens.at(0) == "server_name")
-		serverName = tokens.at(1);
+	else if (tokens.at(0) == "ServerBlock_name")
+		ServerBlockName = tokens.at(1);
 	else if(tokens.at(0) == "host")
 		host = tokens.at(1);
-	else if(tokens.at(0) == "client_max_body_size")
+	else if(tokens.at(0) == "root")
+	{
+		if (!root.empty())
+			throw ConfigException("Multiple root declaration at a single ServerBlock");
+		root = tokens.at(1);
+	}
+	else if(tokens.at(0) == "client_maxBodySize")
 		maxBodySize = getBodySize(tokens.at(1));
 	else if (tokens.at(0) == "error_page")
 	{
 		if (addErrorPage(errorPages, tokens) != 0)
-			throw (ServerBlockErrorExeption());
+			throw ConfigException("Bad format for error pages");
 	}
 	else if (tokens.at(0) == "location")
 		return (1);
@@ -38,16 +47,17 @@ int ServerBlock::checkLineServer(std::string line)
 	return (0);
 };
 
-//searches for the right server information for each one in the config file
+//searches for the right ServerBlock information for each one in the config file
 //goes line by line checking for the keyword
 //if a location is found, calls its construtor and saves it in the Locations vector
 
-ServerBlock::ServerBlock(int serverPos, std::string configFile)
+ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 {
-	host = "127.0.0.1";
-	port = 80;
-	serverName = "server1.com";
-	maxBodySize = 1000000;
+	root = "./test/var/www/html";
+	host = "0.0.0.0";
+	port = 8080;
+	ServerBlockName = "";
+	maxBodySize = 1048576;
 
 	std::string line;
 	std::string locationString;
@@ -55,9 +65,9 @@ ServerBlock::ServerBlock(int serverPos, std::string configFile)
 
 	while(std::getline(file, line))
 	{
-		if (line == "server {")
-			serverPos--;
-		if (serverPos == 0)
+		if (line == "ServerBlock {")
+			ServerBlockPos--;
+		if (ServerBlockPos == 0)
 			break;
 		line.clear();
 	}
@@ -66,11 +76,11 @@ ServerBlock::ServerBlock(int serverPos, std::string configFile)
 
 	while(std::getline(file, line, ';'))
 	{
-		ret = checkLineServer(line);
+		ret = checkLineServerBlock(line);
 		if (ret == 1)
 		{
 			std::getline(file, locationString, '}');
-			Locations.push_back(Location(line + locationString, this->maxBodySize));
+			Locations.push_back(Location(line + locationString));
 		}
 		else if (ret == 2)
 			break ;
@@ -78,13 +88,18 @@ ServerBlock::ServerBlock(int serverPos, std::string configFile)
 	}
 
 	file.close();
+
+	std::vector<Location>::iterator it;
+	for (it = Locations.begin(); it!= Locations.end(); it++)
+		(*it).applyServerBlockDefaults(*this);
 };
 
 ServerBlock::ServerBlock(const ServerBlock& other)
 {
+	this->root = other.root;
 	this->host = other.host;
 	this->port = other.port;
-	this->serverName = other.serverName;
+	this->ServerBlockName = other.ServerBlockName;
 	this->maxBodySize = other.maxBodySize;
 	this->errorPages = other.errorPages;
 	this->Locations = other.Locations;
@@ -94,9 +109,10 @@ ServerBlock& ServerBlock::operator=(const ServerBlock& other)
 {
 	if (this != &other)
 	{
+		this->root = other.root;
 		this->host = other.host;
 		this->port = other.port;
-		this->serverName = other.serverName;
+		this->ServerBlockName = other.ServerBlockName;
 		this->maxBodySize = other.maxBodySize;
 		this->errorPages = other.errorPages;
 		this->Locations = other.Locations;

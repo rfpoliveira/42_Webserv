@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rpedrosa & mreinald                        +#+  +:+       +#+         #
+#    By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/19 00:00:00 by rpedrosa          #+#    #+#              #
-#    Updated: 2026/07/19 00:00:00 by rpedrosa         ###   ########.fr        #
+#    Updated: 2026/07/30 12:11:24 by rpedrosa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,11 +55,14 @@ SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
 				config/Location.cpp \
 				config/parse_config_info.cpp \
 				config/parse_utils.cpp \
-				config/Server.cpp \
+				config/ServerBlock.cpp \
 				core/debug.cpp \
 				core/main.cpp \
+				exceptions/ConfigException.cpp \
+				exceptions/HttpException.cpp \
 				http/Request.cpp \
 				http/ResponseBuilder.cpp \
+				http/MimeTypes.cpp \
 				server/Client.cpp \
 				server/request_handler.cpp \
 				)
@@ -77,7 +80,7 @@ $(MAGENTA)${D_BLUE}
 	██║███╗██║██╔══╝  ██╔══██╗╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝
 	╚███╔███╔╝███████╗██████╔╝███████║███████╗██║  ██║ ╚████╔╝
 	 ╚══╝╚══╝ ╚══════╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝
-  $(CYAN)━━━━━━━━━━━━━━━━━━━━━━━━━━[$(RESET)HTTP Server in C++98$(CYAN)]━━━━━━━━━━━━━━━━━━━━━━━━━━$(RESET)
+  $(CYAN)━━━━━━━━━━━━━━━━━━━━━━━━━━[$(RESET)HTTP ServerBlock in C++98$(CYAN)]━━━━━━━━━━━━━━━━━━━━━━━━━━$(RESET)
 endef
 export ART
 
