@@ -1,4 +1,5 @@
 #include "../../includes/core/main.hpp"
+#include "../../includes/exceptions/ConfigException.hpp"
 
 int hostParse(std::string& host)
 {
@@ -30,53 +31,54 @@ int hostParse(std::string& host)
 	return (0);
 }
 
-int errorPageParse(int code, std::string path)
-{
-	if (code < 300 || code > 599 || path[0] != '/')
-		return (1);
-	return (0);
-}
-
 int validPathCheck(std::string path)
 {
 	struct stat sb;
 
-	if (stat(path.c_str(), &sb))
+	if (stat(path.c_str(), &sb) != 0) //does not exist
+		return (1);
+
+	if (S_ISREG(sb.st_mode)) //its a file
+		return (2);
+	return (0);
+}
+
+int errorPageParse(int code)
+{
+	if (code < 300 || code > 599)
 		return (1);
 	return (0);
 }
 
-int parseConfigInfo(Config& configs) //TODO: CHECK IF ITS WORKING PROPERLY (WORK IN PROGRESS)
+
+void parse_config_info(Config& configs)
 {
-	std::vector<Server>::iterator itVec;
+	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
 	std::map<int, std::string>::iterator itMap;
 	int i = 0;
 
 
-	for(itVec = configs.servers.begin(); itVec != configs.servers.end(); itVec++)
-	{
-		if ((*itVec).port <= 0)
-			return (-3);
-		if (hostParse((*itVec).host))
-			return (-4);
-		if ((*itVec).maxBodySize <= 0)
-			return (-5);
-		for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
-		{
-			if (errorPageParse((*itMap).first, (*itMap).second))
-				return (-6);
-		}
-		for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
-		{
-			if (validPathCheck((*itLoc).path) || validPathCheck((*itLoc).root))
-				return (-7);
-		}
-			i++;
-	}
-	(void)i;
-	//TODO:FUNCTION THAT CHECK IF THERE ARE 2 SERVERS WITH THE SAME PORT
-
-	return (0);
-
+    for(itVec = configs.ServerBlocks.begin(); itVec != configs.ServerBlocks.end(); itVec++)
+    {
+        if ((*itVec).port <= 0)
+            throw ConfigException("Invalid port.");
+        if (hostParse((*itVec).host))
+            throw ConfigException("Invalid host.");
+        if ((*itVec).maxBodySize <= 0)
+            throw ConfigException("Invalid maxBodySize.");
+        for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
+        {
+            if (errorPageParse((*itMap).first))
+                throw ConfigException("Invalid error pages.");
+        }
+        for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
+        {
+            if ((*itLoc).POST && validPathCheck((*itLoc).uploadPath))
+                throw ConfigException("Needs a valid uploadPath");
+			if (validPathCheck((*itLoc).root))
+				throw ConfigException("Needs a valid root path");
+        }
+            i++;
+    }
 }
