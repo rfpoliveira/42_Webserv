@@ -46,7 +46,8 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 # Sources and Objects
-SRCS		= $(addprefix $(SRC_DIR)/, \
+SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+#SRCS		= $(addprefix $(SRC_DIR)/, \
 				cgi/CgiHandler.cpp \
 				cgi/cgi_utils.cpp \
 				config/config_parser.cpp \

@@ -19,7 +19,7 @@ Config::Config(std::string configFile)
 		if (line == "ServerBlock {")
 		{
 			this->numberServerBlocks++;
-			this->ServerBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
+			this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
 		}
 	}
 	file.close();
@@ -42,7 +42,7 @@ Config::Config(std::string configFile)
 Config::Config(const Config& other)
 {
 	this->numberServerBlocks = other.numberServerBlocks;
-	this->ServerBlocks = other.ServerBlocks;
+	this->serverBlocks = other.serverBlocks;
 };
 
 Config& Config::operator=(const Config& other)
@@ -50,7 +50,7 @@ Config& Config::operator=(const Config& other)
 	if (this != &other)
 	{
 		this->numberServerBlocks = other.numberServerBlocks;
-		this->ServerBlocks = other.ServerBlocks;
+		this->serverBlocks = other.serverBlocks;
 	}
 	return (*this);
 };
