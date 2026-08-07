@@ -24,14 +24,14 @@ Config::Config(std::string configFile)
 	}
 	file.close();
 
-	std::vector<ServerBlock>::iterator it;	
+	std::vector<ServerBlock>::iterator it;
 	std::vector<ServerBlock>::iterator it2;
 	int port_to_compare;
 
-	for(it = ServerBlocks.begin(); it != ServerBlocks.end(); it++)
+	for(it = serverBlocks.begin(); it != serverBlocks.end(); it++)
 	{
 		port_to_compare = (it->port);
-		for(it2 = it + 1; it2 != ServerBlocks.end(); it2++)
+		for(it2 = it + 1; it2 != serverBlocks.end(); it2++)
 		{
 			if (port_to_compare == (it2->port))
 				throw ConfigException("Multiple ServerBlocks on the same port");
@@ -62,7 +62,7 @@ Location* Config::getLocation(int port, std::string& path)
 
 	ServerBlock* targetServerBlock = NULL;
 
-    for(it = this->ServerBlocks.begin(); it != this->ServerBlocks.end(); it++)
+    for(it = this->serverBlocks.begin(); it != this->serverBlocks.end(); it++)
     {
         if ((*it).port == port)
 		{

@@ -44,7 +44,7 @@ std::string requestHandler(const Client& client, Config& config)
 	
 	std::string fullPath = location->root + path;
 
-	if (fullPath[fullPath.lenght() - 1] == '/')
+	if (fullPath[fullPath.size() - 1] == '/')
 		fullPath += location->index.empty() ? "index.html" : location->index;
 	return (ResponseBuilder::buildStaticFile(fullPath));
 }

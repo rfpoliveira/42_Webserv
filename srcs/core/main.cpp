@@ -1,6 +1,7 @@
 #include "../../includes/config/Config.hpp"
 #include "../../includes/core/main.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
+#include "../../includes/server/Server.hpp"
 
 void printConfigs(Config& configs)
 {
@@ -11,12 +12,12 @@ void printConfigs(Config& configs)
 	int i = 0;
 
 	std::cout << "Number of ServerBlocks: " << configs.numberServerBlocks << "\n";
-	for(itVec = configs.ServerBlocks.begin(); itVec != configs.ServerBlocks.end(); itVec++)
+	for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
 	{
 		std::cout << "ServerBlock " << i << ": \n";
 		std::cout << "host: " << (*itVec).host << "\n";
 		std::cout << "port: " << (*itVec).port << "\n";
-		std::cout << "ServerBlock_name: " << (*itVec).ServerBlockName << "\n";
+		std::cout << "ServerBlock_name: " << (*itVec).serverBlockName << "\n";
 		std::cout << "maxBodySize: " << (*itVec).maxBodySize << "\n";
 		for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
 			std::cout << "error page: " << (*itMap).first << ", " << (*itMap).second << "\n";
@@ -37,30 +38,24 @@ void printConfigs(Config& configs)
 	}
 }
 
-
 int main(int argc, char** argv)
 {
-    try 
-    {
-        if (argc != 2)
-            throw ConfigException("Please enter valid arguments:\n./webserv <config_file>");
-        parse_config_file(argv[1]);
-        Config configs(argv[1]);
-        parse_config_info(configs);
-		printConfigs(configs);
-    }
-    catch (ConfigException& e)
-    {
-        std::cout << e.what() << "\n";
-        return (-3);
-    }
-
-
 	try
 	{
+		if (argc != 2)
+			throw ConfigException("Please enter valid arguments:\n./webserv <config_file>");
+		parse_config_file(argv[1]);
+		Config configs(argv[1]);
+		parse_config_info(configs);
+		printConfigs(configs);
 		Server server(configs);
 		server.setup(); // #2 open listening sockets
-		server.run();   // #3 single poll() loop (echoes for now)
+		server.run(); // #3 single poll() loop (echoes for now)
+	}
+	catch (ConfigException& e)
+	{
+		std::cout << e.what() << "\n";
+		return (-3);
 	}
 	catch (std::exception& e)
 	{

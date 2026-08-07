@@ -1,18 +1,20 @@
 #pragma once
 
-#include "Location.hpp"
+#include "../../includes/config/Location.hpp"
+class Location;
 
 class ServerBlock
 {
 	public:
 		std::string host;
+		std::string root;
 		int port;
-		std::string serverName;
+		std::string serverBlockName;
 		unsigned long maxBodySize;
 		std::map<int, std::string> errorPages;
 		std::vector<Location> Locations;
 
-		int checkLineServer(std::string line);
+		int checkLineServerBlock(std::string line);
 
 		ServerBlock();
 		ServerBlock(int serverPos, std::string configFile);
