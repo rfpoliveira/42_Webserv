@@ -5,7 +5,7 @@ ServerBlock::ServerBlock()
 	root = "./test/var/www/html";
 	host = "0.0.0.0";
 	port = 8080;
-	ServerBlockName = "";
+	serverBlockName = "";
 	maxBodySize = 1048576;
 };
 
@@ -24,7 +24,7 @@ int ServerBlock::checkLineServerBlock(std::string line)
 	if(tokens.at(0) == "listen")
 		port = atoi(tokens.at(1).c_str());
 	else if (tokens.at(0) == "ServerBlock_name")
-		ServerBlockName = tokens.at(1);
+		serverBlockName = tokens.at(1);
 	else if(tokens.at(0) == "host")
 		host = tokens.at(1);
 	else if(tokens.at(0) == "root")
@@ -56,7 +56,7 @@ ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 	root = "./test/var/www/html";
 	host = "0.0.0.0";
 	port = 8080;
-	ServerBlockName = "";
+	serverBlockName = "";
 	maxBodySize = 1048576;
 
 	std::string line;
@@ -99,7 +99,7 @@ ServerBlock::ServerBlock(const ServerBlock& other)
 	this->root = other.root;
 	this->host = other.host;
 	this->port = other.port;
-	this->ServerBlockName = other.ServerBlockName;
+	this->serverBlockName = other.serverBlockName;
 	this->maxBodySize = other.maxBodySize;
 	this->errorPages = other.errorPages;
 	this->Locations = other.Locations;
@@ -112,7 +112,7 @@ ServerBlock& ServerBlock::operator=(const ServerBlock& other)
 		this->root = other.root;
 		this->host = other.host;
 		this->port = other.port;
-		this->ServerBlockName = other.ServerBlockName;
+		this->serverBlockName = other.serverBlockName;
 		this->maxBodySize = other.maxBodySize;
 		this->errorPages = other.errorPages;
 		this->Locations = other.Locations;

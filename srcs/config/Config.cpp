@@ -3,23 +3,23 @@
 #include "../../includes/exceptions/ConfigException.hpp"
 #include <cstddef>
 
-Config::Config(): numberServerBlocks(0) {};
+Config::Config(): numberserverBlocks(0) {};
 
-//counts the number of ServerBlocks and as it finds 1
-//calls the constructor of the ServerBlock class as it hads it to the ServerBlocks vector in this calss
+//counts the number ofserverBlocks and as it finds 1
+//calls the constructor of the ServerBlock class as it hads it to theserverBlocks vector in this calss
 
 Config::Config(std::string configFile)
 {
 	std::string line;
 	std::ifstream file(configFile.c_str());
-	numberServerBlocks = 0;
+	numberserverBlocks = 0;
 
 	while(std::getline(file, line))
 	{
 		if (line == "ServerBlock {")
 		{
-			this->numberServerBlocks++;
-			this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
+			this->numberserverBlocks++;
+			this->serverBlocks.push_back(ServerBlock(this->numberserverBlocks, configFile));
 		}
 	}
 	file.close();
@@ -28,20 +28,20 @@ Config::Config(std::string configFile)
 	std::vector<ServerBlock>::iterator it2;
 	int port_to_compare;
 
-	for(it = ServerBlocks.begin(); it != ServerBlocks.end(); it++)
+	for(it =serverBlocks.begin(); it !=serverBlocks.end(); it++)
 	{
 		port_to_compare = (it->port);
-		for(it2 = it + 1; it2 != ServerBlocks.end(); it2++)
+		for(it2 = it + 1; it2 !=serverBlocks.end(); it2++)
 		{
 			if (port_to_compare == (it2->port))
-				throw ConfigException("Multiple ServerBlocks on the same port");
+				throw ConfigException("MultipleserverBlocks on the same port");
 		}
 	}
 };
 
 Config::Config(const Config& other)
 {
-	this->numberServerBlocks = other.numberServerBlocks;
+	this->numberserverBlocks = other.numberserverBlocks;
 	this->serverBlocks = other.serverBlocks;
 };
 
@@ -49,7 +49,7 @@ Config& Config::operator=(const Config& other)
 {
 	if (this != &other)
 	{
-		this->numberServerBlocks = other.numberServerBlocks;
+		this->numberserverBlocks = other.numberserverBlocks;
 		this->serverBlocks = other.serverBlocks;
 	}
 	return (*this);
@@ -62,7 +62,7 @@ Location* Config::getLocation(int port, std::string& path)
 
 	ServerBlock* targetServerBlock = NULL;
 
-    for(it = this->ServerBlocks.begin(); it != this->ServerBlocks.end(); it++)
+    for(it = this->serverBlocks.begin(); it != this->serverBlocks.end(); it++)
     {
         if ((*it).port == port)
 		{

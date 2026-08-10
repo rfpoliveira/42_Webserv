@@ -51,7 +51,7 @@ int errorPageParse(int code)
 }
 
 
-void parse_config_info(Config& configs)
+void parseConfigInfo(Config& configs)
 {
 	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
@@ -59,7 +59,7 @@ void parse_config_info(Config& configs)
 	int i = 0;
 
 
-    for(itVec = configs.ServerBlocks.begin(); itVec != configs.ServerBlocks.end(); itVec++)
+    for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
     {
         if ((*itVec).port <= 0)
             throw ConfigException("Invalid port.");

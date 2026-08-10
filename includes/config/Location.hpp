@@ -21,7 +21,7 @@ class Location
 		unsigned long maxBodySize;
 
 		void checkLineLocation(std::string line);
-		bool isMethodallowed(std::string method);
+		int isMethodallowed(std::string method);
 		void applyServerBlockDefaults(const ServerBlock& ServerBlock);
 
 		Location();
