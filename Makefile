@@ -33,7 +33,10 @@ INC_DIR		= ./includes
 # Compiler and Flags
 CXX			= c++
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++98 -g
-INCLUDES	= -I$(INC_DIR)
+
+# Auto-collect every subdirectory under includes/ as an -I path
+INC_DIRS	= $(shell find $(INC_DIR) -type d)
+INCLUDES	= $(addprefix -I,$(INC_DIRS))
 
 # Handle different OS configurations
 # (no external libs here — this only picks the right leak checker)

@@ -21,13 +21,4 @@ class ServerBlock
 		ServerBlock(const ServerBlock& other);
 		ServerBlock& operator=(const ServerBlock& other);
 		~ServerBlock();
-
-	class ServerBlockErrorExeption: public std::exception
-	{
-		public:
-			virtual const char* what() const throw()
-			{
-				return ("Error: Config file error at Server context");
-			}
-	};
 };

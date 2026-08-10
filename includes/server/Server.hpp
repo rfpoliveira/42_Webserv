@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Client.hpp"
+#include "../exceptions/ServerException.hpp"
 #include <poll.h>
 
 class Server {
@@ -26,15 +27,4 @@ class Server {
 		void setup(); // open one socket per unique host:port
 		void run(); // the single poll() loop
 		const std::map<int, int>& getListenFds() const; // the loop needs this to poll the listening sockets
-		class ServerException : public std::exception
-		{
-			private:
-				std::string _message;
-			public:
-				ServerException(const std::string& message) : _message(message) {}
-				virtual ~ServerException() throw() {}
-				virtual const char* what() const throw(){
-					return _message.c_str();
-				}
-		};
 };

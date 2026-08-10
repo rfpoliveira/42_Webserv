@@ -2,6 +2,7 @@
 #include "../../includes/core/main.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 #include "../../includes/server/Server.hpp"
+#include "../../includes/exceptions/ServerException.hpp"
 
 void printConfigs(Config& configs)
 {
@@ -57,7 +58,7 @@ int main(int argc, char** argv)
 		std::cout << e.what() << "\n";
 		return (-3);
 	}
-	catch (std::exception& e)
+	catch (ServerException& e)
 	{
 		std::cerr << e.what() << "\n";
 		return (1);
