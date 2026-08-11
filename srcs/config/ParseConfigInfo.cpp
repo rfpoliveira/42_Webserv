@@ -50,7 +50,6 @@ int errorPageParse(int code)
 	return (0);
 }
 
-
 void parse_config_info(Config& configs)
 {
 	std::vector<ServerBlock>::iterator itVec;

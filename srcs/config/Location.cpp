@@ -133,25 +133,24 @@ Location& Location::operator=(const Location& other)
 	return (*this);
 };
 
-bool Location::isMethodallowed(std::string method)
+bool Location::isMethodallowed(std::string method) const
 {
-    if (method == "GET")
-        return(this->GET);
-    else if(method == "DELETE")
-        return(this->DELETE);
-    else if(method == "POST")
-        return(this->POST);
-    else
-        throw HttpException(2, "Method not allowed");
-    
+	if (method == "GET")
+		return(this->GET);
+	else if(method == "DELETE")
+		return(this->DELETE);
+	else if(method == "POST")
+		return(this->POST);
+	else
+		throw HttpException(2, "Method not allowed");
 }
 
 void Location::applyServerBlockDefaults(const ServerBlock& ServerBlock)
 {
-    if (root.empty())
-        root = ServerBlock.root;
-    if (maxBodySize == 0)
-        maxBodySize = ServerBlock.maxBodySize;
+	if (root.empty())
+		root = ServerBlock.root;
+	if (maxBodySize == 0)
+		maxBodySize = ServerBlock.maxBodySize;
 }
 
 Location::~Location(){};

@@ -5,6 +5,9 @@
 #include <netdb.h>
 #include <csignal>
 #include <set>
+#include <Request.hpp>
+#include <RequestHandler.hpp>
+#include <Response.hpp>
 
 Server::Server(const Config& config) : _config(config) {};
 
@@ -184,8 +187,20 @@ void Server::readFromClient(int fd)
 		closeClient(fd);
 		return;
 	}
-	// #3 temporary: echo the received bytes straight back (replaced in #8).
-	_clients[fd].getWriteBuffer().append(buf, n);
+	Client &c = _clients[fd];
+	c.getReadBuffer().append(buf, n);                 // 1. accumulate
+	c.getRequest().parseHeaders(c.getReadBuffer());   // 2. parse request line + headers
+
+	if (c.getRequest().isMalformed)                   // 3a. bad request -> 400
+	{
+		c.getWriteBuffer() = Response::fromError(400).serialize();
+		c.setState(Client::WRITING);
+	}
+	else if (c.getRequest().isComplete)               // 3b. full request -> handle
+	{
+		c.getWriteBuffer() = requestHandler(c, _config);
+		c.setState(Client::WRITING);
+	}
 }
 
 void Server::writeToClient(int fd)
