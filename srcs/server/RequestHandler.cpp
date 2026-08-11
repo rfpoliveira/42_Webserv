@@ -37,8 +37,6 @@ std::string requestHandler(const Client& client, const Config& config)
 	if (fullPath[fullPath.size() - 1] == '/')
 		fullPath += location->index.empty() ? "index.html" : location->index;
 	Response res = Response::fromStaticFile(fullPath);
-	std::string conn = client.getRequest().getHeader("Connection");
-	bool keepAlive = (conn != "close");
-	res.setHeader("Connection", keepAlive ? "keep-alive" : "close");
+	res.setHeader("Connection", "close"); // keep-alive is out of scope (issue #10)
 	return (res.serialize());
 }

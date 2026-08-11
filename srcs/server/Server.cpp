@@ -198,6 +198,7 @@ void Server::readFromClient(int fd)
 	}
 	else if (c.getRequest().isComplete)               // 3b. full request -> handle
 	{
+		c.setState(Client::PROCESSING);
 		c.getWriteBuffer() = requestHandler(c, _config);
 		c.setState(Client::WRITING);
 	}
@@ -220,6 +221,8 @@ void Server::writeToClient(int fd)
 	{
 		out.clear();
 		c.setBytesSent(0);
+		c.setState(Client::DONE);
+		closeClient(fd);        // Connection: close model (keep-alive out of scope)
 	}
 	else
 		c.setBytesSent(sent);
