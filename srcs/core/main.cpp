@@ -1,5 +1,5 @@
 #include "../../includes/config/Config.hpp"
-#include "../../includes/core/main.hpp"
+#include "../../includes/core/Main.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 #include "../../includes/server/Server.hpp"
 #include "../../includes/exceptions/ServerException.hpp"

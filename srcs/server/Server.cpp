@@ -1,5 +1,5 @@
 #include "../../includes/server/Server.hpp"
-#include "../../includes/core/common.hpp"
+#include "../../includes/core/Common.hpp"
 #include <cstring>
 #include <sys/socket.h>
 #include <netdb.h>
