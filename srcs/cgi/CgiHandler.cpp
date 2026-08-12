@@ -1,4 +1,4 @@
-#include "../../includes/cgi/CgiHandler.hpp"
+#include <CgiHandler.hpp>
 
 CgiHandler::CgiHandler(std::string _scriptPath)
 {

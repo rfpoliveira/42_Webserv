@@ -1,4 +1,4 @@
-#include "../../includes/core/main.hpp"
+#include "../../includes/core/Main.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 
 int hostParse(std::string& host)
@@ -50,35 +50,33 @@ int errorPageParse(int code)
 	return (0);
 }
 
-
 void parse_config_info(Config& configs)
 {
 	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
 	std::map<int, std::string>::iterator itMap;
-	int i = 0;
+	// int i = 0;
 
-
-    for(itVec = configs.ServerBlocks.begin(); itVec != configs.ServerBlocks.end(); itVec++)
-    {
-        if ((*itVec).port <= 0)
-            throw ConfigException("Invalid port.");
-        if (hostParse((*itVec).host))
-            throw ConfigException("Invalid host.");
-        if ((*itVec).maxBodySize <= 0)
-            throw ConfigException("Invalid maxBodySize.");
-        for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
-        {
-            if (errorPageParse((*itMap).first))
-                throw ConfigException("Invalid error pages.");
-        }
-        for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
-        {
-            if ((*itLoc).POST && validPathCheck((*itLoc).uploadPath))
-                throw ConfigException("Needs a valid uploadPath");
+	for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
+	{
+		if ((*itVec).port <= 0)
+			throw ConfigException("Invalid port.");
+		if (hostParse((*itVec).host))
+			throw ConfigException("Invalid host.");
+		if ((*itVec).maxBodySize <= 0)
+			throw ConfigException("Invalid maxBodySize.");
+		for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
+		{
+			if (errorPageParse((*itMap).first))
+				throw ConfigException("Invalid error pages.");
+		}
+		for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
+		{
+			if ((*itLoc).POST && validPathCheck((*itLoc).uploadPath))
+				throw ConfigException("Needs a valid uploadPath");
 			if (validPathCheck((*itLoc).root))
 				throw ConfigException("Needs a valid root path");
-        }
-            i++;
-    }
+		}
+		// i++;
+	}
 }

@@ -19,7 +19,11 @@ static void toLower(std::string& s)
 		s[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(s[i])));
 }
 
-Request::Request(){};
+Request::Request()
+{
+	isComplete = false;
+	isMalformed = false;
+};
 
 /* requestline ex: GET /test.py?user=nuno HTTP/1.1 */
 
@@ -58,10 +62,34 @@ void Request::parseHeaders(std::string data)
 
 	std::stringstream ss(headersPart);
 	std::string line;
+	bool firstLine = true;
 	while (std::getline(ss, line))
 	{
 		if(!line.empty() && line[line.size() - 1] == '\r')
 			line.erase(line.size() - 1);
+
+		if (firstLine)                       // the request line: METHOD PATH VERSION
+		{
+			firstLine = false;
+			std::vector<std::string> parts = ftSplit(line, ' ');
+			if (parts.size() != 3)
+			{
+				isMalformed = true;
+				return ;
+			}
+			requestMethod = parts[0];
+			if (parts[1].find('?') != std::string::npos)
+			{
+				std::vector<std::string> tgt = ftSplit(parts[1], '?');
+				resourcePath = tgt[0];
+				if (tgt.size() > 1)
+					queryString = tgt[1];
+			}
+			else
+				resourcePath = parts[1];
+			htmlVersion = parts[2];
+			continue ;
+		}
 
 		if(line.empty())
 			continue ;
