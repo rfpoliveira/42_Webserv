@@ -3,12 +3,12 @@
 #include <exception>
 #include <string>
 
-class ConfigException: public std::exception
+class ServerException: public std::exception
 {
 	private:
 		std::string _error_msg;
 	public:
-		explicit ConfigException(const std::string& msg);
-		virtual ~ConfigException() throw();
+		explicit ServerException(const std::string& msg);
+		virtual ~ServerException() throw();
 		virtual const char* what() const throw();
 };

@@ -18,7 +18,7 @@ int ServerBlock::checkLineServerBlock(std::string line)
 	std::vector<std::string> tokens = ftSplit(line, ' ');
 	cleanStrings(tokens);
 
-	if(tokens.at(0) == "ServerBlock")
+	if(tokens.at(0) == "Server")
 		return (2);
 
 	if(tokens.at(0) == "listen")

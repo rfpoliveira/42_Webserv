@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/common.hpp"
+#include "../core/Common.hpp"
 #include "../../includes/config/ServerBlock.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 
@@ -21,7 +21,7 @@ class Location
 		unsigned long maxBodySize;
 
 		void checkLineLocation(std::string line);
-		int isMethodallowed(std::string method);
+		bool isMethodallowed(std::string method) const;
 		void applyServerBlockDefaults(const ServerBlock& ServerBlock);
 
 		Location();

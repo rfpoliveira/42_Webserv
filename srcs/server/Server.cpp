@@ -1,10 +1,13 @@
 #include "../../includes/server/Server.hpp"
-#include "core/common.hpp"
+#include "../../includes/core/Common.hpp"
 #include <cstring>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <csignal>
 #include <set>
+#include <Request.hpp>
+#include <RequestHandler.hpp>
+#include <Response.hpp>
 
 Server::Server(const Config& config) : _config(config) {};
 
@@ -184,8 +187,21 @@ void Server::readFromClient(int fd)
 		closeClient(fd);
 		return;
 	}
-	// #3 temporary: echo the received bytes straight back (replaced in #8).
-	_clients[fd].getWriteBuffer().append(buf, n);
+	Client &c = _clients[fd];
+	c.getReadBuffer().append(buf, n);                 // 1. accumulate
+	c.getRequest().parseHeaders(c.getReadBuffer());   // 2. parse request line + headers
+
+	if (c.getRequest().isMalformed)                   // 3a. bad request -> 400
+	{
+		c.getWriteBuffer() = Response::fromError(400).serialize();
+		c.setState(Client::WRITING);
+	}
+	else if (c.getRequest().isComplete)               // 3b. full request -> handle
+	{
+		c.setState(Client::PROCESSING);
+		c.getWriteBuffer() = requestHandler(c, _config);
+		c.setState(Client::WRITING);
+	}
 }
 
 void Server::writeToClient(int fd)
@@ -205,6 +221,8 @@ void Server::writeToClient(int fd)
 	{
 		out.clear();
 		c.setBytesSent(0);
+		c.setState(Client::DONE);
+		closeClient(fd);        // Connection: close model (keep-alive out of scope)
 	}
 	else
 		c.setBytesSent(sent);

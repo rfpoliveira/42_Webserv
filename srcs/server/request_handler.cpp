@@ -1,5 +1,5 @@
 #include "../../includes/server/request_handler.hpp"
-#include "../../includes/http/ResponseBuilder.hpp"
+#include "../../includes/http/Response.hpp"
 #include "../../includes/cgi/CgiHandler.hpp"
 #include <sstream>
 #include <cstdlib>
@@ -17,12 +17,12 @@ static std::string buildMinimalResponse(int code, const std::string& reason, con
 	return (oss.str());
 }
 
-std::string requestHandler(const Client& client, Config& config)
+std::string requestHandler(const Client& client, Config& config) //TODO check duplicated resquesthanlder
 {
 	const Request& request = client.getRequest();
 	std::string path = request.resourcePath;
 
-	Location* location = config.getLocation(client.getPort(), path);
+	const Location* location = config.getLocation(client.getPort(), path);
 	if (!location)
 		return (buildMinimalResponse(404, "Not Found", "404 Not Found"));
 
@@ -49,7 +49,9 @@ std::string requestHandler(const Client& client, Config& config)
 
 	if (fullPath[fullPath.length() - 1] == '/')
 		fullPath += location->index.empty() ? "index.html" : location->index;
-	return (ResponseBuilder::buildStaticFile(fullPath));
+
+	Response res = Response::fromStaticFile(fullPath);
+	return (res.serialize());
 }
 
 std::string handleDelete(const Request& req, std::string root)

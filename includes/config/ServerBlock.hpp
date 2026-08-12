@@ -2,7 +2,6 @@
 
 #include "Location.hpp"
 
-
 class Location;
 
 class ServerBlock
