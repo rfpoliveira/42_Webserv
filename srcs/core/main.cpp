@@ -1,5 +1,10 @@
 #include "../../includes/config/Config.hpp"
+<<<<<<< HEAD
+#include "../../includes/core/main.hpp"
+#include "../../includes/server/Server.hpp"
+=======
 #include "../../includes/core/Main.hpp"
+>>>>>>> main
 #include "../../includes/exceptions/ConfigException.hpp"
 #include "../../includes/server/Server.hpp"
 #include "../../includes/exceptions/ServerException.hpp"
@@ -12,7 +17,11 @@ void printConfigs(Config& configs)
 
 	int i = 0;
 
+<<<<<<< HEAD
+	std::cout << "Number ofserverBlocks: " << configs.numberserverBlocks << "\n";
+=======
 	std::cout << "Number of ServerBlocks: " << configs.numberServerBlocks << "\n";
+>>>>>>> main
 	for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
 	{
 		std::cout << "ServerBlock " << i << ": \n";
@@ -41,6 +50,27 @@ void printConfigs(Config& configs)
 
 int main(int argc, char** argv)
 {
+<<<<<<< HEAD
+    try 
+    {
+        if (argc != 2)
+            throw ConfigException("Please enter valid arguments:\n./webserv <config_file>");
+        parseConfigFile(argv[1]);
+        Config configs(argv[1]);
+        parseConfigInfo(configs);
+		printConfigs(configs);
+
+		Server server(configs);
+		server.setup(); // #2 open listening sockets
+		server.run();   // #3 single poll() loop (echoes for now)
+    }
+    catch (std::exception& e)
+    {
+        std::cout << e.what() << "\n";
+        return (-3);
+    }
+
+=======
 	try
 	{
 		if (argc != 2)
@@ -63,5 +93,6 @@ int main(int argc, char** argv)
 		std::cerr << e.what() << "\n";
 		return (1);
 	}
+>>>>>>> main
 	return (0);
 }

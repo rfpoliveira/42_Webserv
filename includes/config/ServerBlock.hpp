@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../includes/config/Location.hpp"
+#include "Location.hpp"
+
 class Location;
 
 class ServerBlock

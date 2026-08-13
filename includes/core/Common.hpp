@@ -13,12 +13,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstdio>      // std::remove
 
 // Free functions that do NOT depend on any project type.
 // (Anything needing Config lives in main.hpp instead.)
-
-// main parse
-int parseConfigFile(std::string configFile);
 
 // utils
 std::vector<std::string> ftSplit (std::string s, char delimiter);

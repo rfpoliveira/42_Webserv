@@ -5,8 +5,8 @@
 
 Config::Config(): numberServerBlocks(0) {};
 
-//counts the number of ServerBlocks and as it finds 1
-//calls the constructor of the ServerBlock class as it hads it to the ServerBlocks vector in this calss
+//counts the number ofserverBlocks and as it finds 1
+//calls the constructor of the ServerBlock class as it hads it to theserverBlocks vector in this calss
 
 Config::Config(std::string configFile)
 {
@@ -34,7 +34,7 @@ Config::Config(std::string configFile)
 		for(it2 = it + 1; it2 != serverBlocks.end(); it2++)
 		{
 			if (port_to_compare == (it2->port))
-				throw ConfigException("Multiple ServerBlocks on the same port");
+				throw ConfigException("MultipleserverBlocks on the same port");
 		}
 	}
 };

@@ -4,7 +4,8 @@
 #include <sstream>
 #include <cstdlib>
 
-std::string requestHandler(const Client& client, const Config& config)
+std::string requestHandler(const Client& client, const Config& config) //TODO 2 requesthandlers
+
 {
 	const Request& request = client.getRequest();
 	std::string path = request.resourcePath;

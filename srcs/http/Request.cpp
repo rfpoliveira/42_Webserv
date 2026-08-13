@@ -27,10 +27,13 @@ Request::Request()
 
 /* requestline ex: GET /test.py?user=nuno HTTP/1.1 */
 
-Request::Request(std::string Request_line)
+Request::Request(std::string Request_line, unsigned long maxBodySize)
 {
 	isComplete = false;
 	isMalformed = false;
+	isOversized = false;
+	this->maxBodySize = maxBodySize;
+	contentLen = 0;
 	std::vector<std::string> buffer1 = ftSplit(Request_line, ' ');
 	if (buffer1.size() != 3)
 	{
@@ -104,10 +107,28 @@ void Request::parseHeaders(std::string data)
 		if (!key.empty())
 			headers[key] = value;
 	}
+
 	if (headers.find("content-length") != headers.end())
 	{
-		int len = std::atoi(headers["content-length"].c_str());
-		if (bodyPart.size() >= static_cast<size_t>(len))
+		char* endptr;
+        errno = 0;
+		unsigned long len = std::strtoul(headers["content-length"].c_str(), &endptr, 10);
+		
+		if (errno != 0 || *endptr != '\0')
+		{
+			isMalformed = true;
+			return ;
+		}
+
+		contentLen = static_cast<size_t>(len);
+
+		if (maxBodySize > 0 && contentLen > maxBodySize)
+		{
+			isOversized = true;
+			return ;
+		}
+
+		if (bodyPart.size() >= contentLen)
 		{
 			body = bodyPart.substr(0, len);
 			isComplete = true;
@@ -130,6 +151,9 @@ Request::Request(const Request& other)
 		this->resourcePath = other.resourcePath;
 		this->htmlVersion = other.htmlVersion;
 		this->body = other.body;
+		this->isOversized = other.isOversized;
+		this->maxBodySize = other.maxBodySize;
+		this->contentLen = other.contentLen;
 };
 
 std::string Request::getHeader(std::string key) const
@@ -153,6 +177,9 @@ Request& Request::operator=(const Request& other)
 		this->resourcePath = other.resourcePath;
 		this->htmlVersion = other.htmlVersion;
 		this->body = other.body;
+		this->isOversized = other.isOversized;
+		this->maxBodySize = other.maxBodySize;
+		this->contentLen = other.contentLen;
 	}
 	return (*this);
 };

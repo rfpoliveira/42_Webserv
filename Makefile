@@ -6,7 +6,7 @@
 #    By: rpedrosa <rpedrosa@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/19 00:00:00 by rpedrosa          #+#    #+#              #
-#    Updated: 2026/07/30 12:11:24 by rpedrosa         ###   ########.fr        #
+#    Updated: 2026/08/10 15:24:00 by rpedrosa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,7 +56,7 @@ SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
 				config/config_parser.cpp \
 				config/Config.cpp \
 				config/Location.cpp \
-				config/parse_config_info.cpp \
+				config/parseConfigInfo.cpp \
 				config/parse_utils.cpp \
 				config/ServerBlock.cpp \
 				core/debug.cpp \
