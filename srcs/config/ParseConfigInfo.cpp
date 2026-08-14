@@ -50,38 +50,13 @@ int errorPageParse(int code)
 	return (0);
 }
 
-<<<<<<< HEAD:srcs/config/parse_config_info.cpp
-
 void parseConfigInfo(Config& configs)
-=======
-void parse_config_info(Config& configs)
->>>>>>> main:srcs/config/ParseConfigInfo.cpp
 {
 	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
 	std::map<int, std::string>::iterator itMap;
 	// int i = 0;
 
-<<<<<<< HEAD:srcs/config/parse_config_info.cpp
-
-    for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
-    {
-        if ((*itVec).port <= 0)
-            throw ConfigException("Invalid port.");
-        if (hostParse((*itVec).host))
-            throw ConfigException("Invalid host.");
-        if ((*itVec).maxBodySize <= 0)
-            throw ConfigException("Invalid maxBodySize.");
-        for (itMap = (*itVec).errorPages.begin(); itMap != (*itVec).errorPages.end();itMap++)
-        {
-            if (errorPageParse((*itMap).first))
-                throw ConfigException("Invalid error pages.");
-        }
-        for(itLoc = (*itVec).Locations.begin(); itLoc != (*itVec).Locations.end(); itLoc++)
-        {
-            if ((*itLoc).POST && validPathCheck((*itLoc).uploadPath))
-                throw ConfigException("Needs a valid uploadPath");
-=======
 	for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
 	{
 		if ((*itVec).port <= 0)
@@ -99,7 +74,6 @@ void parse_config_info(Config& configs)
 		{
 			if ((*itLoc).POST && validPathCheck((*itLoc).uploadPath))
 				throw ConfigException("Needs a valid uploadPath");
->>>>>>> main:srcs/config/ParseConfigInfo.cpp
 			if (validPathCheck((*itLoc).root))
 				throw ConfigException("Needs a valid root path");
 		}

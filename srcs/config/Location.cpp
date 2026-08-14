@@ -133,18 +133,6 @@ Location& Location::operator=(const Location& other)
 	return (*this);
 };
 
-<<<<<<< HEAD
-int Location::isMethodallowed(std::string method)
-{
-    if (method == "GET")
-        return(this->GET);
-    else if(method == "DELETE")
-        return(this->DELETE);
-    else if(method == "POST")
-        return(this->POST);
-    else
-        return (2);
-=======
 bool Location::isMethodallowed(std::string method) const
 {
 	if (method == "GET")
@@ -155,7 +143,6 @@ bool Location::isMethodallowed(std::string method) const
 		return(this->POST);
 	else
 		throw HttpException(2, "Method not allowed");
->>>>>>> main
 }
 
 void Location::applyServerBlockDefaults(const ServerBlock& ServerBlock)

@@ -28,19 +28,21 @@ std::string Response::reasonPhrase(int code)
 	}
 }
 
-Response Response::fromError(int code, const std::string &reason, const Location *loc)
+Response Response::fromError(int code, const char *detail, const Location *loc)
 {
-	(void)loc; // reserved for custom error_page lookup
+	(void)loc; // reserved for custom error_page lookup. Implement later.
 	Response res;
-	std::string phrase = reason.empty() ? reasonPhrase(code) : reason;
+	std::string detailStr = detail ? detail : "";
+	std::string phrase = reasonPhrase(code);
 
 	std::ostringstream body;
 	body << "<html><head><title>" << code << " " << phrase << "</title></head>"
-		 << "<body><center><h1>" << code << " " << phrase << "</h1></center>"
-		 << "<hr><center>webserver</center></body></html>";
+		 << "<body><center><h1>" << code << " " << phrase << "</h1></center>";
+	if (!detailStr.empty())
+		body << "<p>" << detail << "</p>";
+	body << "<hr><center>webserver</center></body></html>";
 	res.setStatus(code, phrase);
 	res.setBody(body.str());
-
 	std::ostringstream len;
 	len << res._body.size();
 	res.setHeader("Content-Type", "text/html");
