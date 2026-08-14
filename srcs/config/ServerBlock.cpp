@@ -2,7 +2,7 @@
 
 ServerBlock::ServerBlock()
 {
-	root = "./test/var/www/html";
+	root = "/";
 	host = "0.0.0.0";
 	port = 8080;
 	serverBlockName = "";
@@ -53,7 +53,7 @@ int ServerBlock::checkLineServerBlock(std::string line)
 
 ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 {
-	root = "./test/var/www/html";
+	root = "/";
 	host = "0.0.0.0";
 	port = 8080;
 	serverBlockName = "";

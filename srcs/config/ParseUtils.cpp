@@ -31,6 +31,9 @@ void ignoreComments(std::string& line)
 
 void cleanStrings(std::vector<std::string>& buff)
 {
+	if (buff.empty())
+		return ;
+
 	std::vector<std::string>::iterator itVec;
 	std::string::iterator itStr;
 
@@ -39,7 +42,7 @@ void cleanStrings(std::vector<std::string>& buff)
 		while ((*itVec).length() == 0)
 		{
 			buff.erase(itVec);
-			if (buff.size() == 0)
+			if (buff.empty())
 				return ;
 			itVec = buff.begin();
 		}
@@ -51,10 +54,14 @@ void cleanStrings(std::vector<std::string>& buff)
 				if ((*itVec).length() == 1)
 				{
 					buff.erase(itVec);
+					if (buff.empty())
+						return ;
 					itVec = buff.begin();
 					break ;
 				}
 				(*itVec).erase(itStr);
+				if (buff.empty())
+					return ;
 				itStr = (*itVec).begin();
 			}
 		}

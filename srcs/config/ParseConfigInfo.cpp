@@ -55,7 +55,6 @@ void parseConfigInfo(Config& configs)
 	std::vector<ServerBlock>::iterator itVec;
 	std::vector<Location>::iterator itLoc;
 	std::map<int, std::string>::iterator itMap;
-	// int i = 0;
 
 	for(itVec = configs.serverBlocks.begin(); itVec != configs.serverBlocks.end(); itVec++)
 	{
@@ -77,6 +76,5 @@ void parseConfigInfo(Config& configs)
 			if (validPathCheck((*itLoc).root))
 				throw ConfigException("Needs a valid root path");
 		}
-		// i++;
 	}
 }
