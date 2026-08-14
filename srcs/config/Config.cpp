@@ -16,7 +16,7 @@ Config::Config(std::string configFile)
 
 	while(std::getline(file, line))
 	{
-		if (line == "ServerBlock {")
+		if (line == "server {")
 		{
 			this->numberServerBlocks++;
 			this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
@@ -34,7 +34,7 @@ Config::Config(std::string configFile)
 		for(it2 = it + 1; it2 != serverBlocks.end(); it2++)
 		{
 			if (port_to_compare == (it2->port))
-				throw ConfigException("MultipleserverBlocks on the same port");
+				throw ConfigException("Multiple Servers on the same port");
 		}
 	}
 };

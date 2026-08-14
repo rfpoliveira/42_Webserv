@@ -2,9 +2,9 @@
 
 ServerBlock::ServerBlock()
 {
-	root = "./test/var/www/html";
+	root = "/";
 	host = "0.0.0.0";
-	port = 8080;
+	port = 80;
 	serverBlockName = "";
 	maxBodySize = 1048576;
 };
@@ -23,7 +23,7 @@ int ServerBlock::checkLineServerBlock(std::string line)
 
 	if(tokens.at(0) == "listen")
 		port = atoi(tokens.at(1).c_str());
-	else if (tokens.at(0) == "ServerBlock_name")
+	else if (tokens.at(0) == "server_name")
 		serverBlockName = tokens.at(1);
 	else if(tokens.at(0) == "host")
 		host = tokens.at(1);
@@ -33,7 +33,7 @@ int ServerBlock::checkLineServerBlock(std::string line)
 			throw ConfigException("Multiple root declaration at a single ServerBlock");
 		root = tokens.at(1);
 	}
-	else if(tokens.at(0) == "client_maxBodySize")
+	else if(tokens.at(0) == "client_max_body_size")
 		maxBodySize = getBodySize(tokens.at(1));
 	else if (tokens.at(0) == "error_page")
 	{
@@ -53,9 +53,9 @@ int ServerBlock::checkLineServerBlock(std::string line)
 
 ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 {
-	root = "./test/var/www/html";
+	root = "/";
 	host = "0.0.0.0";
-	port = 8080;
+	port = 80;
 	serverBlockName = "";
 	maxBodySize = 1048576;
 
@@ -65,7 +65,7 @@ ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 
 	while(std::getline(file, line))
 	{
-		if (line == "ServerBlock {")
+		if (line == "server {")
 			ServerBlockPos--;
 		if (ServerBlockPos == 0)
 			break;

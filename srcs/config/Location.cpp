@@ -3,6 +3,7 @@
 
 Location::Location()
 {
+	root = "";
 	path = "";
 	GET = true;
 	POST = false;
@@ -18,10 +19,13 @@ Location::Location()
 
 void Location::checkLineLocation(std::string line)
 {
+
 	ignoreComments(line);
 
 	std::vector<std::string> tokens = ftSplit(line, ' ');
+
 	cleanStrings(tokens);
+
 	int i = 0;
 
 	int size = tokens.size();
