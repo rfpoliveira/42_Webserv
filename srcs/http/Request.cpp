@@ -23,6 +23,9 @@ Request::Request()
 {
 	isComplete = false;
 	isMalformed = false;
+	isOversized = false;
+	maxBodySize = 0;
+	contentLen = 0;
 };
 
 /* requestline ex: GET /test.py?user=nuno HTTP/1.1 */

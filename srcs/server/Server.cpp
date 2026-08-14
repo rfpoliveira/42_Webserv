@@ -196,10 +196,15 @@ void Server::readFromClient(int fd)
 		c.getWriteBuffer() = Response::fromError(400).serialize();
 		c.setState(Client::WRITING);
 	}
-	else if (c.getRequest().isComplete)               // 3b. full request -> handle
+	else if (c.getRequest().isOversized)              // 3b. body too large -> 413
+	{
+		c.getWriteBuffer() = Response::fromError(413).serialize();
+		c.setState(Client::WRITING);
+	}
+	else if (c.getRequest().isComplete)               // 3c. full request -> handle
 	{
 		c.setState(Client::PROCESSING);
-		c.getWriteBuffer() = requestHandler(c, _config);
+		c.getWriteBuffer() = RequestHandler::handler(c, _config);
 		c.setState(Client::WRITING);
 	}
 }
