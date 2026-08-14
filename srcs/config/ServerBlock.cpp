@@ -65,7 +65,7 @@ ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 
 	while(std::getline(file, line))
 	{
-		if (line == "Server {")
+		if (line == "server {")
 			ServerBlockPos--;
 		if (ServerBlockPos == 0)
 			break;

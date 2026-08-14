@@ -16,7 +16,7 @@ Config::Config(std::string configFile)
 
 	while(std::getline(file, line))
 	{
-		if (line == "Server {")
+		if (line == "server {")
 		{
 			this->numberServerBlocks++;
 			this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
