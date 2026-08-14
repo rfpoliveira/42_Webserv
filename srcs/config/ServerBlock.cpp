@@ -4,7 +4,7 @@ ServerBlock::ServerBlock()
 {
 	root = "/";
 	host = "0.0.0.0";
-	port = 8080;
+	port = 80;
 	serverBlockName = "";
 	maxBodySize = 1048576;
 };
@@ -55,7 +55,7 @@ ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 {
 	root = "/";
 	host = "0.0.0.0";
-	port = 8080;
+	port = 80;
 	serverBlockName = "";
 	maxBodySize = 1048576;
 
