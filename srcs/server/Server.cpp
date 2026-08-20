@@ -118,7 +118,7 @@ int Server::createListenSocket(const std::string& host, int port)
 		std::cerr << "getaddrinfo: " << gai_strerror(gai) << "\n";
 		return -1;
 	}
-	int fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	int fd = socket(res->ai_family, res->ai_socktype | SOCK_CLOEXEC, res->ai_protocol); //setting sock_cloexec so execve closes the sockets in the child automaticly
 	if (fd < 0) {freeaddrinfo(res); return (-1);}
 	int opt = 1;
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)

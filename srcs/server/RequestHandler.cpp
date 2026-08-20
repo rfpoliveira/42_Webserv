@@ -18,8 +18,8 @@ std::string RequestHandler::handler(const Client& client, const Config& config)
 		return (Response::fromError(403).serialize());
 	if (path.find(".py") != std::string::npos) //TODO BETTER CGI CHECK
 	{
-		CgiHandler cgiHandler(path);
-		if (!cgiHandler.execute(request))
+		CgiHandler cgiHandler(path, client, config, request);
+		if (!cgiHandler.execute())
 			return (Response::fromError(500, NULL, location).serialize());
 		return (Response::fromError(501, NULL, location).serialize());
 	}
