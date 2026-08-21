@@ -10,3 +10,7 @@
 #bear
 compile_commands.json
 .cache/
+
+#project_created
+objs/
+bin/
