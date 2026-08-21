@@ -18,6 +18,7 @@ class CgiHandler
 		const Config& _config;
 		const Request& _request;
 		bool _isValid;
+		std::string _cgiExten;
 		std::map<std::string, std::string> _envMap;
 
 		void setupEnv();

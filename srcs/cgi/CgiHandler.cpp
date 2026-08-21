@@ -9,6 +9,13 @@ CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Con
 	_pipeOut[0] = -1;
 	_pipeOut[1] = -1;
 
+	if (_scriptPath.find(".py") != std::string::npos)
+		_cgiExten = ".py";
+	else if (_scriptPath.find(".php") != std::string::npos)
+		_cgiExten = ".php";
+	else if (_scriptPath.find(".pl") != std::string::npos)
+		_cgiExten = ".pl";
+
 	if(pipe(_pipeIn) < 0)
 		return ;
 
@@ -44,8 +51,7 @@ void CgiHandler::setupEnv()
 
 	_envMap["SERVER_NAME"] = targetServerBlock->serverBlockName;
 	//_envMAP["REMOTE_ADDR"] = //TODO: ask for the client ip?
-	size_t pos = _scriptPath.find(".py");
-	_envMap["PATH_INFO"] = _scriptPath.substr(pos);
+	_envMap["PATH_INFO"] = _cgiExten;
 	_envMap["REQUEST_URI"] = _request.queryString;
 }
 
@@ -78,7 +84,17 @@ bool CgiHandler::execute()
 	char** envp = this->convertEnvToCstyle();
 
 	char* args[3];
-	args[0] = const_cast<char*>("/usr/bin/python3");
+	if (_cgiExten == ".py")
+		args[0] = const_cast<char*>("/usr/bin/python3");
+	else if (_cgiExten == ".pl")
+		args[0] = const_cast<char*>("/usr/bin/perl");
+	else if (_cgiExten == ".php")
+		args[0] = const_cast<char*>("/usr/bin/php-cgi");
+	else
+	{
+		freeEnvp(envp);
+		return(false); //should not happen but if _cgiExten is non of this will give a 500 error reponse
+	}
 	args[1] = const_cast<char*>(_scriptPath.c_str());
 	args[2] = NULL;
 
