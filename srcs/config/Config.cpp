@@ -55,21 +55,24 @@ Config& Config::operator=(const Config& other)
 	return (*this);
 };
 
-const Location* Config::getLocation(int port, std::string& path) const
+const ServerBlock* Config::getServerBlock(int port) const
 {
 	std::vector<ServerBlock>::const_iterator it;
-	std::vector<Location>::const_iterator it2;
-
-	const ServerBlock* targetServerBlock = NULL;
 
     for(it = this->serverBlocks.begin(); it != this->serverBlocks.end(); it++)
-    {
+	{
         if ((*it).port == port)
-		{
-			targetServerBlock = &(*it);
-			break ; //found the correct ServerBlock
-		}
-    }
+			return(&(*it));
+	}
+	return (NULL);
+}
+
+const Location* Config::getLocation(int port, std::string& path) const
+{
+	std::vector<Location>::const_iterator it2;
+
+	const ServerBlock* targetServerBlock = getServerBlock(port);
+
 	if (targetServerBlock == NULL) //DID NOT FOUND THE ServerBlock
 		return(NULL);
 	

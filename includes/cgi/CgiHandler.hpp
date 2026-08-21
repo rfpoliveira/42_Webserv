@@ -1,7 +1,11 @@
 #pragma once
 
 #include "../http/Request.hpp"
+#include "../server/Client.hpp"
 #include "../exceptions/HttpException.hpp"
+#include "csignal"
+#include <sys/types.h>
+#include <sys/wait.h>
 
 class CgiHandler
 {
@@ -10,17 +14,22 @@ class CgiHandler
 		int _pipeOut[2];
 		pid_t _pid;
 		std::string _scriptPath;
+		const Client& _client;
+		const Config& _config;
+		const Request& _request;
+		bool _isValid;
+		std::string _cgiExten;
 		std::map<std::string, std::string> _envMap;
 
-		void setupEnv(Request request);
+		void setupEnv();
 		char** convertEnvToCstyle();
 
 	public:
-		CgiHandler(const std::string _scriptPath);
+		CgiHandler(std::string &_scriptPath, const Client& client, const Config& config, const Request& request);
 		~CgiHandler();
 
-		bool execute(Request request);
-
+		bool execute();
+		bool isValid() const;
 		int getReadFd() const;
 		int getWriteFd() const;
 		pid_t getPid() const;
