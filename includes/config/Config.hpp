@@ -8,6 +8,7 @@ class Config
 		int numberServerBlocks;
 		std::vector<ServerBlock> serverBlocks;
 
+		const ServerBlock* getServerBlock(int port) const;
 		const Location* getLocation(int port, std::string& path) const;
 
 		Config();

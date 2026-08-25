@@ -45,24 +45,4 @@ Disclosure in accordance with the project rules, AI tools (such as ChatGPT/Copil
 Debugging: Explaining complex error messages related to socket multiplexing (poll()).
 Technical Explanations: Clarifying the specific behavior of CGI environment variables.
 
-Refinement: All AI-generated logic was manually reviewed, tested with peers, and modified to ensure compliance with the C++98 standard. 
-
-useful links: 
-https://m4nnb3ll.medium.com/webserv-building-a-non-blocking-web-ServerBlock-in-c-98-a-42-project-04c7365e4ec7
-
-
-https://datatracker.ietf.org/doc/html/rfc9110
-
-
-https://datatracker.ietf.org/doc/html/rfc9112
-
-https://github.com/1337fury/42Webserv
-
-https://beej.us/guide/bgnet/html/#client-ServerBlock-background
-
-
-https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/
-
-https://www.digitalocean.com/community/tutorials/understanding-the-nginx-configuration-file-structure-and-configuration-contexts
-
-https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+Refinement: All AI-generated logic was manually reviewed, tested with peers, and modified to ensure compliance with the C++98 standard.

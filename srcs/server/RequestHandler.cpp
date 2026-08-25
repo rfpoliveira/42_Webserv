@@ -16,10 +16,12 @@ std::string RequestHandler::handler(const Client& client, const Config& config)
 		return (Response::fromError(405).serialize());
 	if (path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
 		return (Response::fromError(403).serialize());
-	if (path.find(".py") != std::string::npos) //TODO BETTER CGI CHECK
+	if (path.find(".py") != std::string::npos ||
+		path.find(".php") != std::string::npos ||
+		path.find(".pl") != std::string::npos)
 	{
-		CgiHandler cgiHandler(path);
-		if (!cgiHandler.execute(request))
+		CgiHandler cgiHandler(path, client, config, request);
+		if (!cgiHandler.execute())
 			return (Response::fromError(500, NULL, location).serialize());
 		return (Response::fromError(501, NULL, location).serialize());
 	}
