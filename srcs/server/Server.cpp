@@ -107,9 +107,9 @@ int Server::createListenSocket(const std::string& host, int port)
 	struct addrinfo* res = NULL;
 
 	std::memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
+	hints.ai_family = AF_INET; // IPv4 only
+	hints.ai_socktype = SOCK_STREAM; // TCP
+	hints.ai_flags = AI_PASSIVE; // for wildcard IP address if host is empty
 
 	std::string portStr = intToString(port);
 	int gai = getaddrinfo(host.c_str(), portStr.c_str(), &hints, &res); // I send hints to get res as a result.
@@ -118,8 +118,13 @@ int Server::createListenSocket(const std::string& host, int port)
 		std::cerr << "getaddrinfo: " << gai_strerror(gai) << "\n";
 		return -1;
 	}
-	int fd = socket(res->ai_family, res->ai_socktype | SOCK_CLOEXEC, res->ai_protocol); //setting sock_cloexec so execve closes the sockets in the child automaticly
+	// on the macOS, SOCK_CLOEXEC is not defined, so we need to set it manually after socket creation
+	// int fd = socket(res->ai_family, res->ai_socktype | SOCK_CLOEXEC, res->ai_protocol); //setting sock_cloexec so execve closes the sockets in the child automaticly
+	int fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (fd < 0) {freeaddrinfo(res); return (-1);}
+	int flags = fcntl(fd, F_GETFD);
+	if (flags < 0) {close(fd); freeaddrinfo(res); return (-1);}
+	if (fcntl(fd, F_SETFD, flags | FD_CLOEXEC) < 0) {close(fd); freeaddrinfo(res); return (-1);}
 	int opt = 1;
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		{ close(fd); freeaddrinfo(res); return (-1);}
