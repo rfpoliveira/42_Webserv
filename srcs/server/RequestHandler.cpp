@@ -46,7 +46,7 @@ std::string RequestHandler::handleGet(const Request &request, const Location &lo
 
 	if (S_ISDIR(fileStats.st_mode)) // Is a directory?
 	{
-		if (fullPath.back() != '/')
+		if (fullPath.empty() || fullPath[fullPath.size() - 1] != '/')
 			fullPath += '/'; // Ensure the path ends with a slash
 		fullPath += location.index.empty() ? "index.html" : location.index;
 		if (stat(fullPath.c_str(), &fileStats) != 0 || !S_ISREG(fileStats.st_mode)) // Does index file exist and is a readible file?

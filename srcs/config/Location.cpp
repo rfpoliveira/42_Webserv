@@ -117,6 +117,7 @@ Location::Location(const Location& other)
 	this->redirection = other.redirection;
 	this->uploadPath = other.uploadPath;
 	this->maxBodySize = other.maxBodySize;
+	this->errorPages = other.errorPages;
 };
 
 Location& Location::operator=(const Location& other)
@@ -133,6 +134,7 @@ Location& Location::operator=(const Location& other)
 		this->redirection = other.redirection;
 		this->uploadPath = other.uploadPath;
 		this->maxBodySize = other.maxBodySize;
+		this->errorPages = other.errorPages;
 	}
 	return (*this);
 };
@@ -155,6 +157,8 @@ void Location::applyServerBlockDefaults(const ServerBlock& ServerBlock)
 		root = ServerBlock.root;
 	if (maxBodySize == 0)
 		maxBodySize = ServerBlock.maxBodySize;
+	if (errorPages.empty())
+		errorPages = ServerBlock.errorPages;
 }
 
 Location::~Location(){};
