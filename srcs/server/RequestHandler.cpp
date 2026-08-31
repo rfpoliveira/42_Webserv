@@ -3,6 +3,7 @@
 #include <CgiHandler.hpp>
 #include <sstream>
 #include <cstdlib>
+#include <sys/stat.h>
 
 std::string RequestHandler::handler(const Client& client, const Config& config)
 {
@@ -38,10 +39,29 @@ std::string RequestHandler::handler(const Client& client, const Config& config)
 std::string RequestHandler::handleGet(const Request &request, const Location &location)
 {
 	std::string fullPath = location.root + request.resourcePath;
+	Response res;
+	struct stat fileStats;
+	if (stat(fullPath.c_str(), &fileStats) != 0)
+    	return (Response::fromError(404).serialize());
 
-	if (fullPath[fullPath.size() - 1] == '/')
+	if (S_ISDIR(fileStats.st_mode)) // Is a directory?
+	{
+		if (fullPath.empty() || fullPath[fullPath.size() - 1] != '/')
+			fullPath += '/'; // Ensure the path ends with a slash
 		fullPath += location.index.empty() ? "index.html" : location.index;
-	Response res = Response::fromStaticFile(fullPath);
+		if (stat(fullPath.c_str(), &fileStats) != 0 || !S_ISREG(fileStats.st_mode)) // Does index file exist and is a readible file?
+		{
+			if (location.autoindex)
+				return (Response::fromAutoIndex(location, request.resourcePath).serialize());
+			else
+				return (Response::fromError(403, "Forbidden: Index file not found").serialize());
+		}
+		res = Response::fromStaticFile(fullPath); // If index file exists, serve it
+	}
+	else
+	{
+		res = Response::fromStaticFile(fullPath); // If not a directory, serve the file
+	}
 	res.setHeader("Connection", "close"); // keep-alive is out of scope (issue #10)
 	return (res.serialize());
 }
@@ -57,8 +77,7 @@ std::string RequestHandler::handlePost(const Request &request, const Location &l
 
 std::string RequestHandler::handleDelete(const Request &request, const Location &location)
 {
-	std::string root = location.root;
-	std::string fullPath = root + request.resourcePath;
+	std::string fullPath = location.root + request.resourcePath;
 
 	struct stat fileStats;
 

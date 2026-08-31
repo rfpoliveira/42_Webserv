@@ -19,6 +19,7 @@ class Location
 		std::string redirection;
 		std::string uploadPath;
 		unsigned long maxBodySize;
+		std::map<int, std::string> errorPages;
 
 		void checkLineLocation(std::string line);
 		bool isMethodallowed(std::string method) const;
