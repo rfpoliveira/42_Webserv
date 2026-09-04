@@ -11,6 +11,19 @@ bool isCgiRequest(std::string path)
 	return(false);
 }
 
+std::string buildfullpath(const std::string& root, const std::string& urlPath)
+{
+	std::string fullPath = root;
+	if (!fullPath.empty() && fullPath[fullPath.size() - 1] == '/')
+		fullPath.erase(fullPath.size() - 1);
+
+	if (!urlPath.empty() && urlPath[0] != '/')
+		fullPath += "/";
+
+	fullPath += urlPath;
+	return fullPath;
+}
+
 HandlerOutcome RequestHandler::handler(const Client& client, const Config& config)
 {
 	const Request& request = client.getRequest();
@@ -20,6 +33,9 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 
 	if (!location)
 		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404).serialize(), NULL));
+
+	path = buildfullpath(location->root, path);
+
 	if (!location->isMethodallowed(request.requestMethod))
 		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(405).serialize(), NULL));
 	if (path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
