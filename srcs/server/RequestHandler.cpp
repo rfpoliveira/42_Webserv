@@ -1,39 +1,44 @@
-#include <Response.hpp>
 #include <RequestHandler.hpp>
-#include <CgiHandler.hpp>
-#include <sstream>
-#include <cstdlib>
-#include <sys/stat.h>
+#include <HandlerOutcome.hpp>
 
-std::string RequestHandler::handler(const Client& client, const Config& config)
+
+bool isCgiRequest(std::string path)
+{
+	if (path.find(".py") != std::string::npos ||
+		path.find(".php") != std::string::npos ||
+		path.find(".pl") != std::string::npos)
+		return (true);
+	return(false);
+}
+
+HandlerOutcome RequestHandler::handler(const Client& client, const Config& config)
 {
 	const Request& request = client.getRequest();
 	std::string path = request.resourcePath;
 
 	const Location* location = config.getLocation(client.getPort(), path);
+
 	if (!location)
-		return (Response::fromError(404).serialize());
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404).serialize(), NULL));
 	if (!location->isMethodallowed(request.requestMethod))
-		return (Response::fromError(405).serialize());
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(405).serialize(), NULL));
 	if (path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
-		return (Response::fromError(403).serialize());
-	if (path.find(".py") != std::string::npos ||
-		path.find(".php") != std::string::npos ||
-		path.find(".pl") != std::string::npos)
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(403).serialize(), NULL));
+	if (isCgiRequest(path))
 	{
-		CgiHandler cgiHandler(path, client, config, request);
-		if (!cgiHandler.execute())
-			return (Response::fromError(500, NULL, location).serialize());
-		return (Response::fromError(501, NULL, location).serialize());
+		CgiSession *session = new CgiSession(path, client, config, request);
+		if (!session->handler.execute())
+			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(500).serialize(), NULL));
+        return (HandlerOutcome(CGI_PENDING, "", session));
 	}
 	// Until here I have general checks. From now and on I can handle the request based on the method
 	if (request.requestMethod == "GET")
-		return (handleGet(request, *location));
+		return (HandlerOutcome(CGI_COMPLETE, handleGet(request, *location), NULL));
 	else if (request.requestMethod == "POST")
-		return (handlePost(request, *location));
+		return (HandlerOutcome(CGI_COMPLETE, handlePost(request, *location), NULL));
 	else if (request.requestMethod == "DELETE")
-		return (handleDelete(request, *location));
-	return (Response::fromError(501, NULL, location).serialize());
+		return (HandlerOutcome(CGI_COMPLETE, handleDelete(request, *location), NULL));
+	return (HandlerOutcome(CGI_COMPLETE, Response::fromError(501).serialize(), NULL));
 }
 
 std::string RequestHandler::handleGet(const Request &request, const Location &location)

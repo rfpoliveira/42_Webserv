@@ -14,17 +14,16 @@ class CgiHandler
 		int _pipeOut[2];
 		pid_t _pid;
 		std::string _scriptPath;
-		const Client& _client;
-		const Config& _config;
-		const Request& _request;
 		bool _isValid;
 		std::string _cgiExten;
 		std::map<std::string, std::string> _envMap;
 
-		void setupEnv();
+
+		void setupEnv(const Client &client, const Request &request, const Config &config);
 		char** convertEnvToCstyle();
 
 	public:
+		CgiHandler();
 		CgiHandler(std::string &_scriptPath, const Client& client, const Config& config, const Request& request);
 		~CgiHandler();
 

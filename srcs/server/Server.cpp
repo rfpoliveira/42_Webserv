@@ -8,6 +8,7 @@
 #include <Request.hpp>
 #include <RequestHandler.hpp>
 #include <Response.hpp>
+#include <MimeTypes.hpp>
 
 Server::Server(const Config& config) : _config(config) {};
 
@@ -82,6 +83,24 @@ void Server::run()
 				continue;
 			int fd = _pollFds[i].fd;
 
+			if (isCgiFd(fd))
+			{
+				if (re & (POLLHUP | POLLERR | POLLNVAL))
+				{
+					// pipe broke unexpectedly — treat like EOF/error, let reap sweep clean up
+					CgiSession* session = _fdToCgi[fd];
+					if (fd == session->handler.getReadFd())
+						session->readDone = true;
+					else
+						session->writeDone = true;
+					continue;
+				}
+				if (re & POLLIN)
+					readFromCgi(fd);
+				if (re & POLLOUT)
+					writeToCgi(fd);
+				continue;
+			}
 			if (re & (POLLHUP | POLLERR | POLLNVAL))
 			{
 				if (!isListenFd(fd))
@@ -98,6 +117,7 @@ void Server::run()
 			if ((re & POLLOUT) && _clients.count(fd))
 				writeToClient(fd);
 		}
+		reapAndTimeoutCgiSessions(); // non-blocking sweep, every iteration
 	}
 }
 
@@ -163,6 +183,23 @@ void Server::buildPollFds()
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
 	}
+
+	for (std::map<int, CgiSession*>::iterator it = _fdToCgi.begin(); it != _fdToCgi.end(); ++it)
+	{
+		CgiSession* session = it->second;
+		struct pollfd pfd;
+		pfd.fd = it->first;
+		pfd.events = 0;
+		pfd.revents = 0;
+
+		if (it->first == session->handler.getReadFd() && !session->readDone)
+			pfd.events |= POLLIN;
+		if (it->first == session->handler.getWriteFd() && !session->writeDone)
+			pfd.events |= POLLOUT;
+
+		if (pfd.events != 0)
+			_pollFds.push_back(pfd);
+	}
 }
 
 bool Server::isListenFd(int fd) const
@@ -209,8 +246,19 @@ void Server::readFromClient(int fd)
 	else if (c.getRequest().isComplete)               // 3c. full request -> handle
 	{
 		c.setState(Client::PROCESSING);
-		c.getWriteBuffer() = RequestHandler::handler(c, _config);
-		c.setState(Client::WRITING);
+
+		HandlerOutcome outcome = RequestHandler::handler(c, _config);
+
+		if (outcome.type == CGI_COMPLETE)
+		{
+			c.getWriteBuffer() = outcome.response;
+			c.setState(Client::WRITING);
+		}
+		else //CGI_PENDING
+		{
+			registerCgiSession(c, outcome.cgiSession);
+			c.setState(Client::CGI_WAITING);
+		}
 	}
 }
 
@@ -247,4 +295,166 @@ void Server::closeClient(int fd)
 const std::map<int, int>& Server::getListenFds() const
 {
 	return (_listenFds);
+}
+
+bool Server::isCgiFd(int fd) const
+{
+	return (_fdToCgi.count(fd) != 0);
+}
+
+void Server::registerCgiSession(Client& client, CgiSession* session)
+{
+	session->clientFd = client.getFd();
+	session->startTime = time(NULL);
+
+	_cgiSessions[session->handler.getPid()] = session;
+	_fdToCgi[session->handler.getReadFd()] = session;
+	if (!session->requestBody.empty())
+		_fdToCgi[session->handler.getWriteFd()] = session;
+	else
+	{
+		close(session->handler.getWriteFd());
+		session->writeDone = true;
+	}
+}
+
+void Server::readFromCgi(int fd)
+{
+	CgiSession* session = _fdToCgi[fd];
+	char buf[4096];
+	ssize_t n = read(fd, buf, sizeof(buf));
+
+	if (n > 0)
+	{
+		session->responseBuf.append(buf, n);
+	}
+	else if (n == 0)
+	{
+		session->readDone = true;
+	}
+	else if (errno != EAGAIN && errno != EWOULDBLOCK)
+	{
+		session->readDone = true;
+	}
+}
+
+void Server::writeToCgi(int fd)
+{
+	CgiSession* session = _fdToCgi[fd];
+	const char* data = session->requestBody.c_str() + session->writeOffset;
+	size_t remaining = session->requestBody.size() - session->writeOffset;
+
+	ssize_t n = write(fd, data, remaining);
+	if (n > 0)
+	{
+		session->writeOffset += n;
+		if (session->writeOffset == session->requestBody.size())
+		{
+			close(fd);
+			session->writeDone = true;
+			_fdToCgi.erase(fd);
+		}
+	}
+	else if (n < 0 && errno != EAGAIN && errno != EWOULDBLOCK)
+	{
+		close(fd);
+		session->writeDone = true;
+		_fdToCgi.erase(fd);
+	}
+}
+
+void Server::reapAndTimeoutCgiSessions()
+{
+	time_t now = time(NULL);
+
+	for (std::map<pid_t, CgiSession*>::iterator it = _cgiSessions.begin();
+	     it != _cgiSessions.end(); )
+	{
+		CgiSession* session = it->second;
+		pid_t pid = it->first;
+		int status = 0;
+
+		pid_t reaped = waitpid(pid, &status, WNOHANG);
+		if (reaped == pid)
+		{
+			finalizeCgiSession(session, status);
+			cleanupCgiSession(session);
+			_cgiSessions.erase(it++);
+			continue;
+		}
+
+		if (!session->killSent && (now - session->startTime) >= CGI_TIMEOUT_SECONDS)
+		{
+			kill(pid, SIGKILL);
+			session->killSent = true;
+		}
+
+		if (session->killSent)
+		{
+			reaped = waitpid(pid, &status, WNOHANG);
+			if (reaped == pid)
+			{
+				if (_clients.count(session->clientFd))
+				{
+					Client& c = _clients[session->clientFd];
+					c.getWriteBuffer() = Response::fromError(504).serialize();
+					c.setState(Client::WRITING);
+				}
+				cleanupCgiSession(session);
+				_cgiSessions.erase(it++);
+				continue;
+			}
+		}
+		++it;
+	}
+}
+
+void Server::finalizeCgiSession(CgiSession* session, int status)
+{
+	if (!_clients.count(session->clientFd))
+		return; // client already is off
+
+	Client& c = _clients[session->clientFd];
+
+	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+	{
+		c.getWriteBuffer() = Response::fromError(502).serialize();
+	}
+	else
+	{
+		c.getWriteBuffer() = Response::fromCGI(session->responseBuf); // mounts http response
+	}
+	c.setState(Client::WRITING);
+}
+
+void Server::cleanupCgiSession(CgiSession* session)
+{
+	int readFd = session->handler.getReadFd();
+	int writeFd = session->handler.getWriteFd();
+
+	if (readFd != -1) 
+	{ 
+		_fdToCgi.erase(readFd);
+		close(readFd); 
+	}
+	if (writeFd != -1) 
+	{ 
+		_fdToCgi.erase(writeFd);
+		close(writeFd);
+	}
+
+	delete session;
+}
+
+void Server::abortCgiForClient(int clientFd) //client off mid cgi
+{
+	for (std::map<pid_t, CgiSession*>::iterator it = _cgiSessions.begin();
+	     it != _cgiSessions.end(); ++it)
+	{
+		if (it->second->clientFd == clientFd)
+		{
+			kill(it->first, SIGKILL);
+			it->second->clientFd = -1; //marks it to take it out later
+		}
+	}
 }

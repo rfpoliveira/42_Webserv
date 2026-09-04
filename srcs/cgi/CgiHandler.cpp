@@ -1,13 +1,26 @@
 #include <CgiHandler.hpp>
 
-CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Config& config, const Request& request): 
-	_scriptPath(_scriptPath), _client(client), _config(config), _request(request), _isValid(false)
+CgiHandler::CgiHandler()
 {
 	_pid = -1;
 	_pipeIn[0] = -1;
 	_pipeIn[1] = -1;
 	_pipeOut[0] = -1;
 	_pipeOut[1] = -1;
+
+	_isValid = true;
+}
+
+CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Config& config, const Request& request): 
+	_scriptPath(_scriptPath)
+{
+	_pid = -1;
+	_pipeIn[0] = -1;
+	_pipeIn[1] = -1;
+	_pipeOut[0] = -1;
+	_pipeOut[1] = -1;
+
+	std::cout << "path: " << _scriptPath << "\n";
 
 	if (_scriptPath.find(".py") != std::string::npos)
 		_cgiExten = ".py";
@@ -27,32 +40,36 @@ CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Con
         _pipeIn[1] = -1;
 		return ;
 	}
+
+	this->setupEnv(client, request, config);
 	_isValid = true;
+
+	std::cout << "exten: " << _cgiExten << "\n";
 }
 
-void CgiHandler::setupEnv()
+void CgiHandler::setupEnv(const Client &client, const Request &request, const Config &config)
 {
-	_envMap["REQUEST_METHOD"] = _request.requestMethod;
-	_envMap["SCRIPT_NAME"] = _request.resourcePath;
-	_envMap["PATH_TRANSLATED"] = _request.resourcePath;
-	_envMap["QUERY_STRING"] = _request.queryString;
-	if (_request.body.size() == 0)
+	_envMap["REQUEST_METHOD"] = request.requestMethod;
+	_envMap["SCRIPT_NAME"] = request.resourcePath;
+	_envMap["PATH_TRANSLATED"] = request.resourcePath;
+	_envMap["QUERY_STRING"] = request.queryString;
+	if (request.body.size() == 0)
 		_envMap["CONTENT_LENGTH"] = "";
 	else
-		_envMap["CONTENT_LENGTH"] = intToString(_request.body.size());
-	_envMap["CONTENT_TYPE"] = _request.getHeader("Content-Type");
+		_envMap["CONTENT_LENGTH"] = intToString(request.body.size());
+	_envMap["CONTENT_TYPE"] = request.getHeader("Content-Type");
 	_envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
 	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
 	_envMap["SERVER_SOFTWARE"] = "Webserv42/1.0";
-	_envMap["HTTP_COOKIE"] = _request.getHeader("Cookie");
-	_envMap["SERVER_PORT"] = _client.getPort();
+	_envMap["HTTP_COOKIE"] = request.getHeader("Cookie");
+	_envMap["SERVER_PORT"] = client.getPort();
 
-	const ServerBlock* targetServerBlock = _config.getServerBlock(_client.getPort());
+	const ServerBlock* targetServerBlock = config.getServerBlock(client.getPort());
 
 	_envMap["SERVER_NAME"] = targetServerBlock->serverBlockName;
 	//_envMAP["REMOTE_ADDR"] = //TODO: ask for the client ip?
 	_envMap["PATH_INFO"] = _cgiExten;
-	_envMap["REQUEST_URI"] = _request.queryString;
+	_envMap["REQUEST_URI"] = request.queryString;
 }
 
 char** CgiHandler::convertEnvToCstyle()
@@ -77,11 +94,12 @@ char** CgiHandler::convertEnvToCstyle()
 
 bool CgiHandler::execute()
 {
-	if(!_isValid)
+	if(_isValid == false)
 		return (false); //pipe failed, will send a 500 error response
 
-	this->setupEnv();
 	char** envp = this->convertEnvToCstyle();
+
+	std::cout << "extension: " << _cgiExten << "\n";
 
 	char* args[3];
 	if (_cgiExten == ".py")

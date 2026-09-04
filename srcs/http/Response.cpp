@@ -67,6 +67,7 @@ std::string Response::reasonPhrase(int code)
 		case 405: return ("Method Not Allowed");
 		case 413: return ("Payload Too Large");
 		case 500: return ("Internal Server Error");
+		case 502: return ("Bad Gateaway");
 		case 501: return ("Not Implemented");
 		case 504: return ("Gateway Timeout");
 		default:  return ("Unknown");
@@ -101,6 +102,100 @@ Response Response::fromStaticFile(const std::string &fullPath)
 	res.setHeader("Content-Type", MimeTypes::getType(fullPath));
 	res.setHeader("Content-Length", len.str());
 	return (res);
+}
+
+std::string cgi_trim(const std::string& s)
+{
+	size_t start = s.find_first_not_of(" \t");
+	size_t end = s.find_last_not_of(" \t\r");
+	if (start == std::string::npos)
+		return "";
+	return s.substr(start, end - start + 1);
+}
+
+std::string Response::fromCGI(const std::string &rawCGIoutput)
+{
+	//locate header/body separator
+	size_t sepPos = rawCGIoutput.find("\r\n\r\n");
+	size_t sepLen = 4;
+	size_t altPos = rawCGIoutput.find("\n\n");
+
+	if (sepPos == std::string::npos || (altPos != std::string::npos && altPos < sepPos))
+	{
+		sepPos = altPos;
+		sepLen = 2;
+	}
+
+	if (sepPos == std::string::npos) // did not send any of the separators, bad output
+		return(Response::fromError(502).serialize());
+	
+	std::string headerBlock = rawCGIoutput.substr(0, sepPos);
+	std::string body = rawCGIoutput.substr(sepPos + sepLen);
+
+	//parsing of the cgi headers
+	Response resp;
+
+	std::istringstream headerStream(headerBlock);
+	std::string line;
+
+	while(std::getline(headerStream, line))
+	{
+		if(!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1);
+		if(line.empty())
+			continue ;
+		
+		size_t colon = line.find(":");
+		if (colon == std::string::npos) //if there is no colon the line is not well formatted, we ignore
+			continue ;
+		std::string key = cgi_trim(line.substr(0, colon));
+		std::string value = cgi_trim(line.substr(colon + 1));
+		if (!key.empty())
+			resp._headers[key] = value;
+		
+	}
+
+	//status line: default 200 OK
+
+	resp.setStatus(200, "OK");
+
+	std::map<std::string, std::string>::iterator statusIt = resp._headers.find("Status");
+	if(statusIt != resp._headers.end())
+	{
+		std::istringstream ss(statusIt->second);
+		ss >> resp._code;
+		size_t spacePos = statusIt->second.find(' ');
+		if(spacePos != std::string::npos)
+			resp._reason = cgi_trim(statusIt->second.substr(spacePos + 1));
+		else
+			resp._reason = reasonPhrase(resp._code);
+		resp._headers.erase(statusIt);
+	}
+
+	if (statusIt == resp._headers.end() && resp._headers.count("Location")) //redirect
+		resp.setStatus(302, "Found");
+
+	std::string contentType = "text/hmtl"; //default
+	std::map<std::string, std::string>::iterator ctIt = resp._headers.find("Content-Type");
+	if(ctIt != resp._headers.end())
+	{
+		contentType = ctIt->second;
+		resp._headers.erase(ctIt);
+	}
+
+	std::ostringstream os;
+	os << "HTTP/1.1" << resp._code << " " << resp._reason << "\r\n";
+	os << "Content-Type: " << contentType << "\r\n";
+	os << "Content-Lenght: " << body.size() << "\r\n";
+
+	for (std::map<std::string, std::string>::iterator it = resp._headers.begin(); it != resp._headers.end(); ++it)
+		os << it->first << ": " << it->second << "\r\n";
+
+	os << "Connection: close\r\n";
+	os << "\r\n";
+	os << body;
+
+	return(os.str());
 }
 
 // RAII guard: closedir() runs on EVERY exit path (normal return or exception),
