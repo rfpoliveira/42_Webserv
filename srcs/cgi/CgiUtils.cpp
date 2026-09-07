@@ -1,4 +1,4 @@
-#include "../../includes/core/Main.hpp"
+#include <Common.hpp>
 
 std::string intToString(int value)
 {

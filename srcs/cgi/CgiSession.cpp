@@ -1,4 +1,4 @@
-#include "../../includes/cgi/CgiSession.hpp"
+#include <Common.hpp>
 
 CgiSession::CgiSession(std::string& scriptPath, const Client& client, const Config& config, const Request& request): handler(scriptPath, client, config, request)
 {

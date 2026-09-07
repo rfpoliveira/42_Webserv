@@ -1,4 +1,4 @@
-#include <CgiHandler.hpp>
+#include <Common.hpp>
 
 CgiHandler::CgiHandler()
 {

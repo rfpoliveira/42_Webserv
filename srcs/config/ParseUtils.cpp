@@ -1,4 +1,4 @@
-#include "../../includes/core/Main.hpp"
+#include <Common.hpp>
 
 //takes the commented line of the config file out of the line  of the config file (#)
 

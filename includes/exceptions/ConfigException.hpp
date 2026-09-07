@@ -1,7 +1,6 @@
 #pragma once
 
-#include <exception>
-#include <string>
+#include <Common.hpp>
 
 class ConfigException: public std::exception
 {

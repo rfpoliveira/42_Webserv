@@ -1,7 +1,4 @@
-#include "../../includes/config/Config.hpp"
-#include "../../includes/config/ServerBlock.hpp"
-#include "../../includes/exceptions/ConfigException.hpp"
-#include <cstddef>
+#include <Common.hpp>
 
 Config::Config(): numberServerBlocks(0) {};
 

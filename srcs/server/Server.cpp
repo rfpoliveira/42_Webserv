@@ -1,14 +1,4 @@
-#include "../../includes/server/Server.hpp"
-#include "../../includes/core/Common.hpp"
-#include <cstring>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <csignal>
-#include <set>
-#include <Request.hpp>
-#include <RequestHandler.hpp>
-#include <Response.hpp>
-#include <MimeTypes.hpp>
+#include <Common.hpp>
 
 Server::Server(const Config& config) : _config(config) {};
 
@@ -69,7 +59,7 @@ void Server::run()
 {
 	std::signal(SIGPIPE, SIG_IGN); // writing to a dead client must not kill us
 
-	while (true)
+	while (!g_shutdownRequested)
 	{
 		buildPollFds();
 		int ready = poll(&_pollFds[0], _pollFds.size(), -1);
@@ -119,6 +109,8 @@ void Server::run()
 		}
 		reapAndTimeoutCgiSessions(); // non-blocking sweep, every iteration
 	}
+
+	shutdown();
 }
 
 int Server::createListenSocket(const std::string& host, int port)
@@ -457,4 +449,42 @@ void Server::abortCgiForClient(int clientFd) //client off mid cgi
 			it->second->clientFd = -1; //marks it to take it out later
 		}
 	}
+}
+
+void Server::shutdown(void)
+{
+	std::cerr << "\nShutting down\n";
+	std::cerr << "Cleaning active CGI sessions...\n";
+
+	for(std::map<pid_t, CgiSession *>::iterator it = _cgiSessions.begin(); it != _cgiSessions.end(); it++) //killing every child still running
+		kill(it->first, SIGKILL);
+	
+	for(std::map<pid_t, CgiSession *>::iterator it = _cgiSessions.begin(); it != _cgiSessions.end(); it++) //wait all kill to finish
+	{
+		int status;
+		waitpid(it->first, &status, 0);
+	}
+
+	for(std::map<pid_t, CgiSession *>::iterator it = _cgiSessions.begin(); it != _cgiSessions.end(); it++) //close fds and free memory
+	{
+		CgiSession *session = it->second;
+		int readFd = session->handler.getReadFd();
+		int writeFd = session->handler.getWriteFd();
+		if(readFd != -1)
+			close(readFd);
+		if (writeFd != -1)
+			close(writeFd);
+		delete session;
+	}
+
+	_cgiSessions.clear();
+	_fdToCgi.clear();
+
+	for(std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+		close(it->first);
+	_clients.clear();
+
+	closeAll();
+
+	std::cerr << "Shutdown Complete\n";
 }

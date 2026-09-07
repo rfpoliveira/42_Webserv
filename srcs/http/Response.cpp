@@ -1,13 +1,4 @@
-#include <Response.hpp>
-#include <MimeTypes.hpp>
-#include <Server.hpp>
-#include <ctime>
-#include <Request.hpp>
-#include <fstream>
-#include <sstream>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
+#include <Common.hpp>
 
 Response::Response() : _code(200), _reason("OK"), _body("")
 {

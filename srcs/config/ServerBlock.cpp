@@ -1,4 +1,4 @@
-#include "../../includes/config/ServerBlock.hpp"
+#include <Common.hpp>
 
 ServerBlock::ServerBlock()
 {

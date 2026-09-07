@@ -1,9 +1,6 @@
 #pragma once
 
-#include "../http/Request.hpp"
-#include "../server/Client.hpp"
-#include "CgiHandler.hpp"
-#include <string>
+#include <Common.hpp>
 
 class CgiSession
 {

@@ -1,7 +1,6 @@
 #include <RequestHandler.hpp>
 #include <HandlerOutcome.hpp>
 
-
 bool isCgiRequest(std::string path)
 {
 	if (path.find(".py") != std::string::npos ||

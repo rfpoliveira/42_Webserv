@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ServerBlock.hpp"
+#include <Common.hpp>
 
 class Config
 {

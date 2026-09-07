@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../http/Request.hpp"
-#include <ctime>
+#include <Common.hpp>
 
 class Client
 {

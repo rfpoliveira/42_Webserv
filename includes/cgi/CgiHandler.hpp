@@ -1,11 +1,8 @@
 #pragma once
 
-#include "../http/Request.hpp"
-#include "../server/Client.hpp"
-#include "../exceptions/HttpException.hpp"
-#include "csignal"
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <Common.hpp>
+
+class Client;
 
 class CgiHandler
 {

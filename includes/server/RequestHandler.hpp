@@ -1,15 +1,8 @@
 #pragma once
 
-#include <Client.hpp>
-#include <Config.hpp>
-#include <Location.hpp>
-#include <CgiSession.hpp>
-#include <Response.hpp>
-#include <CgiHandler.hpp>
-#include <sstream>
-#include <cstdlib>
-#include <sys/stat.h>
-#include "HandlerOutcome.hpp"
+#include <Common.hpp>
+
+class HandlerOutcome;
 
 class RequestHandler
 {

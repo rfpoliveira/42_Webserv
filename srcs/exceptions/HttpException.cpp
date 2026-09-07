@@ -1,4 +1,4 @@
-#include "../../includes/exceptions/HttpException.hpp"
+#include <HttpException.hpp>
 
 HttpException::HttpException(int code, const std::string& msg)
 {

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <CgiSession.hpp>
-#include <string>
+#include <Common.hpp>
 
 #define CGI_COMPLETE 0
 #define CGI_PENDING 1

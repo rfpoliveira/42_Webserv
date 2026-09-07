@@ -1,5 +1,4 @@
-#include "../../includes/core/Main.hpp"
-#include "../../includes/exceptions/ConfigException.hpp"
+#include <Common.hpp>
 
 int hostParse(std::string& host)
 {

@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Client.hpp"
-#include <CgiSession.hpp>
-#include "../exceptions/ServerException.hpp"
-#include <poll.h>
+#include <Common.hpp>
 
 class Server {
 	private:
@@ -25,6 +22,8 @@ class Server {
 		void writeToClient(int fd);
 		void closeClient(int fd);
 		bool isListenFd(int fd) const;
+
+		void shutdown(void);
 
 		// CGI
 		bool isCgiFd(int fd) const;
