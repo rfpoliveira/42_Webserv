@@ -34,6 +34,11 @@ Server::~Server() {
 	}
 }
 
+const std::map<int, int>& Server::getListenFds() const
+{
+	return (_listenFds);
+}
+
 void Server::closeAll()
 {
 	for (std::map<int, int>::iterator it = _listenFds.begin(); it != _listenFds.end(); ++it)
@@ -71,7 +76,7 @@ void Server::run()
 	while (true)
 	{
 		buildPollFds();
-		int ready = poll(&_pollFds[0], _pollFds.size(), -1);
+		int ready = poll(&_pollFds[0], _pollFds.size(), -1); // poll accepts a pointer to the first element of the array
 		if (ready < 0)
 			continue;
 
@@ -242,9 +247,4 @@ void Server::closeClient(int fd)
 {
 	close(fd);
 	_clients.erase(fd);
-}
-
-const std::map<int, int>& Server::getListenFds() const
-{
-	return (_listenFds);
 }
