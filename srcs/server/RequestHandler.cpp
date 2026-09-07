@@ -14,9 +14,9 @@ std::string RequestHandler::handler(const Client& client, const Config& config)
 	if (!location)
 		return (Response::fromError(404).serialize());
 	if (!location->isMethodallowed(request.requestMethod))
-		return (Response::fromError(405).serialize());
+		return (Response::fromError(405, NULL, location).serialize());
 	if (path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
-		return (Response::fromError(403).serialize());
+		return (Response::fromError(403, NULL, location).serialize());
 	if (path.find(".py") != std::string::npos ||
 		path.find(".php") != std::string::npos ||
 		path.find(".pl") != std::string::npos)
@@ -42,7 +42,7 @@ std::string RequestHandler::handleGet(const Request &request, const Location &lo
 	Response res;
 	struct stat fileStats;
 	if (stat(fullPath.c_str(), &fileStats) != 0)
-    	return (Response::fromError(404).serialize());
+    	return (Response::fromError(404, NULL, &location).serialize());
 
 	if (S_ISDIR(fileStats.st_mode)) // Is a directory?
 	{
@@ -54,13 +54,13 @@ std::string RequestHandler::handleGet(const Request &request, const Location &lo
 			if (location.autoindex)
 				return (Response::fromAutoIndex(location, request.resourcePath).serialize());
 			else
-				return (Response::fromError(403, "Forbidden: Index file not found").serialize());
+				return (Response::fromError(403, "Forbidden: Index file not found", &location).serialize());
 		}
-		res = Response::fromStaticFile(fullPath); // If index file exists, serve it
+		res = Response::fromStaticFile(fullPath, &location); // If index file exists, serve it
 	}
 	else
 	{
-		res = Response::fromStaticFile(fullPath); // If not a directory, serve the file
+		res = Response::fromStaticFile(fullPath, &location); // If not a directory, serve the file
 	}
 	res.setHeader("Connection", "close"); // keep-alive is out of scope (issue #10)
 	return (res.serialize());
@@ -82,16 +82,16 @@ std::string RequestHandler::handleDelete(const Request &request, const Location 
 	struct stat fileStats;
 
 	if(stat(fullPath.c_str(), &fileStats) != 0) //file does not exist
-		return (Response::fromError(404).serialize());
+		return (Response::fromError(404, NULL, &location).serialize());
 
 	if (S_ISDIR(fileStats.st_mode)) //cant delete diretories
-		return (Response::fromError(403, "Forbidden: Directory deletion not allowed").serialize());
+		return (Response::fromError(403, "Forbidden: Directory deletion not allowed", &location).serialize());
 
 	if(access(fullPath.c_str(), W_OK) != 0) //no writing permission
-		return (Response::fromError(403, "Forbidden: No write permission").serialize());
+		return (Response::fromError(403, "Forbidden: No write permission", &location).serialize());
 	
 	if(std::remove(fullPath.c_str()) == 0)
 		return ("HTTP/1.1 204 No Content\r\nServer: webserv\r\nConnection: close\r\n\r\n"); //sucess, 204 and no cotent in the body is default
 	else
-		return (Response::fromError(500, "Internal Server Error").serialize()); //unexpeted errro on delete
+		return (Response::fromError(500, "Internal Server Error", &location).serialize()); //unexpeted errro on delete
 }

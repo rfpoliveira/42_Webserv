@@ -73,7 +73,7 @@ std::string Response::reasonPhrase(int code)
 	}
 }
 
-Response Response::fromStaticFile(const std::string &fullPath)
+Response Response::fromStaticFile(const std::string &fullPath, const Location *loc)
 {
 	Response res;
 	char buf[64];
@@ -81,14 +81,14 @@ Response Response::fromStaticFile(const std::string &fullPath)
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", gmtime(&now));
 	struct stat st;
 	if (stat(fullPath.c_str(), &st) != 0)   // does not exist
-		return (fromError(404));
+		return (fromError(404, NULL, loc));
 	if (S_ISDIR(st.st_mode))                // a directory (listing is issue #14)
-		return (fromError(403));
+		return (fromError(403, NULL, loc));
 	if (access(fullPath.c_str(), R_OK) != 0) // exists but not readable
-		return (fromError(403));
+		return (fromError(403, NULL, loc));
 	std::ifstream file(fullPath.c_str(), std::ios::in | std::ios::binary);
 	if (!file)
-		return (fromError(404));
+		return (fromError(404, NULL, loc));
 	std::ostringstream oss;
 	oss << file.rdbuf();
 	res.setBody(oss.str());
