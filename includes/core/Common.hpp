@@ -25,6 +25,7 @@ unsigned long getBodySize(std::string s);
 int addErrorPage(std::map<int, std::string>& errorPages, std::vector<std::string> tokens);
 int validFileCheck(std::string configFile);
 int bracketsCount(std::string configFile);
+bool isBlockHeader(std::string line, const std::string& blockName);
 void ignoreComments(std::string& line);
 std::string intToString(int value);
 void freeEnvp(char** envp);

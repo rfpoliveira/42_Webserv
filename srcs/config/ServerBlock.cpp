@@ -18,6 +18,9 @@ int ServerBlock::checkLineServerBlock(std::string line)
 	std::vector<std::string> tokens = ftSplit(line, ' ');
 	cleanStrings(tokens);
 
+	if (tokens.empty())
+		return (0);
+
 	if(tokens.at(0) == "Server")
 		return (2);
 
@@ -65,7 +68,7 @@ ServerBlock::ServerBlock(int ServerBlockPos, std::string configFile)
 
 	while(std::getline(file, line))
 	{
-		if (line == "server {")
+		if (isBlockHeader(line, "server"))
 			ServerBlockPos--;
 		if (ServerBlockPos == 0)
 			break;

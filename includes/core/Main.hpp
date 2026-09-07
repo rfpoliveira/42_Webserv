@@ -13,6 +13,7 @@ unsigned long getBodySize(std::string s);
 int addErrorPage(std::map<int, std::string>& errorPages, std::vector<std::string> tokens);
 int validFileCheck(std::string config_file);
 int bracketsCount(std::string config_file);
+bool isBlockHeader(std::string line, const std::string& blockName);
 void ignoreComments(std::string& line);
 void parseConfigInfo(Config& configs);
 std::string intToString(int value);

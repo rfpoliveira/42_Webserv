@@ -124,20 +124,48 @@ int bracketsCount(std::string configFile)
 	std::string line;
 	std::ifstream file(configFile.c_str());
 	int count = 0;
+	int lineNumber = 0;
 
 	while(getline(file, line))
 	{
-		if (line.find('}', 0) != std::string::npos)
-			count--;
-		if (count < 0 || count > 2)
-			break ;
-		if(line.find('{', 0) != std::string::npos)
-			count++;
+		lineNumber++;
+		ignoreComments(line);
+		for (std::string::iterator it = line.begin(); it != line.end(); ++it)
+		{
+			if (*it == '{')
+				count++;
+			else if (*it == '}')
+				count--;
+			if (count < 0)
+			{
+				std::cout << "Error: Config file format invalid: unexpected '}' at line " << lineNumber << "\n";
+				return (-1);
+			}
+		}
 	}
 	if (count != 0)
 	{
-		std::cout << "Error: Config file format invalid: brackets\n";
+		std::cout << "Error: Config file format invalid: unclosed '{' (missing " << count << " '}')\n";
 		return (-1);
 	}
 	return (0);
+}
+
+bool isBlockHeader(std::string line, const std::string& blockName)
+{
+	ignoreComments(line);
+
+	if (line.find('{') == std::string::npos)
+		return (false);
+
+	std::vector<std::string> tokens = ftSplit(line, ' ');
+	cleanStrings(tokens);
+
+	if (tokens.empty())
+		return (false);
+	if (tokens.at(0) == blockName)
+		return (true);
+	if (tokens.at(0) == blockName + "{")
+		return (true);
+	return (false);
 }
