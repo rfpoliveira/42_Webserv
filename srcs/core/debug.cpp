@@ -1,4 +1,4 @@
-#include "../../includes/core/Main.hpp"
+#include "../../includes/debug/Debug.hpp"
 
 void debugVectorPrint(std::vector<std::string> buff)
 {

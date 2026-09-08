@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/Main.hpp"
+#include "../core/Common.hpp"
 
 class Request
 {

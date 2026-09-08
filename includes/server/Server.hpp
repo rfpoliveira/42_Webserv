@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Client.hpp"
+#include "../config/Config.hpp"
 #include "../exceptions/ServerException.hpp"
 #include <poll.h>
 

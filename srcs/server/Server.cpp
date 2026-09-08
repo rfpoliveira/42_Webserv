@@ -1,4 +1,5 @@
 #include "../../includes/server/Server.hpp"
+#include "../../includes/utils/Utils.hpp"
 #include "../../includes/core/Common.hpp"
 #include <cstring>
 #include <sys/socket.h>

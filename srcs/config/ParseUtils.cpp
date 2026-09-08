@@ -1,4 +1,5 @@
-#include "../../includes/core/Main.hpp"
+#include "../../includes/utils/Utils.hpp"
+#include "../../includes/config/ConfigParser.hpp"
 
 //takes the commented line of the config file out of the line  of the config file (#)
 

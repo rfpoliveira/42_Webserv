@@ -14,22 +14,3 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdio>      // std::remove
-
-// Free functions that do NOT depend on any project type.
-// (Anything needing Config lives in main.hpp instead.)
-
-// utils
-std::vector<std::string> ftSplit (std::string s, char delimiter);
-void cleanStrings(std::vector<std::string>& buff);
-unsigned long getBodySize(std::string s);
-int addErrorPage(std::map<int, std::string>& errorPages, std::vector<std::string> tokens);
-int validFileCheck(std::string configFile);
-int bracketsCount(std::string configFile);
-bool isBlockHeader(std::string line, const std::string& blockName);
-void ignoreComments(std::string& line);
-std::string intToString(int value);
-void freeEnvp(char** envp);
-
-// debug
-void debugVectorPrint(std::vector<std::string> buff);
-void debug(int value);

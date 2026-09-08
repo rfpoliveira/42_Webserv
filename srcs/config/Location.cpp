@@ -1,4 +1,5 @@
 #include "../../includes/config/Location.hpp"
+#include "../../includes/utils/Utils.hpp"
 #include "../../includes/exceptions/HttpException.hpp"
 
 Location::Location()

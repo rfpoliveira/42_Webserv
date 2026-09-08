@@ -1,5 +1,6 @@
 #include "../../includes/config/Config.hpp"
-#include "../../includes/core/Main.hpp"
+#include "../../includes/config/ConfigParser.hpp"
+#include "../../includes/debug/Debug.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 #include "../../includes/server/Server.hpp"
 #include "../../includes/exceptions/ServerException.hpp"
@@ -32,7 +33,8 @@ void printConfigs(Config& configs)
 			std::cout << "DELETE? " << (*itLoc).DELETE << "\n";
 			std::cout << "autofixer: " << (*itLoc).autoindex << "\n";
 			std::cout << "index: " << (*itLoc).index << "\n";
-			std::cout << "redirection: " << (*itLoc).redirection<< "\n";
+			std::cout << "redirection: " << (*itLoc).redirectionFolder<< "\n";
+			std::cout << "redirection_code: " << (*itLoc).redirectionCode << "\n";
 			std::cout << "upload_path: " << (*itLoc).uploadPath << "\n";
 		}
 			i++;
