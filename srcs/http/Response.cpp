@@ -150,9 +150,12 @@ std::string Response::fromCGI(const std::string &rawCGIoutput)
 
 	resp.setStatus(200, "OK");
 
+	bool hadStatusHeader = false;
+
 	std::map<std::string, std::string>::iterator statusIt = resp._headers.find("Status");
 	if(statusIt != resp._headers.end())
 	{
+		hadStatusHeader = true;
 		std::istringstream ss(statusIt->second);
 		ss >> resp._code;
 		size_t spacePos = statusIt->second.find(' ');
@@ -163,10 +166,10 @@ std::string Response::fromCGI(const std::string &rawCGIoutput)
 		resp._headers.erase(statusIt);
 	}
 
-	if (statusIt == resp._headers.end() && resp._headers.count("Location")) //redirect
+	if (!hadStatusHeader && resp._headers.count("Location")) //redirect
 		resp.setStatus(302, "Found");
 
-	std::string contentType = "text/hmtl"; //default
+	std::string contentType = "text/html"; //default
 	std::map<std::string, std::string>::iterator ctIt = resp._headers.find("Content-Type");
 	if(ctIt != resp._headers.end())
 	{
@@ -175,9 +178,9 @@ std::string Response::fromCGI(const std::string &rawCGIoutput)
 	}
 
 	std::ostringstream os;
-	os << "HTTP/1.1" << resp._code << " " << resp._reason << "\r\n";
+	os << "HTTP/1.1 " << resp._code << " " << resp._reason << "\r\n";
 	os << "Content-Type: " << contentType << "\r\n";
-	os << "Content-Lenght: " << body.size() << "\r\n";
+	os << "Content-Length: " << body.size() << "\r\n";
 
 	for (std::map<std::string, std::string>::iterator it = resp._headers.begin(); it != resp._headers.end(); ++it)
 		os << it->first << ": " << it->second << "\r\n";

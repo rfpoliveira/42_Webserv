@@ -20,8 +20,6 @@ CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Con
 	_pipeOut[0] = -1;
 	_pipeOut[1] = -1;
 
-	std::cout << "path: " << _scriptPath << "\n";
-
 	if (_scriptPath.find(".py") != std::string::npos)
 		_cgiExten = ".py";
 	else if (_scriptPath.find(".php") != std::string::npos)
@@ -43,8 +41,6 @@ CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Con
 
 	this->setupEnv(client, request, config);
 	_isValid = true;
-
-	std::cout << "exten: " << _cgiExten << "\n";
 }
 
 void CgiHandler::setupEnv(const Client &client, const Request &request, const Config &config)
@@ -53,15 +49,21 @@ void CgiHandler::setupEnv(const Client &client, const Request &request, const Co
 	_envMap["SCRIPT_NAME"] = request.resourcePath;
 	_envMap["PATH_TRANSLATED"] = request.resourcePath;
 	_envMap["QUERY_STRING"] = request.queryString;
-	if (request.body.size() == 0)
-		_envMap["CONTENT_LENGTH"] = "";
-	else
+
+	if (request.body.size() != 0)
 		_envMap["CONTENT_LENGTH"] = intToString(request.body.size());
-	_envMap["CONTENT_TYPE"] = request.getHeader("Content-Type");
+
+	std::string type = request.getHeader("Content-Type");
+	if (!type.empty())
+		_envMap["CONTENT_TYPE"] = type;
+	
+	std::string cookie = request.getHeader("Cookie");
+	if (!cookie.empty())
+		_envMap["CONTENT_TYPE"] = cookie; 
+
 	_envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
 	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";
 	_envMap["SERVER_SOFTWARE"] = "Webserv42/1.0";
-	_envMap["HTTP_COOKIE"] = request.getHeader("Cookie");
 	_envMap["SERVER_PORT"] = client.getPort();
 
 	const ServerBlock* targetServerBlock = config.getServerBlock(client.getPort());
@@ -81,7 +83,7 @@ char** CgiHandler::convertEnvToCstyle()
 
 	for (it = _envMap.begin(); it != _envMap.end(); it++)
 	{
-		std::string envLine = "HTTP_" + it->first + "=" + it->second;
+		std::string envLine = it->first + "=" + it->second;
 		envp[i] = new char[envLine.size() + 1];
 		std::strcpy(envp[i], envLine.c_str());
 		i++;
@@ -98,8 +100,6 @@ bool CgiHandler::execute()
 		return (false); //pipe failed, will send a 500 error response
 
 	char** envp = this->convertEnvToCstyle();
-
-	std::cout << "extension: " << _cgiExten << "\n";
 
 	char* args[3];
 	if (_cgiExten == ".py")

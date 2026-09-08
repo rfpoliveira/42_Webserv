@@ -62,7 +62,7 @@ void Server::run()
 	while (!g_shutdownRequested)
 	{
 		buildPollFds();
-		int ready = poll(&_pollFds[0], _pollFds.size(), -1);
+		int ready = poll(&_pollFds[0], _pollFds.size(), 1000);
 		if (ready < 0)
 			continue;
 
@@ -171,7 +171,10 @@ void Server::buildPollFds()
 		pfd.fd = it->first;
 		pfd.events = POLLIN;
 		if (!it->second.getWriteBuffer().empty())
+		{
 			pfd.events |= POLLOUT;
+			std::cerr << "[DEBUG] client fd=" << it->first << " requesting POLLOUT\n";
+		}
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
 	}
@@ -188,6 +191,9 @@ void Server::buildPollFds()
 			pfd.events |= POLLIN;
 		if (it->first == session->handler.getWriteFd() && !session->writeDone)
 			pfd.events |= POLLOUT;
+
+		    std::cerr << "[DEBUG] buildPollFds cgi fd=" << it->first
+               << " events=" << pfd.events << "\n";
 
 		if (pfd.events != 0)
 			_pollFds.push_back(pfd);
@@ -258,9 +264,17 @@ void Server::writeToClient(int fd)
 {
 	Client& c = _clients[fd];
 	std::string& out = c.getWriteBuffer();
+
+	std::cerr << "[DEBUG] full response being sent: [" << out << "]\n";
+	std::cerr << "[DEBUG] writeToClient fd=" << fd << " buffer size=" << out.size() << "\n";
+
 	size_t sent = c.getBytesSent();
 
 	ssize_t n = send(fd, out.c_str() + sent, out.size() - sent, 0);
+
+		std::cerr << "[DEBUG] send() fd=" << fd << " n=" << n
+	        << " out.size()=" << out.size() << " sent_before=" << sent;
+
 	if (n <= 0)
 	{
 		closeClient(fd);
@@ -301,10 +315,15 @@ void Server::registerCgiSession(Client& client, CgiSession* session)
 
 	_cgiSessions[session->handler.getPid()] = session;
 	_fdToCgi[session->handler.getReadFd()] = session;
+
 	if (!session->requestBody.empty())
+	{
 		_fdToCgi[session->handler.getWriteFd()] = session;
+		std::cerr << "[DEBUG] keeping write fd open, body size=" << session->requestBody.size() << "\n";
+	}
 	else
 	{
+		std::cerr << "[DEBUG] closing write fd immediately, no body\n";
 		close(session->handler.getWriteFd());
 		session->writeDone = true;
 	}
@@ -316,13 +335,32 @@ void Server::readFromCgi(int fd)
 	char buf[4096];
 	ssize_t n = read(fd, buf, sizeof(buf));
 
+
+	std::cerr << "[DEBUG] readFromCgi fd=" << fd << " n=" << n;
+	if (n < 0) std::cerr << " errno=" << errno << " (" << strerror(errno) << ")";
+	std::cerr << "\n";
+
+
 	if (n > 0)
 	{
 		session->responseBuf.append(buf, n);
+
+		std::cerr << "[DEBUG] responseBuf raw: [";
+		for (size_t i = 0; i < session->responseBuf.size(); i++)
+		{
+			char c = session->responseBuf[i];
+			if (c == '\n') std::cerr << "\\n";
+			else if (c == '\r') std::cerr << "\\r";
+			else std::cerr << c;
+		}
+		std::cerr << "]\n";
 	}
 	else if (n == 0)
 	{
 		session->readDone = true;
+
+		std::cerr << "[DEBUG] EOF on fd=" << fd << ", readDone=true\n";
+
 	}
 	else if (errno != EAGAIN && errno != EWOULDBLOCK)
 	{
@@ -367,15 +405,20 @@ void Server::reapAndTimeoutCgiSessions()
 		int status = 0;
 
 		pid_t reaped = waitpid(pid, &status, WNOHANG);
+
+		std::cerr << "[DEBUG] waitpid(" << pid << ") = " << reaped
+          << " errno=" << (reaped < 0 ? errno : 0) << "\n";
+
 		if (reaped == pid)
 		{
+			std::cerr << "[DEBUG] child reaped, calling finalize\n";
 			finalizeCgiSession(session, status);
 			cleanupCgiSession(session);
 			_cgiSessions.erase(it++);
 			continue;
 		}
 
-		if (!session->killSent && (now - session->startTime) >= CGI_TIMEOUT_SECONDS)
+		if (!session->killSent && (now - session->startTime) >= (CGI_TIMEOUT_SECONDS + 1))
 		{
 			kill(pid, SIGKILL);
 			session->killSent = true;
@@ -403,8 +446,15 @@ void Server::reapAndTimeoutCgiSessions()
 
 void Server::finalizeCgiSession(CgiSession* session, int status)
 {
+		std::cerr << "[DEBUG] finalizeCgiSession clientFd=" << session->clientFd
+	          << " status=" << status
+	          << " responseBuf.size()=" << session->responseBuf.size() << "\n";
+			
 	if (!_clients.count(session->clientFd))
+	{
+		std::cerr << "[DEBUG] client already gone, nothing to send\n";
 		return; // client already is off
+	}
 
 	Client& c = _clients[session->clientFd];
 
@@ -415,6 +465,8 @@ void Server::finalizeCgiSession(CgiSession* session, int status)
 	else
 	{
 		c.getWriteBuffer() = Response::fromCGI(session->responseBuf); // mounts http response
+
+		std::cerr << "[DEBUG] client writeBuffer set, size=" << c.getWriteBuffer().size() << "\n";
 	}
 	c.setState(Client::WRITING);
 }

@@ -30,6 +30,11 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 
 	const Location* location = config.getLocation(client.getPort(), path);
 
+	std::cerr << "[DEBUG] location match for path=" << path
+          << " found=" << (location != NULL) << "\n";
+	if (location)
+    	std::cerr << "[DEBUG] location.root=" << location->root << "\n";	
+
 	if (!location)
 		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404).serialize(), NULL));
 
@@ -59,10 +64,15 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 std::string RequestHandler::handleGet(const Request &request, const Location &location)
 {
 	std::string fullPath = location.root + request.resourcePath;
+	std::cerr << "[DEBUG] handleGet trying fullPath=[" << fullPath << "]\n";
+
 	Response res;
 	struct stat fileStats;
 	if (stat(fullPath.c_str(), &fileStats) != 0)
+	{
+		std::cerr << "[DEBUG] stat failed errno=" << errno << " (" << strerror(errno) << ")\n";
     	return (Response::fromError(404).serialize());
+	}
 
 	if (S_ISDIR(fileStats.st_mode)) // Is a directory?
 	{
