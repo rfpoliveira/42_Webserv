@@ -13,6 +13,8 @@ std::string RequestHandler::handler(const Client& client, const Config& config)
 	const Location* location = config.getLocation(client.getPort(), path);
 	if (!location)
 		return (Response::fromError(404).serialize());
+	if (location->redirectionCode != 0)
+		return (Response::fromRedirect(location->redirectionCode, location->redirectionFolder).serialize());
 	if (!location->isMethodallowed(request.requestMethod))
 		return (Response::fromError(405, NULL, location).serialize());
 	if (path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)

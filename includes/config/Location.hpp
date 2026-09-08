@@ -16,7 +16,8 @@ class Location
 		bool DELETE;
 		bool autoindex;
 		std::string index;
-		std::string redirection;
+		std::string redirectionFolder;
+		int redirectionCode;
 		std::string uploadPath;
 		unsigned long maxBodySize;
 		std::map<int, std::string> errorPages;

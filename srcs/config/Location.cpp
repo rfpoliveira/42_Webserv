@@ -9,7 +9,8 @@ Location::Location()
 	POST = false;
 	DELETE = false;
 	autoindex = false;
-	redirection = "";
+	redirectionFolder = "";
+	redirectionCode = 0;
 	uploadPath = "";
 	index = "index.html";
 	maxBodySize = 0;
@@ -23,7 +24,8 @@ Location::Location(std::string locationStr)
 	POST = false;
 	DELETE = false;
 	autoindex = false;
-	redirection = "";
+	redirectionFolder = "";
+	redirectionCode = 0;
 	uploadPath = "";
 	index = "index.html";
 	maxBodySize = 0;
@@ -49,7 +51,8 @@ Location::Location(const Location& other)
 	this->DELETE = other.DELETE;
 	this->autoindex = other.autoindex;
 	this->index = other.index;
-	this->redirection = other.redirection;
+	this->redirectionFolder = other.redirectionFolder;
+	this->redirectionCode = other.redirectionCode;
 	this->uploadPath = other.uploadPath;
 	this->maxBodySize = other.maxBodySize;
 	this->errorPages = other.errorPages;
@@ -66,14 +69,14 @@ Location& Location::operator=(const Location& other)
 		this->DELETE = other.DELETE;
 		this->autoindex = other.autoindex;
 		this->index = other.index;
-		this->redirection = other.redirection;
+		this->redirectionFolder = other.redirectionFolder;
+		this->redirectionCode = other.redirectionCode;
 		this->uploadPath = other.uploadPath;
 		this->maxBodySize = other.maxBodySize;
 		this->errorPages = other.errorPages;
 	}
 	return (*this);
 };
-
 
 //check for a keyword and stores the information associated in the right place in the class
 
@@ -135,7 +138,8 @@ void Location::checkLineLocation(std::string line)
 	{
 		if (tokens.size() < 3)
 			throw ConfigException("Invalid return in Location");
-		redirection = tokens.at(i + 2);
+		redirectionFolder = tokens.at(i + 2);
+		redirectionCode = atoi(tokens.at(i + 1).c_str());
 	}
 	else if (tokens.at(i) == "upload_path")
 		uploadPath = tokens.at(i + 1);
