@@ -147,7 +147,7 @@ bool Location::isMethodallowed(std::string method) const
 	else if(method == "POST")
 		return(this->POST);
 	else
-		throw HttpException(2, "Method not allowed");
+		return false;
 }
 
 void Location::applyServerBlockDefaults(const ServerBlock& ServerBlock)

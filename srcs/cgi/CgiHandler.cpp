@@ -59,7 +59,7 @@ void CgiHandler::setupEnv(const Client &client, const Request &request, const Co
 	
 	std::string cookie = request.getHeader("Cookie");
 	if (!cookie.empty())
-		_envMap["CONTENT_TYPE"] = cookie; 
+		_envMap["HTTP_COOKIE"] = cookie; 
 
 	_envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
 	_envMap["SERVER_PROTOCOL"] = "HTTP/1.1";

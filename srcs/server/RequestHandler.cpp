@@ -35,6 +35,9 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 	if (location)
     	std::cerr << "[DEBUG] location.root=" << location->root << "\n";	
 
+	if (location && path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(403).serialize(), NULL));
+
 	if (!location)
 		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404).serialize(), NULL));
 
@@ -42,10 +45,13 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 
 	if (!location->isMethodallowed(request.requestMethod))
 		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(405).serialize(), NULL));
-	if (path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
-		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(403).serialize(), NULL));
+
 	if (isCgiRequest(path))
 	{
+		struct stat sb;
+		if (stat(path.c_str(), &sb))
+			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404).serialize(), NULL));
+
 		CgiSession *session = new CgiSession(path, client, config, request);
 		if (!session->handler.execute())
 			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(500).serialize(), NULL));
@@ -63,7 +69,7 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 
 std::string RequestHandler::handleGet(const Request &request, const Location &location)
 {
-	std::string fullPath = location.root + request.resourcePath;
+	std::string fullPath = buildfullpath(location.root, request.resourcePath);
 	std::cerr << "[DEBUG] handleGet trying fullPath=[" << fullPath << "]\n";
 
 	Response res;
@@ -107,9 +113,11 @@ std::string RequestHandler::handlePost(const Request &request, const Location &l
 
 std::string RequestHandler::handleDelete(const Request &request, const Location &location)
 {
-	std::string fullPath = location.root + request.resourcePath;
+	std::string fullPath = buildfullpath(location.root, request.resourcePath);
 
 	struct stat fileStats;
+
+	std::cerr << "[DEBUG] handle delete path: " << fullPath << "\n";
 
 	if(stat(fullPath.c_str(), &fileStats) != 0) //file does not exist
 		return (Response::fromError(404).serialize());
