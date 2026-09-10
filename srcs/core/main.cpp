@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 		parseConfigFile(argv[1]);
 		Config configs(argv[1]);
 		parseConfigInfo(configs);
-		printConfigs(configs);
+		printConfigs(configs); // temporary
 		Server server(configs);
 		server.setup(); // #2 open listening sockets
 

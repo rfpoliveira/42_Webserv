@@ -30,3 +30,5 @@ class CgiHandler
 		int getWriteFd() const;
 		pid_t getPid() const;
 };
+
+void freeEnvp(char** envp);

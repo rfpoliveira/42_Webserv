@@ -31,43 +31,26 @@ void ignoreComments(std::string& line)
 
 void cleanStrings(std::vector<std::string>& buff)
 {
-	if (buff.empty())
-		return ;
+	std::vector<std::string>::iterator itVec = buff.begin();
 
-	std::vector<std::string>::iterator itVec;
-	std::string::iterator itStr;
-
-	for(itVec = buff.begin(); itVec != buff.end(); itVec++)
+	while (itVec != buff.end())
 	{
-		while ((*itVec).length() == 0)
+		std::string::iterator itStr = (*itVec).begin();
+		while (itStr != (*itVec).end())
 		{
-			buff.erase(itVec);
-			if (buff.empty())
-				return ;
-			itVec = buff.begin();
+			if (*itStr == '\v' || *itStr == '\t' || *itStr == ';' || *itStr == '\n' ||
+				*itStr == ' '  || *itStr == '{'  || *itStr == '}' || *itStr == '\r')
+				itStr = (*itVec).erase(itStr);   // erase devolve iterador pro proximo; nao incrementa
+			else
+				++itStr;
 		}
-		for(itStr = (*itVec).begin(); itStr != (*itVec).end(); itStr++)
-		{
-			if(*itStr == '\v' || *itStr == '\t' || *itStr == ';' || *itStr == '\n' || *itStr == ' ' || \
-			*itStr == '{' || *itStr == '}' || *itStr == '\r')
-			{
-				if ((*itVec).length() == 1)
-				{
-					buff.erase(itVec);
-					if (buff.empty())
-						return ;
-					itVec = buff.begin();
-					break ;
-				}
-				(*itVec).erase(itStr);
-				if (buff.empty())
-					return ;
-				itStr = (*itVec).begin();
-			}
-		}
+
+		if ((*itVec).empty())
+			itVec = buff.erase(itVec);           // remove token vazio, erase devolve proximo
+		else
+			++itVec;
 	}
 }
-
 
 //splits the line into strings using a custom delimiter(usually ' ' and clean the line of unwated chars(clean strings))
 
@@ -141,20 +124,48 @@ int bracketsCount(std::string configFile)
 	std::string line;
 	std::ifstream file(configFile.c_str());
 	int count = 0;
+	int lineNumber = 0;
 
 	while(getline(file, line))
 	{
-		if (line.find('}', 0) != std::string::npos)
-			count--;
-		if (count < 0 || count > 2)
-			break ;
-		if(line.find('{', 0) != std::string::npos)
-			count++;
+		lineNumber++;
+		ignoreComments(line);
+		for (std::string::iterator it = line.begin(); it != line.end(); ++it)
+		{
+			if (*it == '{')
+				count++;
+			else if (*it == '}')
+				count--;
+			if (count < 0)
+			{
+				std::cout << "Error: Config file format invalid: unexpected '}' at line " << lineNumber << "\n";
+				return (-1);
+			}
+		}
 	}
 	if (count != 0)
 	{
-		std::cout << "Error: Config file format invalid: brackets\n";
+		std::cout << "Error: Config file format invalid: unclosed '{' (missing " << count << " '}')\n";
 		return (-1);
 	}
 	return (0);
+}
+
+bool isBlockHeader(std::string line, const std::string& blockName)
+{
+	ignoreComments(line);
+
+	if (line.find('{') == std::string::npos)
+		return (false);
+
+	std::vector<std::string> tokens = ftSplit(line, ' ');
+	cleanStrings(tokens);
+
+	if (tokens.empty())
+		return (false);
+	if (tokens.at(0) == blockName)
+		return (true);
+	if (tokens.at(0) == blockName + "{")
+		return (true);
+	return (false);
 }

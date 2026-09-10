@@ -95,11 +95,11 @@ std::string RequestHandler::handleGet(const Request &request, const Location &lo
 			else
 				return (Response::fromError(403, "Forbidden: Index file not found", &location).serialize());
 		}
-		res = Response::fromStaticFile(fullPath); // If index file exists, serve it
+		res = Response::fromStaticFile(fullPath, &location); // If index file exists, serve it
 	}
 	else
 	{
-		res = Response::fromStaticFile(fullPath); // If not a directory, serve the file
+		res = Response::fromStaticFile(fullPath, &location); // If not a directory, serve the file
 	}
 	res.setHeader("Connection", "close"); // keep-alive is out of scope (issue #10)
 	return (res.serialize());
@@ -123,16 +123,16 @@ std::string RequestHandler::handleDelete(const Request &request, const Location 
 	std::cerr << "[DEBUG] handle delete path: " << fullPath << "\n";
 
 	if(stat(fullPath.c_str(), &fileStats) != 0) //file does not exist
-		return (Response::fromError(404).serialize());
+		return (Response::fromError(404, NULL, &location).serialize());
 
 	if (S_ISDIR(fileStats.st_mode)) //cant delete diretories
-		return (Response::fromError(403, "Forbidden: Directory deletion not allowed").serialize());
+		return (Response::fromError(403, "Forbidden: Directory deletion not allowed", &location).serialize());
 
 	if(access(fullPath.c_str(), W_OK) != 0) //no writing permission
-		return (Response::fromError(403, "Forbidden: No write permission").serialize());
+		return (Response::fromError(403, "Forbidden: No write permission", &location).serialize());
 	
 	if(std::remove(fullPath.c_str()) == 0)
 		return ("HTTP/1.1 204 No Content\r\nServer: webserv\r\nConnection: close\r\n\r\n"); //sucess, 204 and no cotent in the body is default
 	else
-		return (Response::fromError(500, "Internal Server Error").serialize()); //unexpeted errro on delete
+		return (Response::fromError(500, "Internal Server Error", &location).serialize()); //unexpeted errro on delete
 }

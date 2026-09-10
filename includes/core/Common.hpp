@@ -31,6 +31,7 @@
 #include <ServerBlock.hpp>
 #include <Location.hpp>
 #include <Config.hpp>
+#include <ConfigParser.hpp>
 #include <Request.hpp>
 #include <Client.hpp>
 #include <HttpException.hpp>
@@ -68,6 +69,4 @@ void parseConfigInfo(Config& configs);
 
 // debug
 void printConfigs(Config& configs);
-void debugVectorPrint(std::vector<std::string> buff);
-void debug(int value);
 
