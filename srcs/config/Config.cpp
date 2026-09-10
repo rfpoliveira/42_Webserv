@@ -1,4 +1,6 @@
 #include "../../includes/config/Config.hpp"
+#include "../../includes/utils/Utils.hpp"
+#include "../../includes/config/ConfigParser.hpp"
 #include "../../includes/config/ServerBlock.hpp"
 #include "../../includes/exceptions/ConfigException.hpp"
 #include <cstddef>
@@ -13,16 +15,38 @@ Config::Config(std::string configFile)
 	std::string line;
 	std::ifstream file(configFile.c_str());
 	numberServerBlocks = 0;
+	int depth = 0;
 
 	while(std::getline(file, line))
 	{
-		if (line == "server {")
+		std::string probe = line;
+		ignoreComments(probe);
+		std::vector<std::string> tokens = ftSplit(probe, ' ');
+		cleanStrings(tokens);
+		bool opensBlock = (probe.find('{') != std::string::npos);
+
+		if (!tokens.empty() && opensBlock)
 		{
-			this->numberServerBlocks++;
-			this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
+			if (isBlockHeader(line, "server"))
+			{
+				this->numberServerBlocks++;
+				this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
+			}
+			else if (depth == 0 && !isBlockHeader(line, "http") && !isBlockHeader(line, "events"))
+				throw ConfigException("Unknown block: " + tokens.at(0));
+		}
+		for (std::string::iterator it = line.begin(); it != line.end(); ++it)
+		{
+			if (*it == '{')
+				depth++;
+			else if (*it == '}' && depth > 0)
+				depth--;
 		}
 	}
 	file.close();
+
+	if (this->numberServerBlocks == 0)
+		throw ConfigException("No server block found in config file");
 
 	std::vector<ServerBlock>::iterator it;
 	std::vector<ServerBlock>::iterator it2;

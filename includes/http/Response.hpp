@@ -21,9 +21,9 @@ class Response
 		void setBody(const std::string &body);
 
 		static std::string reasonPhrase(int code);
-		static Response fromStaticFile(const std::string &fullPath);
+		static Response fromStaticFile(const std::string &fullPath, const Location *loc=NULL);
 		static Response fromAutoIndex(const Location &loc, const std::string &requestUri);
-
+		static Response fromRedirect(int code, const std::string &newLocation);
 		static Response fromError(int code, const char *detail=NULL, const Location *loc=NULL);
 		std::string serialize() const;
 };

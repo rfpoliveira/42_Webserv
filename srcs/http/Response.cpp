@@ -9,6 +9,18 @@
 #include <unistd.h>
 #include <dirent.h>
 
+// RAII guard: closedir() runs on EVERY exit path (normal return or exception),
+// so the directory stream can never leak even if we return mid-loop.
+namespace
+{
+	struct DirGuard
+	{
+		DIR *dir;
+		DirGuard(DIR *d) : dir(d) {}
+		~DirGuard() { if (dir) closedir(dir); }
+	};
+}
+
 Response::Response() : _code(200), _reason("OK"), _body("")
 {
 
@@ -73,7 +85,7 @@ std::string Response::reasonPhrase(int code)
 	}
 }
 
-Response Response::fromStaticFile(const std::string &fullPath)
+Response Response::fromStaticFile(const std::string &fullPath, const Location *loc)
 {
 	Response res;
 	char buf[64];
@@ -81,14 +93,14 @@ Response Response::fromStaticFile(const std::string &fullPath)
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", gmtime(&now));
 	struct stat st;
 	if (stat(fullPath.c_str(), &st) != 0)   // does not exist
-		return (fromError(404));
+		return (fromError(404, NULL, loc));
 	if (S_ISDIR(st.st_mode))                // a directory (listing is issue #14)
-		return (fromError(403));
+		return (fromError(403, NULL, loc));
 	if (access(fullPath.c_str(), R_OK) != 0) // exists but not readable
-		return (fromError(403));
+		return (fromError(403, NULL, loc));
 	std::ifstream file(fullPath.c_str(), std::ios::in | std::ios::binary);
 	if (!file)
-		return (fromError(404));
+		return (fromError(404, NULL, loc));
 	std::ostringstream oss;
 	oss << file.rdbuf();
 	res.setBody(oss.str());
@@ -101,18 +113,6 @@ Response Response::fromStaticFile(const std::string &fullPath)
 	res.setHeader("Content-Type", MimeTypes::getType(fullPath));
 	res.setHeader("Content-Length", len.str());
 	return (res);
-}
-
-// RAII guard: closedir() runs on EVERY exit path (normal return or exception),
-// so the directory stream can never leak even if we return mid-loop.
-namespace
-{
-	struct DirGuard
-	{
-		DIR *dir;
-		DirGuard(DIR *d) : dir(d) {}
-		~DirGuard() { if (dir) closedir(dir); }
-	};
 }
 
 Response Response::fromAutoIndex(const Location &loc, const std::string &requestUri)
@@ -155,6 +155,17 @@ Response Response::fromAutoIndex(const Location &loc, const std::string &request
 	res.setHeader("Connection", "close");
 	return (res);
 	// guard destructor runs here -> closedir(raw)
+}
+
+Response Response::fromRedirect(int code, const std::string &newLocation)
+{
+	Response res;
+	res.setStatus(code, reasonPhrase(code));
+	res.setHeader("Location", newLocation);
+	res.setHeader("Content-Length", "0");
+	res.setHeader("Server", "webserver");
+	res.setHeader("Connection", "close");
+	return (res);
 }
 
 Response Response::fromError(int code, const char *detail, const Location *loc)

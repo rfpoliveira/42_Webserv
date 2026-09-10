@@ -1,4 +1,5 @@
 #include <CgiHandler.hpp>
+#include "../../includes/utils/Utils.hpp"
 
 CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Config& config, const Request& request): 
 	_scriptPath(_scriptPath), _client(client), _config(config), _request(request), _isValid(false)

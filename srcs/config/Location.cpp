@@ -1,4 +1,5 @@
 #include "../../includes/config/Location.hpp"
+#include "../../includes/utils/Utils.hpp"
 #include "../../includes/exceptions/HttpException.hpp"
 
 Location::Location()
@@ -9,19 +10,81 @@ Location::Location()
 	POST = false;
 	DELETE = false;
 	autoindex = false;
-	redirection = "";
+	redirectionFolder = "";
+	redirectionCode = 0;
 	uploadPath = "";
 	index = "index.html";
 	maxBodySize = 0;
+};
+
+Location::Location(std::string locationStr)
+{
+	root = "";
+	path = "";
+	GET = true;
+	POST = false;
+	DELETE = false;
+	autoindex = false;
+	redirectionFolder = "";
+	redirectionCode = 0;
+	uploadPath = "";
+	index = "index.html";
+	maxBodySize = 0;
+
+	std::istringstream iss(locationStr);
+	std::string line;
+
+	while(getline(iss, line))
+	{
+		size_t start = line.find_first_not_of(" \t\r\v");
+		if (start == std::string::npos || line[start] == '#')
+			continue;
+		checkLineLocation(line);
+	}
+};
+
+Location::Location(const Location& other)
+{
+	this->path = other.path;
+	this->root = other.root;
+	this->GET = other.GET;
+	this->POST = other.POST;
+	this->DELETE = other.DELETE;
+	this->autoindex = other.autoindex;
+	this->index = other.index;
+	this->redirectionFolder = other.redirectionFolder;
+	this->redirectionCode = other.redirectionCode;
+	this->uploadPath = other.uploadPath;
+	this->maxBodySize = other.maxBodySize;
+	this->errorPages = other.errorPages;
+};
+
+Location& Location::operator=(const Location& other)
+{
+	if (this != &other)
+	{
+		this->path = other.path;
+		this->root = other.root;
+		this->GET = other.GET;
+		this->POST = other.POST;
+		this->DELETE = other.DELETE;
+		this->autoindex = other.autoindex;
+		this->index = other.index;
+		this->redirectionFolder = other.redirectionFolder;
+		this->redirectionCode = other.redirectionCode;
+		this->uploadPath = other.uploadPath;
+		this->maxBodySize = other.maxBodySize;
+		this->errorPages = other.errorPages;
+	}
+	return (*this);
 };
 
 //check for a keyword and stores the information associated in the right place in the class
 
 void Location::checkLineLocation(std::string line)
 {
-
 	ignoreComments(line);
-
+	
 	std::vector<std::string> tokens = ftSplit(line, ' ');
 
 	cleanStrings(tokens);
@@ -76,67 +139,14 @@ void Location::checkLineLocation(std::string line)
 	{
 		if (tokens.size() < 3)
 			throw ConfigException("Invalid return in Location");
-		redirection = tokens.at(i + 2);
+		redirectionFolder = tokens.at(i + 2);
+		redirectionCode = atoi(tokens.at(i + 1).c_str());
 	}
 	else if (tokens.at(i) == "upload_path")
 		uploadPath = tokens.at(i + 1);
 	else
 		throw ConfigException("Invalid config Location");
 	return ;
-};
-
-Location::Location(std::string locationStr)
-{
-	root = "";
-	path = "";
-	GET = true;
-	POST = false;
-	DELETE = false;
-	autoindex = false;
-	redirection = "";
-	uploadPath = "";
-	index = "index.html";
-	maxBodySize = 0;
-
-	std::istringstream iss(locationStr);
-	std::string line;
-
-	while(getline(iss, line))
-		checkLineLocation(line);
-};
-
-Location::Location(const Location& other)
-{
-	this->path = other.path;
-	this->root = other.root;
-	this->GET = other.GET;
-	this->POST = other.POST;
-	this->DELETE = other.DELETE;
-	this->autoindex = other.autoindex;
-	this->index = other.index;
-	this->redirection = other.redirection;
-	this->uploadPath = other.uploadPath;
-	this->maxBodySize = other.maxBodySize;
-	this->errorPages = other.errorPages;
-};
-
-Location& Location::operator=(const Location& other)
-{
-	if (this != &other)
-	{
-		this->path = other.path;
-		this->root = other.root;
-		this->GET = other.GET;
-		this->POST = other.POST;
-		this->DELETE = other.DELETE;
-		this->autoindex = other.autoindex;
-		this->index = other.index;
-		this->redirection = other.redirection;
-		this->uploadPath = other.uploadPath;
-		this->maxBodySize = other.maxBodySize;
-		this->errorPages = other.errorPages;
-	}
-	return (*this);
 };
 
 bool Location::isMethodallowed(std::string method) const

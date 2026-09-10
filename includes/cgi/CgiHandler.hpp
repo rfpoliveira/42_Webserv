@@ -2,6 +2,7 @@
 
 #include "../http/Request.hpp"
 #include "../server/Client.hpp"
+#include "../config/Config.hpp"
 #include "../exceptions/HttpException.hpp"
 #include "csignal"
 #include <sys/types.h>
@@ -34,3 +35,5 @@ class CgiHandler
 		int getWriteFd() const;
 		pid_t getPid() const;
 };
+
+void freeEnvp(char** envp);
