@@ -1,9 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <map>
-#include "Config.hpp"
+#include <Common.hpp>
 
 void parseConfigFile(std::string configFile);
 void parseConfigInfo(Config& configs);

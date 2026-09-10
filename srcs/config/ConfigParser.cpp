@@ -1,5 +1,4 @@
-#include "../../includes/config/ConfigParser.hpp"
-#include "../../includes/exceptions/ConfigException.hpp"
+#include <Common.hpp>
 
 //check if the file exist of can be opened (valid_file_check)
 //checks if the brackets are okay

@@ -1,4 +1,4 @@
-#include "../../includes/exceptions/ConfigException.hpp"
+#include <ConfigException.hpp>
 
 ConfigException::ConfigException(const std::string& msg)
 {

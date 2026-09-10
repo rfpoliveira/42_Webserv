@@ -1,6 +1,4 @@
-#include "../../includes/http/MimeTypes.hpp"
-#include <algorithm>
-#include <cctype>
+#include <Common.hpp>
 
 std::map<std::string, std::string> MimeTypes::_types;
 

@@ -1,6 +1,4 @@
-#include "../../includes/http/Request.hpp"
-#include "../../includes/utils/Utils.hpp"
-#include <cctype>
+#include <Common.hpp>
 
 static void trim(std::string& s)
 {

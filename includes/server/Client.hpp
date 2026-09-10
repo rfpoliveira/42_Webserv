@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../http/Request.hpp"
-#include <ctime>
+#include <Common.hpp>
 
 class Client
 {
 	public:
-		enum State { READING, PROCESSING, WRITING, DONE };
+		enum State { READING, PROCESSING, WRITING, CGI_WAITING, DONE };
 
 	private:
 		int _fd;

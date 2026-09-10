@@ -1,6 +1,4 @@
-#include "../../includes/config/ServerBlock.hpp"
-#include "../../includes/utils/Utils.hpp"
-#include "../../includes/config/ConfigParser.hpp"
+#include <Common.hpp>
 
 ServerBlock::ServerBlock()
 {
