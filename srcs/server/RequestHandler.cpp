@@ -10,7 +10,7 @@ bool isCgiRequest(std::string path)
 	return(false);
 }
 
-std::string buildfullpath(const std::string& root, const std::string& urlPath)
+std::string RequestHandler::buildFullPath(const std::string& root, const std::string& urlPath)
 {
 	std::string fullPath = root;
 	if (!fullPath.empty() && fullPath[fullPath.size() - 1] == '/')
@@ -36,25 +36,28 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
     	std::cerr << "[DEBUG] location.root=" << location->root << "\n";	
 
 	if (location && path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
-		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(403).serialize(), NULL));
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(403, NULL, location).serialize(), NULL));
 
 	if (!location)
-		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404).serialize(), NULL));
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404, NULL, location).serialize(), NULL));
 
-	path = buildfullpath(location->root, path);
+	path = RequestHandler::buildFullPath(location->root, path);
 
 	if (!location->isMethodallowed(request.requestMethod))
-		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(405).serialize(), NULL));
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(405, NULL, location).serialize(), NULL));
 
 	if (isCgiRequest(path))
 	{
+
+		std::cerr << "[DEBUG] Detected CGI\n";
+
 		struct stat sb;
 		if (stat(path.c_str(), &sb))
-			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404).serialize(), NULL));
+			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404, NULL, location).serialize(), NULL));
 
 		CgiSession *session = new CgiSession(path, client, config, request);
 		if (!session->handler.execute())
-			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(500).serialize(), NULL));
+			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(500, NULL, location).serialize(), NULL));
         return (HandlerOutcome(CGI_PENDING, "", session));
 	}
 	// Until here I have general checks. From now and on I can handle the request based on the method
@@ -64,12 +67,12 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 		return (HandlerOutcome(CGI_COMPLETE, handlePost(request, *location), NULL));
 	else if (request.requestMethod == "DELETE")
 		return (HandlerOutcome(CGI_COMPLETE, handleDelete(request, *location), NULL));
-	return (HandlerOutcome(CGI_COMPLETE, Response::fromError(501).serialize(), NULL));
+	return (HandlerOutcome(CGI_COMPLETE, Response::fromError(501, NULL, location).serialize(), NULL));
 }
 
 std::string RequestHandler::handleGet(const Request &request, const Location &location)
 {
-	std::string fullPath = buildfullpath(location.root, request.resourcePath);
+	std::string fullPath = RequestHandler::buildFullPath(location.root, request.resourcePath);
 	std::cerr << "[DEBUG] handleGet trying fullPath=[" << fullPath << "]\n";
 
 	Response res;
@@ -77,7 +80,7 @@ std::string RequestHandler::handleGet(const Request &request, const Location &lo
 	if (stat(fullPath.c_str(), &fileStats) != 0)
 	{
 		std::cerr << "[DEBUG] stat failed errno=" << errno << " (" << strerror(errno) << ")\n";
-    	return (Response::fromError(404).serialize());
+    	return (Response::fromError(404, NULL, &location).serialize());
 	}
 
 	if (S_ISDIR(fileStats.st_mode)) // Is a directory?
@@ -90,7 +93,7 @@ std::string RequestHandler::handleGet(const Request &request, const Location &lo
 			if (location.autoindex)
 				return (Response::fromAutoIndex(location, request.resourcePath).serialize());
 			else
-				return (Response::fromError(403, "Forbidden: Index file not found").serialize());
+				return (Response::fromError(403, "Forbidden: Index file not found", &location).serialize());
 		}
 		res = Response::fromStaticFile(fullPath); // If index file exists, serve it
 	}
@@ -113,7 +116,7 @@ std::string RequestHandler::handlePost(const Request &request, const Location &l
 
 std::string RequestHandler::handleDelete(const Request &request, const Location &location)
 {
-	std::string fullPath = buildfullpath(location.root, request.resourcePath);
+	std::string fullPath = RequestHandler::buildFullPath(location.root, request.resourcePath);
 
 	struct stat fileStats;
 

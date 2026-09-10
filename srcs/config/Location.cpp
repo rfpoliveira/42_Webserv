@@ -79,6 +79,11 @@ void Location::checkLineLocation(std::string line)
 	}
 	else if (tokens.at(i) == "upload_path")
 		uploadPath = tokens.at(i + 1);
+	else if (tokens.at(i) == "error_page")
+	{
+		if (addErrorPage(errorPages, tokens) != 0)
+			throw ConfigException("Invalid Location error page config");
+	}
 	else
 		throw ConfigException("Invalid config Location");
 	return ;

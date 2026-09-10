@@ -48,6 +48,8 @@ void printConfigs(Config& configs)
 			std::cout << "index: " << (*itLoc).index << "\n";
 			std::cout << "redirection: " << (*itLoc).redirection<< "\n";
 			std::cout << "upload_path: " << (*itLoc).uploadPath << "\n";
+			for (itMap = (*itLoc).errorPages.begin(); itMap != (*itLoc).errorPages.end();itMap++)
+				std::cout << "error page: " << (*itMap).first << ", " << (*itMap).second << "\n";
 		}
 			i++;
 	}

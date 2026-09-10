@@ -259,7 +259,10 @@ Response Response::fromError(int code, const char *detail, const Location *loc)
 		std::map<int, std::string>::const_iterator it = loc->errorPages.find(code);
 		if (it != loc->errorPages.end())
 		{
-			std::string filePath = it->second;
+			std::string filePath = RequestHandler::buildFullPath(loc->root, it->second);
+
+			std::cerr << "[DEBUG] Error page path in loc:" << filePath << "\n";
+
 			std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
 			if (file)
 			{
@@ -278,6 +281,8 @@ Response Response::fromError(int code, const char *detail, const Location *loc)
 			// file missing/unreadable -> fall through to the generated page
 		}
 	}
+
+	std::cerr << "[DEBUG] No default error page, falling back to default\n";
 
 	// 2) Fallback: generate a default error page.
 	std::ostringstream body;

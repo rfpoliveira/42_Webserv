@@ -13,4 +13,5 @@ class RequestHandler
 
 	public:
 		static HandlerOutcome handler(const Client &client, const Config &config);
+		static std::string buildFullPath(const std::string& root, const std::string& urlPath);
 };
