@@ -3,6 +3,7 @@
 #include <CgiHandler.hpp>
 #include <sstream>
 #include <cstdlib>
+#include <fstream>
 #include <sys/stat.h>
 
 std::string RequestHandler::handler(const Client& client, const Config& config)
@@ -70,11 +71,48 @@ std::string RequestHandler::handleGet(const Request &request, const Location &lo
 
 std::string RequestHandler::handlePost(const Request &request, const Location &location)
 {
+	// 1. Reject bodies larger than this route allows.
 	std::string contentLengthHeader = request.getHeader("Content-Length");
 	unsigned long bodySize = contentLengthHeader.empty() ? 0 : std::strtoul(contentLengthHeader.c_str(), NULL, 10);
 	if (bodySize > location.maxBodySize)
 		return (Response::fromError(413, NULL, &location).serialize());
-	return Response::fromError(501, NULL, &location).serialize();
+
+	// 2. POST is an upload here: the route must define where uploads are stored.
+	if (location.uploadPath.empty())
+		return (Response::fromError(403, "Upload not allowed on this route", &location).serialize());
+
+	// 3. Derive the target filename from the last path segment and sanitize it,
+	//    so a client cannot escape uploadPath (e.g. /upload/../../etc/passwd).
+	std::string name = request.resourcePath;
+	size_t slash = name.find_last_of('/');
+	if (slash != std::string::npos)
+		name = name.substr(slash + 1);
+	if (name.empty() || name.find("..") != std::string::npos)
+		return (Response::fromError(400, "Invalid upload filename", &location).serialize());
+
+	// 4. Build the full destination path: uploadPath + "/" + name.
+	std::string dest = location.uploadPath;
+	if (dest.empty() || dest[dest.size() - 1] != '/')
+		dest += '/';
+	dest += name;
+
+	// 5. Write the request body to disk. Regular files are exempt from poll(),
+	//    so a direct write is allowed by the subject.
+	std::ofstream out(dest.c_str(), std::ios::binary | std::ios::trunc);
+	if (!out.is_open())
+		return (Response::fromError(500, "Cannot open upload target", &location).serialize());
+	out.write(request.body.data(), request.body.size());
+	out.close();
+	if (out.fail())
+		return (Response::fromError(500, "Failed to write upload", &location).serialize());
+
+	// 6. Success: 201 Created, pointing at the newly created resource.
+	Response res;
+	res.setStatus(201, Response::reasonPhrase(201));
+	res.setHeader("Location", request.resourcePath);
+	res.setHeader("Connection", "close");
+	res.setBody("File uploaded\n");
+	return (res.serialize());
 }
 
 std::string RequestHandler::handleDelete(const Request &request, const Location &location)
