@@ -16,6 +16,10 @@ Config::Config(std::string configFile)
 	std::ifstream file(configFile.c_str());
 	numberServerBlocks = 0;
 	int depth = 0;
+	bool insideHttp = false;
+	bool httpSeen = false;
+	int httpDepth = -1;
+	std::string pendingHeader; // block keyword seen, waiting for its '{' (allows brace on next line)
 
 	while(std::getline(file, line))
 	{
@@ -23,28 +27,74 @@ Config::Config(std::string configFile)
 		ignoreComments(probe);
 		std::vector<std::string> tokens = ftSplit(probe, ' ');
 		cleanStrings(tokens);
-		bool opensBlock = (probe.find('{') != std::string::npos);
 
-		if (!tokens.empty() && opensBlock)
+		// A block keyword may sit on its own line, with '{' on a following line.
+		// Remember it as pending; it is validated when its '{' is actually consumed.
+		if (!tokens.empty())
 		{
-			if (isBlockHeader(line, "server"))
+			std::string first = tokens.at(0);
+			if (first == "http" || first == "http{")
+				pendingHeader = "http";
+			else if (first == "events" || first == "events{")
+				pendingHeader = "events";
+			else if (first == "server" || first == "server{")
+				pendingHeader = "server";
+			else if (first == "{")
+				; // pure brace line: keep whatever header is pending
+			else if (probe.find('{') != std::string::npos && depth <= (insideHttp ? httpDepth + 1 : 0))
 			{
-				this->numberServerBlocks++;
-				this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
+				// an unknown block opening at top level or directly inside http
+				if (depth == 0)
+					throw ConfigException("Unknown top-level block: " + first);
+				if (insideHttp && depth == httpDepth + 1)
+					throw ConfigException("Unknown block inside 'http': " + first);
 			}
-			else if (depth == 0 && !isBlockHeader(line, "http") && !isBlockHeader(line, "events"))
-				throw ConfigException("Unknown block: " + tokens.at(0));
 		}
+
+		// Consume braces on this line one at a time so a pending header is
+		// validated exactly when its opening '{' appears.
 		for (std::string::iterator it = line.begin(); it != line.end(); ++it)
 		{
 			if (*it == '{')
+			{
+				if (pendingHeader == "http")
+				{
+					if (depth != 0)
+						throw ConfigException("'http' block must be at the top level");
+					if (httpSeen)
+						throw ConfigException("Only one 'http' block is allowed");
+					httpSeen = true;
+					insideHttp = true;
+					httpDepth = depth;
+				}
+				else if (pendingHeader == "events")
+				{
+					if (depth != 0)
+						throw ConfigException("'events' block must be at the top level");
+					// events is optional and ignored; its contents are not parsed
+				}
+				else if (pendingHeader == "server")
+				{
+					if (!insideHttp || depth != httpDepth + 1)
+						throw ConfigException("'server' block is only allowed directly inside the 'http' block");
+					this->numberServerBlocks++;
+					this->serverBlocks.push_back(ServerBlock(this->numberServerBlocks, configFile));
+				}
+				pendingHeader.clear();
 				depth++;
+			}
 			else if (*it == '}' && depth > 0)
+			{
 				depth--;
+				if (insideHttp && depth == httpDepth)
+					insideHttp = false;
+			}
 		}
 	}
 	file.close();
 
+	if (!httpSeen)
+		throw ConfigException("No 'http' block found in config file");
 	if (this->numberServerBlocks == 0)
 		throw ConfigException("No server block found in config file");
 
