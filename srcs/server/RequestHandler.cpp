@@ -1,50 +1,87 @@
-#include <Response.hpp>
 #include <RequestHandler.hpp>
-#include <CgiHandler.hpp>
-#include <sstream>
-#include <cstdlib>
-#include <sys/stat.h>
+#include <HandlerOutcome.hpp>
 
-std::string RequestHandler::handler(const Client& client, const Config& config)
+bool isCgiRequest(std::string path)
+{
+	if (path.find(".py") != std::string::npos ||
+		path.find(".php") != std::string::npos ||
+		path.find(".pl") != std::string::npos)
+		return (true);
+	return(false);
+}
+
+std::string RequestHandler::buildFullPath(const std::string& root, const std::string& urlPath)
+{
+	std::string fullPath = root;
+	if (!fullPath.empty() && fullPath[fullPath.size() - 1] == '/')
+		fullPath.erase(fullPath.size() - 1);
+
+	if (!urlPath.empty() && urlPath[0] != '/')
+		fullPath += "/";
+
+	fullPath += urlPath;
+	return fullPath;
+}
+
+HandlerOutcome RequestHandler::handler(const Client& client, const Config& config)
 {
 	const Request& request = client.getRequest();
 	std::string path = request.resourcePath;
 
 	const Location* location = config.getLocation(client.getPort(), path);
+
+	std::cerr << "[DEBUG] location match for path=" << path
+          << " found=" << (location != NULL) << "\n";
+	if (location)
+    	std::cerr << "[DEBUG] location.root=" << location->root << "\n";	
+
+	if (location && path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(403, NULL, location).serialize(), NULL));
+
 	if (!location)
-		return (Response::fromError(404).serialize());
-	if (location->redirectionCode != 0)
-		return (Response::fromRedirect(location->redirectionCode, location->redirectionFolder).serialize());
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404, NULL, location).serialize(), NULL));
+
+	path = RequestHandler::buildFullPath(location->root, path);
+
 	if (!location->isMethodallowed(request.requestMethod))
-		return (Response::fromError(405, NULL, location).serialize());
-	if (path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
-		return (Response::fromError(403, NULL, location).serialize());
-	if (path.find(".py") != std::string::npos ||
-		path.find(".php") != std::string::npos ||
-		path.find(".pl") != std::string::npos)
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(405, NULL, location).serialize(), NULL));
+
+	if (isCgiRequest(path))
 	{
-		CgiHandler cgiHandler(path, client, config, request);
-		if (!cgiHandler.execute())
-			return (Response::fromError(500, NULL, location).serialize());
-		return (Response::fromError(501, NULL, location).serialize());
+
+		std::cerr << "[DEBUG] Detected CGI\n";
+
+		struct stat sb;
+		if (stat(path.c_str(), &sb))
+			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404, NULL, location).serialize(), NULL));
+
+		CgiSession *session = new CgiSession(path, client, config, request);
+		if (!session->handler.execute())
+			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(500, NULL, location).serialize(), NULL));
+        return (HandlerOutcome(CGI_PENDING, "", session));
 	}
 	// Until here I have general checks. From now and on I can handle the request based on the method
 	if (request.requestMethod == "GET")
-		return (handleGet(request, *location));
+		return (HandlerOutcome(CGI_COMPLETE, handleGet(request, *location), NULL));
 	else if (request.requestMethod == "POST")
-		return (handlePost(request, *location));
+		return (HandlerOutcome(CGI_COMPLETE, handlePost(request, *location), NULL));
 	else if (request.requestMethod == "DELETE")
-		return (handleDelete(request, *location));
-	return (Response::fromError(501, NULL, location).serialize());
+		return (HandlerOutcome(CGI_COMPLETE, handleDelete(request, *location), NULL));
+	return (HandlerOutcome(CGI_COMPLETE, Response::fromError(501, NULL, location).serialize(), NULL));
 }
 
 std::string RequestHandler::handleGet(const Request &request, const Location &location)
 {
-	std::string fullPath = location.root + request.resourcePath;
+	std::string fullPath = RequestHandler::buildFullPath(location.root, request.resourcePath);
+	std::cerr << "[DEBUG] handleGet trying fullPath=[" << fullPath << "]\n";
+
 	Response res;
 	struct stat fileStats;
 	if (stat(fullPath.c_str(), &fileStats) != 0)
+	{
+		std::cerr << "[DEBUG] stat failed errno=" << errno << " (" << strerror(errno) << ")\n";
     	return (Response::fromError(404, NULL, &location).serialize());
+	}
 
 	if (S_ISDIR(fileStats.st_mode)) // Is a directory?
 	{
@@ -79,9 +116,11 @@ std::string RequestHandler::handlePost(const Request &request, const Location &l
 
 std::string RequestHandler::handleDelete(const Request &request, const Location &location)
 {
-	std::string fullPath = location.root + request.resourcePath;
+	std::string fullPath = RequestHandler::buildFullPath(location.root, request.resourcePath);
 
 	struct stat fileStats;
+
+	std::cerr << "[DEBUG] handle delete path: " << fullPath << "\n";
 
 	if(stat(fullPath.c_str(), &fileStats) != 0) //file does not exist
 		return (Response::fromError(404, NULL, &location).serialize());
