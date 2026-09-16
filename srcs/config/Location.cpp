@@ -1,6 +1,4 @@
-#include "../../includes/config/Location.hpp"
-#include "../../includes/utils/Utils.hpp"
-#include "../../includes/exceptions/HttpException.hpp"
+#include <Common.hpp>
 
 Location::Location()
 {
@@ -144,6 +142,11 @@ void Location::checkLineLocation(std::string line)
 	}
 	else if (tokens.at(i) == "upload_path")
 		uploadPath = tokens.at(i + 1);
+	else if (tokens.at(i) == "error_page")
+	{
+		if (addErrorPage(errorPages, tokens) != 0)
+			throw ConfigException("Invalid Location error page config");
+	}
 	else
 		throw ConfigException("Invalid config Location");
 	return ;
@@ -158,7 +161,7 @@ bool Location::isMethodallowed(std::string method) const
 	else if(method == "POST")
 		return(this->POST);
 	else
-		throw HttpException(2, "Method not allowed");
+		return false;
 }
 
 void Location::applyServerBlockDefaults(const ServerBlock& ServerBlock)

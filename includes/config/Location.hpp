@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../core/Common.hpp"
-#include "../../includes/config/ServerBlock.hpp"
-#include "../../includes/exceptions/ConfigException.hpp"
+#include <Common.hpp>
 
 class ServerBlock;
 

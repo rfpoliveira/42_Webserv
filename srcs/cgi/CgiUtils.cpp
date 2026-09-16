@@ -1,5 +1,4 @@
-#include "../../includes/utils/Utils.hpp"
-#include "../../includes/cgi/CgiHandler.hpp"
+#include <Common.hpp>
 
 std::string intToString(int value)
 {
