@@ -19,6 +19,7 @@ CgiHandler::CgiHandler(std::string &_scriptPath, const Client& client, const Con
 	_pipeIn[1] = -1;
 	_pipeOut[0] = -1;
 	_pipeOut[1] = -1;
+	_isValid = false;
 
 	if (_scriptPath.find(".py") != std::string::npos)
 		_cgiExten = ".py";

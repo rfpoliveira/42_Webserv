@@ -70,7 +70,7 @@ std::string Response::reasonPhrase(int code)
 		case 405: return ("Method Not Allowed");
 		case 413: return ("Payload Too Large");
 		case 500: return ("Internal Server Error");
-		case 502: return ("Bad Gateaway");
+		case 502: return ("Bad Gateway");
 		case 501: return ("Not Implemented");
 		case 504: return ("Gateway Timeout");
 		default:  return ("Unknown");
@@ -246,7 +246,7 @@ Response Response::fromAutoIndex(const Location &loc, const std::string &request
 	// guard destructor runs here -> closedir(raw)
 }
 
-Response Response::fromRedirect(int code, const std::string &newLocation)
+Response Response::fromRedirect(int code, const std::string &newLocation) 
 {
 	Response res;
 	res.setStatus(code, reasonPhrase(code));
@@ -272,7 +272,7 @@ Response Response::fromError(int code, const char *detail, const Location *loc)
 		{
 			std::string filePath = RequestHandler::buildFullPath(loc->root, it->second);
 
-			std::cerr << "[DEBUG] Error page path in loc:" << filePath << "\n";
+			//std::cerr << "[DEBUG] Error page path in loc:" << filePath << "\n";
 
 			std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
 			if (file)
@@ -293,7 +293,7 @@ Response Response::fromError(int code, const char *detail, const Location *loc)
 		}
 	}
 
-	std::cerr << "[DEBUG] No default error page, falling back to default\n";
+	//std::cerr << "[DEBUG] No default error page, falling back to default\n";
 
 	// 2) Fallback: generate a default error page.
 	std::ostringstream body;
