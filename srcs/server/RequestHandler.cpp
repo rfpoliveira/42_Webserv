@@ -30,16 +30,19 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 
 	const Location* location = config.getLocation(client.getPort(), path);
 
-	std::cerr << "[DEBUG] location match for path=" << path
-          << " found=" << (location != NULL) << "\n";
-	if (location)
-    	std::cerr << "[DEBUG] location.root=" << location->root << "\n";	
+	//std::cerr << "[DEBUG] location match for path=" << path
+          //<< " found=" << (location != NULL) << "\n";
+	//if (location)
+    	//std::cerr << "[DEBUG] location.root=" << location->root << "\n";	
 
 	if (location && path.find("..") != std::string::npos) // reject traversal escaping the root (before CGI!)
 		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(403, NULL, location).serialize(), NULL));
 
 	if (!location)
 		return (HandlerOutcome(CGI_COMPLETE, Response::fromError(404, NULL, location).serialize(), NULL));
+
+	if (location->redirectionCode != 0)
+		return (HandlerOutcome(CGI_COMPLETE, Response::fromRedirect(location->redirectionCode, location->redirectionFolder).serialize(), NULL));
 
 	path = RequestHandler::buildFullPath(location->root, path);
 
@@ -49,7 +52,7 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 	if (isCgiRequest(path))
 	{
 
-		std::cerr << "[DEBUG] Detected CGI\n";
+		// Detected CGI\n";
 
 		struct stat sb;
 		if (stat(path.c_str(), &sb))
@@ -57,7 +60,10 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 
 		CgiSession *session = new CgiSession(path, client, config, request);
 		if (!session->handler.execute())
+		{
+			delete session;
 			return (HandlerOutcome(CGI_COMPLETE, Response::fromError(500, NULL, location).serialize(), NULL));
+		}
         return (HandlerOutcome(CGI_PENDING, "", session));
 	}
 	// Until here I have general checks. From now and on I can handle the request based on the method
@@ -73,13 +79,14 @@ HandlerOutcome RequestHandler::handler(const Client& client, const Config& confi
 std::string RequestHandler::handleGet(const Request &request, const Location &location)
 {
 	std::string fullPath = RequestHandler::buildFullPath(location.root, request.resourcePath);
-	std::cerr << "[DEBUG] handleGet trying fullPath=[" << fullPath << "]\n";
+
+	//std::cerr << "[DEBUG] handleGet trying fullPath=[" << fullPath << "]\n";
 
 	Response res;
 	struct stat fileStats;
 	if (stat(fullPath.c_str(), &fileStats) != 0)
 	{
-		std::cerr << "[DEBUG] stat failed errno=" << errno << " (" << strerror(errno) << ")\n";
+		//std::cerr << "[DEBUG] stat failed errno=" << errno << " (" << strerror(errno) << ")\n";
     	return (Response::fromError(404, NULL, &location).serialize());
 	}
 
